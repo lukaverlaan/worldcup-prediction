@@ -1,8 +1,14 @@
 package be.lukaverlaan.ewdj.worldcup.controller;
 
+import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.form.RegistrationForm;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,7 +38,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("registrationForm") RegistrationForm form,
-                           BindingResult result, Model model) {
+                           BindingResult result, Model model, HttpServletRequest request) {
         if (!form.getPassword().equals(form.getConfirmPassword())) {
             result.rejectValue("confirmPassword", "validation.password.mismatch", "Passwords do not match");
         }
@@ -45,7 +51,14 @@ public class UserController {
         if (result.hasErrors()) {
             return "register";
         }
-        userService.registerUser(form);
-        return "redirect:/login?registered";
+        User user = userService.registerUser(form);
+        UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+        UsernamePasswordAuthenticationToken auth =
+            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        request.getSession(true).setAttribute(
+            HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+            SecurityContextHolder.getContext());
+        return "redirect:/";
     }
 }

@@ -66,6 +66,10 @@ public class PredictionService {
                 if (isUniqueExactInAnyTeam(p, predictions)) {
                     points += scoreBonusExact;
                 }
+                // Extra +1 for correctly predicting a draw (no winner)
+                if ("DRAW".equals(officialWinner)) {
+                    points += scoreWinner;
+                }
             } else if (winnerCorrect) {
                 points += scoreWinner;
                 if (isUniqueWinnerInAnyTeam(p, predictions, officialWinner)) {

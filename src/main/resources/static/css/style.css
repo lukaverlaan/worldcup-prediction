@@ -472,6 +472,7 @@ body.app-body {
     -webkit-backdrop-filter: blur(var(--glass-blur));
     box-shadow: 0 4px 24px rgba(0,0,0,.4);
     color: var(--text-primary);
+    overflow: hidden;
 }
 
 .card-header {
@@ -582,6 +583,29 @@ body.app-body {
 @media (max-width: 575px) {
     .hero-banner { padding: 1.75rem 1.25rem; }
     .hero-banner-deco { display: none; }
+    .hero-heading { font-size: 1.4rem; }
+    .main-container { padding: 1rem .75rem; }
+
+    /* Match table: hide location on xs */
+    .match-col-location { display: none; }
+
+    /* Team detail header: stack buttons */
+    .team-header-actions { flex-direction: column; align-items: flex-start !important; gap: .5rem; }
+    .team-header-actions .d-flex { flex-wrap: wrap; }
+
+    /* Match detail score row: shrink font */
+    .match-score-display .h2 { font-size: 1.4rem; }
+    .match-score-display .h4 { font-size: 1rem; }
+
+    /* Podium: compact on xs */
+    .podium-wrapper { gap: .375rem; padding: 1rem .25rem 0; }
+    .podium-slot { min-width: 0; flex: 1; max-width: none; }
+    .podium-avatar { width: 2.25rem; height: 2.25rem; font-size: 1rem; }
+    .podium-name { font-size: .72rem; }
+    .podium-pts { font-size: .7rem; }
+    .podium-first  .podium-bar { height: 80px; font-size: 1.4rem; }
+    .podium-second .podium-bar { height: 58px; font-size: 1.25rem; }
+    .podium-third  .podium-bar { height: 42px; font-size: 1.1rem; }
 }
 
 /* ── Invite code ─────────────── */
@@ -628,7 +652,8 @@ body.app-body {
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ── Form controls ───────────── */
@@ -1045,6 +1070,60 @@ body.app-body {
     font-size: .875rem;
 }
 
+/* ── Scoring info box ────────── */
+.scoring-info {
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--glass-border);
+    border-radius: .5rem;
+    padding: .75rem 1rem;
+}
+
+.scoring-info-title {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-secondary);
+    margin-bottom: .5rem;
+}
+
+.scoring-rows {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.scoring-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .85rem;
+    color: var(--text-primary);
+}
+
+.scoring-row-bonus {
+    color: var(--text-secondary);
+    font-size: .8rem;
+}
+
+.scoring-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.2rem;
+    padding: .15rem .4rem;
+    border-radius: .3rem;
+    font-weight: 700;
+    font-size: .78rem;
+    flex-shrink: 0;
+}
+
+.scoring-note { display: block; font-size: .72rem; color: var(--text-secondary); margin-top: .1rem; }
+
+.scoring-exact  { background: rgba(34,197,94,.2);  color: #86efac; border: 1px solid rgba(34,197,94,.3); }
+.scoring-winner { background: rgba(59,130,246,.2); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
+.scoring-bonus  { background: rgba(243,156,18,.2); color: #fcd34d; border: 1px solid rgba(243,156,18,.3); }
+
 /* ── Transitions ─────────────── */
 .btn, .sidebar-link { transition: all .15s ease; }
 
@@ -1063,6 +1142,47 @@ body.app-body {
     background: var(--wc-red);
     border-color: var(--wc-red);
     color: #fff;
+}
+
+/* ── Match teams cell ────────── */
+.match-teams-cell {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: nowrap;
+}
+
+.match-team-row {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    white-space: nowrap;
+}
+
+.match-vs-label {
+    font-size: .8rem;
+    flex-shrink: 0;
+}
+
+/* inline date only on mobile, column only on desktop */
+.match-date-mobile { display: none; }
+
+@media (max-width: 767px) {
+    .match-teams-cell {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .2rem;
+    }
+    .match-vs-label {
+        font-size: .7rem;
+        padding-left: .25rem;
+    }
+    .match-col-date { display: none; }
+    .match-date-mobile {
+        display: block;
+        padding-left: .25rem;
+        font-size: .72rem;
+    }
 }
 
 /* ── Clickable table rows ─────── */

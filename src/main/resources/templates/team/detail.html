@@ -13,7 +13,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <div class="d-flex justify-content-between align-items-start mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2 team-header-actions">
         <div>
             <h2 class="mb-0"><i class="bi bi-people-fill me-2 text-wc"></i><span th:text="${team.name}">Team</span></h2>
             <small class="text-muted">
@@ -21,7 +21,7 @@
                 <strong th:text="${team.owner.username}">owner</strong>
             </small>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <form th:if="${isAdmin}" th:action="@{/admin/teams/{id}/delete(id=${team.id})}" method="post"
                   th:attr="data-confirm=#{admin.team.delete.confirm}"
                   onclick="return confirm(this.dataset.confirm)">
@@ -187,9 +187,9 @@
                             th:attr="data-bs-target='#matchCollapse' + ${iter.index},
                                      aria-controls='matchCollapse' + ${iter.index}"
                             aria-expanded="false">
-                        <span class="flex-grow-1 d-flex align-items-center gap-2 flex-wrap">
-                            <span class="fw-semibold d-flex align-items-center gap-1"
-                                  th:with="infoA=${@countryRegistry.get(entry.match.teamA)}, infoB=${@countryRegistry.get(entry.match.teamB)}">
+                        <span class="flex-grow-1 d-flex flex-column gap-1 me-2"
+                              th:with="infoA=${@countryRegistry.get(entry.match.teamA)}, infoB=${@countryRegistry.get(entry.match.teamB)}">
+                            <span class="fw-semibold d-flex align-items-center gap-1 flex-wrap">
                                 <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
                                      height="20" class="country-logo" alt="">
                                 <span th:text="${@countryRegistry.getDisplayName(entry.match.teamA, #locale)}">A</span>
@@ -198,16 +198,17 @@
                                      height="20" class="country-logo" alt="">
                                 <span th:text="${@countryRegistry.getDisplayName(entry.match.teamB, #locale)}">B</span>
                             </span>
-                            <small class="text-muted"
-                                   th:text="${#temporals.format(entry.match.dateTime, #messages.msg('date.format'))}">date</small>
+                            <span class="d-flex align-items-center gap-2">
+                                <small class="text-muted"
+                                       th:text="${#temporals.format(entry.match.dateTime, #messages.msg('date.format'))}">date</small>
+                                <span th:if="${entry.match.hasResult()}" class="badge bg-success">
+                                    <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
+                                </span>
+                                <span th:unless="${entry.match.hasResult()}"
+                                      class="badge bg-secondary"
+                                      th:text="#{admin.status.pending}">Pending</span>
+                            </span>
                         </span>
-                        <span th:if="${entry.match.hasResult()}"
-                              class="badge bg-success me-3">
-                            <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
-                        </span>
-                        <span th:unless="${entry.match.hasResult()}"
-                              class="badge bg-secondary me-3"
-                              th:text="#{admin.status.pending}">Pending</span>
                     </button>
                 </h2>
                 <div th:id="'matchCollapse' + ${iter.index}"
