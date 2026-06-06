@@ -10,3 +10,4 @@ target/
 *.log
 
 application-local.properties
+.claude/
