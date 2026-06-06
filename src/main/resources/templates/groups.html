@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{groups.title})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<div class="page-wrapper">
+<main class="main-container">
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-grid-3x3-gap-fill me-2 text-wc"></i><span th:text="#{groups.title}">Groepsfase</span></h2>
+            <p class="text-muted mb-0 mt-1" th:text="#{groups.subtitle}">Alle groepen en wedstrijden</p>
+        </div>
+    </div>
+
+    <div class="groups-grid">
+        <div th:each="group, iter : ${groups}" class="group-card">
+
+            <!-- Group header -->
+            <div class="group-card-header group-card-toggle"
+                 th:attr="data-bs-toggle='collapse', data-bs-target='#groupBody' + ${iter.index}"
+                 role="button">
+                <span class="group-letter" th:text="#{groups.group} + ' ' + ${group.letter()}">Groep A</span>
+                <i class="bi bi-chevron-down group-chevron"></i>
+            </div>
+
+            <div th:id="'groupBody' + ${iter.index}" class="group-collapse collapse show">
+
+            <!-- Teams -->
+            <div class="group-teams">
+                <div th:each="teamEntry, iter : ${group.teams()}" class="group-team-row"
+                     th:with="info=${@countryRegistry.get(teamEntry)}, pts=${group.points().get(teamEntry)}">
+                    <span class="group-team-pos" th:text="${iter.index + 1}">1</span>
+                    <img th:if="${info != null}" th:src="${info.logoUrl()}"
+                         class="group-team-logo" alt="">
+                    <div th:if="${info == null}" class="group-team-logo-placeholder">
+                        <i class="bi bi-shield"></i>
+                    </div>
+                    <span class="group-team-name"
+                          th:text="${@countryRegistry.getDisplayName(teamEntry, #locale)}">Team</span>
+                    <span class="group-team-pts" th:text="${pts != null ? pts : 0} + ' ptn'">0 ptn</span>
+                </div>
+            </div>
+
+            <!-- Matchdays -->
+            <div class="group-matches" th:if="${!#lists.isEmpty(group.matchdays())}">
+                <div th:each="matchday : ${group.matchdays()}" class="group-matchday">
+                    <div class="group-matchday-header">
+                        <span th:text="#{groups.matchday} + ' ' + ${matchday.number()}">Speeldag 1</span>
+                    </div>
+                    <div th:each="match : ${matchday.matches()}" class="group-match-row clickable-match"
+                         th:onclick="|window.location.href='@{/matches/{id}(id=${match.id})}'|">
+                        <div class="group-match-teams">
+                            <span th:with="infoA=${@countryRegistry.get(match.teamA)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
+                                     class="group-match-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(match.teamA, #locale)}">A</span>
+                            </span>
+                            <span class="group-match-score" th:if="${match.hasResult()}"
+                                  th:text="${match.officialScoreA} + '–' + ${match.officialScoreB}">0–0</span>
+                            <span class="group-match-vs" th:unless="${match.hasResult()}" th:text="#{match.vs}">vs</span>
+                            <span th:with="infoB=${@countryRegistry.get(match.teamB)}">
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
+                                     class="group-match-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">B</span>
+                            </span>
+                        </div>
+                        <div class="group-match-date"
+                             th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}">datum</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-no-matches" th:if="${#lists.isEmpty(group.matchdays())}">
+                <i class="bi bi-calendar-x me-1"></i><span th:text="#{groups.no.matches}">Geen wedstrijden</span>
+            </div>
+
+            </div><!-- end group-collapse -->
+        </div>
+    </div>
+
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // On mobile: collapse all groups by default
+    if (window.innerWidth < 480) {
+        document.querySelectorAll('.group-collapse').forEach(function(el) {
+            el.classList.remove('show');
+        });
+    }
+
+    // Rotate chevron on toggle
+    document.querySelectorAll('.group-card-toggle').forEach(function(toggle) {
+        var target = document.querySelector(toggle.dataset.bsTarget);
+        if (!target) return;
+        target.addEventListener('show.bs.collapse', function() {
+            toggle.classList.add('expanded');
+        });
+        target.addEventListener('hide.bs.collapse', function() {
+            toggle.classList.remove('expanded');
+        });
+    });
+</script>
+</body>
+</html>
