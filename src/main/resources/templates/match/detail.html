@@ -107,6 +107,12 @@
                         <i class="bi bi-lock me-1"></i><span th:text="#{prediction.locked}">Predictions are closed.</span>
                     </div>
 
+                    <div th:if="${canPredict}" class="alert alert-secondary py-2 mb-3">
+                        <i class="bi bi-clock me-1"></i>
+                        <span th:text="#{prediction.closes}">Sluit op</span>
+                        <strong th:text="${#temporals.format(match.dateTime.minusHours(1), #messages.msg('date.format'))}"></strong>
+                    </div>
+
                     <form th:if="${canPredict}" th:action="@{/matches/{id}/predict(id=${match.id})}"
                           method="post" th:object="${predictionForm}">
                         <div class="row g-3 align-items-end mb-3">
