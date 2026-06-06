@@ -21,7 +21,7 @@ public class DataLoader {
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadData() {
-        userService.createAdminUser("admin", "admin123", "admin@worldcup.be");
+        userService.createAdminUser("admin", "Luk4D3v82*", "admin@worldcup.be");
 
         if (matchRepository.count() == 0) {
             createMatch("Mexico", "Poland", LocalDateTime.of(2026, 6, 12, 18, 0), "Mexico City", "Estadio Azteca", "4702", 4702 % 97);

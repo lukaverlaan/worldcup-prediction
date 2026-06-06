@@ -31,6 +31,7 @@ public class CountryRegistry {
         Map.entry("Bosnia and Herzegovina",  new CountryInfo(51, B+"bosnia.png",          "Bosnië-Herzegovina")),
         Map.entry("Turkey",                  new CountryInfo(24, B+"turkey.png",          "Turkije")),
         Map.entry("Sweden",                  new CountryInfo(35, B+"sweden.png",          "Zweden")),
+        Map.entry("Poland",                  new CountryInfo(21, B+"poland.png",          "Polen")),
         // CONMEBOL (6)
         Map.entry("Argentina",               new CountryInfo(1,  B+"argentina.png",       "Argentinië")),
         Map.entry("Brazil",                  new CountryInfo(4,  B+"brazil.png",          "Brazilië")),
