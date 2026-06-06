@@ -41,6 +41,7 @@ public class CountryRegistry {
         Map.entry("Paraguay",                new CountryInfo(38, B+"paraguay.png",        "Paraguay")),
         // CONCACAF (6)
         Map.entry("United States",           new CountryInfo(16, B+"united-states.png",   "Verenigde Staten")),
+        Map.entry("USA",                     new CountryInfo(16, B+"united-states.png",   "Verenigde Staten")),
         Map.entry("Mexico",                  new CountryInfo(15, B+"mexico.png",          "Mexico")),
         Map.entry("Canada",                  new CountryInfo(30, B+"canada.png",          "Canada")),
         Map.entry("Panama",                  new CountryInfo(33, B+"panama.png",          "Panama")),
