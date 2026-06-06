@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{mypred.title})}"></head>
+<body class="app-body">
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+<div class="page-wrapper">
+<main class="main-container">
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-card-checklist me-2 text-wc"></i><span th:text="#{mypred.title}">Mijn Prognoses</span></h2>
+            <p class="text-muted mb-0 mt-1">
+                <span th:text="#{mypred.total.points}">Totaal:</span>
+                <strong class="text-wc" th:text="${totalPoints} + ' ptn'">0 ptn</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- Gespeelde wedstrijden -->
+    <div th:if="${!#lists.isEmpty(pastPredictions)}">
+        <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i><span th:text="#{mypred.past}">Gespeeld</span></h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th th:text="#{home.column.match}">Wedstrijd</th>
+                        <th class="text-center" th:text="#{mypred.prediction}">Prognose</th>
+                        <th class="text-center" th:text="#{home.column.result}">Uitslag</th>
+                        <th class="text-center" th:text="#{mypred.points}">Punten</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pred : ${pastPredictions}"
+                        class="clickable-row"
+                        th:data-href="@{/matches/{id}(id=${pred.match.id})}">
+                        <td class="match-teams-cell">
+                            <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
+                            </span>
+                            <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
+                            <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
+                            </span>
+                        </td>
+                        <td class="fw-semibold text-center"
+                            th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</td>
+                        <td>
+                            <span th:if="${pred.match.hasResult()}" class="badge bg-success"
+                                  th:text="${pred.match.officialScoreA} + ' – ' + ${pred.match.officialScoreB}">0–0</span>
+                            <span th:unless="${pred.match.hasResult()}" class="badge bg-secondary" th:text="#{admin.status.pending}">–</span>
+                        </td>
+                        <td>
+                            <span th:if="${pred.points != null}"
+                                  th:class="${pred.points > 0} ? 'badge bg-wc fs-6' : 'badge bg-secondary'"
+                                  th:text="${pred.points} + ' ptn'">0</span>
+                            <span th:unless="${pred.points != null}" class="text-muted">–</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Komende wedstrijden -->
+    <div th:if="${!#lists.isEmpty(upcomingPredictions)}">
+        <h5 class="mb-3"><i class="bi bi-calendar-event me-2"></i><span th:text="#{mypred.upcoming}">Komend</span></h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th th:text="#{home.column.match}">Wedstrijd</th>
+                        <th th:text="#{home.column.date}">Datum</th>
+                        <th class="text-center" th:text="#{mypred.prediction}">Prognose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pred : ${upcomingPredictions}"
+                        class="clickable-row"
+                        th:data-href="@{/matches/{id}(id=${pred.match.id})}">
+                        <td class="match-teams-cell">
+                            <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
+                            </span>
+                            <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
+                            <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}">datum</td>
+                        <td class="fw-semibold text-wc text-center"
+                            th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(pastPredictions) and #lists.isEmpty(upcomingPredictions)}"
+         class="alert alert-info" th:text="#{mypred.empty}">Nog geen prognoses ingediend.</div>
+
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('tr.clickable-row').forEach(function(row) {
+        row.addEventListener('click', function() {
+            var href = this.dataset.href;
+            if (href) window.location.href = href;
+        });
+    });
+</script>
+</body>
+</html>

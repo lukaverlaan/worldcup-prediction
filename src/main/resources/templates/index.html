@@ -14,35 +14,79 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Hero Banner -->
-    <div class="hero-banner mb-4">
-        <div class="hero-banner-content">
-            <p class="hero-eyebrow" th:text="#{home.hero.eyebrow}">World Cup · Jun – Jul 2026</p>
-            <h1 class="hero-heading">
-                <span th:text="#{home.hero.title}">FIFA World Cup 2026</span><br>
-                <span class="hero-heading-accent" th:text="#{home.hero.tagline}">Team Prediction</span>
-            </h1>
-            <p class="hero-lead" th:text="#{home.subtitle}">subtitle</p>
-            <div class="hero-cta" sec:authorize="isAnonymous()">
-                <a th:href="@{/register}" class="btn btn-wc">
-                    <i class="bi bi-person-plus me-1"></i><span th:text="#{nav.register}">Register</span>
-                </a>
-                <a th:href="@{/login}" class="btn btn-hero-outline">
-                    <i class="bi bi-box-arrow-in-right me-1"></i><span th:text="#{nav.login}">Login</span>
-                </a>
+    <!-- Top row: Hero + Stats widget -->
+    <div class="home-top-row mb-4">
+
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+            <div class="hero-banner-content">
+                <p class="hero-eyebrow" th:text="#{home.hero.eyebrow}">World Cup · Jun – Jul 2026</p>
+                <h1 class="hero-heading">
+                    <span th:text="#{home.hero.title}">FIFA World Cup 2026</span><br>
+                    <span class="hero-heading-accent" th:text="#{home.hero.tagline}">Team Prediction</span>
+                </h1>
+                <p class="hero-lead" th:text="#{home.subtitle}">subtitle</p>
+                <div class="hero-cta" sec:authorize="isAnonymous()">
+                    <a th:href="@{/register}" class="btn btn-wc">
+                        <i class="bi bi-person-plus me-1"></i><span th:text="#{nav.register}">Register</span>
+                    </a>
+                    <a th:href="@{/login}" class="btn btn-hero-outline">
+                        <i class="bi bi-box-arrow-in-right me-1"></i><span th:text="#{nav.login}">Login</span>
+                    </a>
+                </div>
+                <div class="hero-cta" sec:authorize="isAuthenticated()">
+                    <a th:href="@{/teams}" class="btn btn-wc btn-sm">
+                        <i class="bi bi-people me-1"></i><span th:text="#{nav.myteams}">My Teams</span>
+                    </a>
+                    <a th:href="@{/scoreboard}" class="btn btn-hero-outline btn-sm">
+                        <i class="bi bi-trophy me-1"></i><span th:text="#{nav.scoreboard}">Top 10</span>
+                    </a>
+                </div>
             </div>
-            <div class="hero-cta" sec:authorize="isAuthenticated()">
-                <a th:href="@{/teams}" class="btn btn-wc">
-                    <i class="bi bi-people me-1"></i><span th:text="#{nav.myteams}">My Teams</span>
-                </a>
-                <a th:href="@{/scoreboard}" class="btn btn-hero-outline">
-                    <i class="bi bi-trophy me-1"></i><span th:text="#{nav.scoreboard}">Top 10 Teams</span>
+            <div class="hero-banner-deco" aria-hidden="true">
+                <img th:src="@{/images/wc2026-logo.png}" alt="" class="hero-deco-img">
+            </div>
+        </div>
+
+        <!-- Stats Widget (only when logged in) -->
+        <div class="stats-widget" sec:authorize="isAuthenticated()">
+            <div class="stats-widget-header">
+                <i class="bi bi-person-circle me-2"></i>
+                <span th:text="${#authentication.name}">gebruiker</span>
+            </div>
+            <div class="stats-widget-body">
+                <!-- Total points -->
+                <div class="stats-pts-block">
+                    <div class="stats-pts-value" th:text="${totalPoints}">0</div>
+                    <div class="stats-pts-label" th:text="#{stats.total.points}">Totaal punten</div>
+                </div>
+
+                <!-- Team rankings -->
+                <div class="stats-rankings" th:if="${!#lists.isEmpty(teamRankings)}">
+                    <div class="stats-section-title" th:text="#{stats.rankings}">Klassement</div>
+                    <div th:each="tr : ${teamRankings}" class="stats-team-rank">
+                        <a th:href="@{/teams/{id}(id=${tr.teamId})}" class="stats-team-link">
+                            <i class="bi bi-people-fill me-1"></i>
+                            <span th:text="${tr.teamName}">Team</span>
+                        </a>
+                        <span class="stats-rank-badge">
+                            <span th:text="'#' + ${tr.rank} + ' / ' + ${tr.total}"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="stats-rankings" th:if="${#lists.isEmpty(teamRankings)}">
+                    <div class="stats-section-title" th:text="#{stats.rankings}">Klassement</div>
+                    <small class="text-muted" th:text="#{stats.no.teams}">Nog geen teams</small>
+                </div>
+            </div>
+            <div class="stats-widget-footer">
+                <a th:href="@{/my-predictions}" class="btn btn-wc btn-sm w-100">
+                    <i class="bi bi-card-checklist me-1"></i>
+                    <span th:text="#{stats.my.predictions}">Mijn Prognoses</span>
                 </a>
             </div>
         </div>
-        <div class="hero-banner-deco" aria-hidden="true">
-            <img th:src="@{/images/wc2026-logo.png}" alt="" class="hero-deco-img">
-        </div>
+
     </div>
 
     <!-- Tab bar + Admin button -->

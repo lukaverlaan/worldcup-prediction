@@ -51,9 +51,21 @@
                     </a>
                 </li>
                 <li>
+                    <a th:href="@{/groups}" class="sidebar-link">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                        <span th:text="#{nav.groups}">Groepsfase</span>
+                    </a>
+                </li>
+                <li>
                     <a th:href="@{/scoreboard}" class="sidebar-link">
                         <i class="bi bi-trophy"></i>
                         <span th:text="#{nav.scoreboard}">Scoreboard</span>
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/my-predictions}" class="sidebar-link">
+                        <i class="bi bi-card-checklist"></i>
+                        <span th:text="#{mypred.title}">Mijn Prognoses</span>
                     </a>
                 </li>
                 <li sec:authorize="isAuthenticated()">
