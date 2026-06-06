@@ -6,6 +6,7 @@ import be.lukaverlaan.ewdj.worldcup.exception.TeamNotFoundException;
 import be.lukaverlaan.ewdj.worldcup.form.CreateTeamForm;
 import be.lukaverlaan.ewdj.worldcup.form.JoinTeamForm;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
+import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.TeamService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
 import jakarta.validation.Valid;
@@ -28,11 +29,14 @@ public class TeamController {
     private final TeamService teamService;
     private final UserService userService;
     private final PredictionRepository predictionRepository;
+    private final PredictionService predictionService;
 
-    public TeamController(TeamService teamService, UserService userService, PredictionRepository predictionRepository) {
+    public TeamController(TeamService teamService, UserService userService,
+                          PredictionRepository predictionRepository, PredictionService predictionService) {
         this.teamService = teamService;
         this.userService = userService;
         this.predictionRepository = predictionRepository;
+        this.predictionService = predictionService;
     }
 
     @GetMapping
@@ -107,6 +111,12 @@ public class TeamController {
             .sorted((a, b) -> pointsMap.getOrDefault(b.getId(), 0) - pointsMap.getOrDefault(a.getId(), 0))
             .forEach(m -> memberScores.put(m, pointsMap.getOrDefault(m.getId(), 0)));
 
+        // Streaks per member
+        java.util.Map<Long, Integer> streaks = new java.util.HashMap<>();
+        for (User m : team.getMembers()) {
+            streaks.put(m.getId(), predictionService.getStreakForUser(m));
+        }
+
         int teamTotal = memberScores.values().stream().mapToInt(Integer::intValue).sum();
         Page<Map<String, Object>> matchDetailsPage =
             teamService.getMatchDetailsForTeamPaged(team, new ArrayList<>(memberScores.keySet()), detailPage, 10, detailTab);
@@ -118,6 +128,7 @@ public class TeamController {
         model.addAttribute("detailCurrentPage", matchDetailsPage.getNumber());
         model.addAttribute("detailTotalPages", matchDetailsPage.getTotalPages());
         model.addAttribute("detailTab", detailTab);
+        model.addAttribute("streaks", streaks);
         model.addAttribute("isOwner", team.getOwner().getId().equals(user.getId()));
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("currentUser", user);

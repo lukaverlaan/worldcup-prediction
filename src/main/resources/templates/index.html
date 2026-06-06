@@ -55,10 +55,15 @@
                 <span th:text="${#authentication.name}">gebruiker</span>
             </div>
             <div class="stats-widget-body">
-                <!-- Total points -->
+                <!-- Total points + streak -->
                 <div class="stats-pts-block">
                     <div class="stats-pts-value" th:text="${totalPoints}">0</div>
                     <div class="stats-pts-label" th:text="#{stats.total.points}">Totaal punten</div>
+                    <div class="stats-streak" th:if="${streak > 0}">
+                        <span class="stats-streak-flame">🔥</span>
+                        <span th:text="${streak}">0</span>
+                        <span th:text="#{stats.streak}">reeks</span>
+                    </div>
                 </div>
 
                 <!-- Team rankings -->
