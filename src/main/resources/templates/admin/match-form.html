@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${editMode} ? #{admin.match.edit.title} : #{admin.match.add.title})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<div class="page-wrapper">
+<main class="main-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card match-form-card">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        <span th:text="${editMode} ? #{admin.match.edit.title} : #{admin.match.add.title}">Match Form</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    <form th:action="${editMode} ? @{/admin/matches/{id}/edit(id=${matchId})} : @{/admin/matches/new}"
+                          method="post" th:object="${matchForm}" id="matchForm">
+
+                        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger mb-3">
+                            <ul class="mb-0">
+                                <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                            </ul>
+                        </div>
+
+                        <p class="form-section-title">
+                            <i class="bi bi-flag me-1"></i>
+                            <span th:text="#{admin.match.countryA}">Country A</span> &amp;
+                            <span th:text="#{admin.match.countryB}">Country B</span>
+                        </p>
+
+                        <div class="row g-3 mb-4">
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <span th:text="#{admin.match.countryA}">Country A</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="hidden" th:field="*{teamA}" id="teamA">
+                                <div class="country-picker" id="pickerA">
+                                    <div class="picker-trigger"
+                                         th:classappend="${#fields.hasErrors('teamA')} ? 'is-invalid'"
+                                         id="pickerA-trigger" tabindex="0">
+                                        <img class="picker-trigger-logo" id="pickerA-logo" src="" alt="" style="display:none">
+                                        <span class="picker-trigger-placeholder" id="pickerA-placeholder"
+                                              th:text="#{admin.match.country.select}">Select country…</span>
+                                        <span class="picker-trigger-name" id="pickerA-name" style="display:none"></span>
+                                        <i class="bi bi-chevron-down picker-trigger-chevron"></i>
+                                    </div>
+                                    <div class="picker-dropdown" id="pickerA-dropdown">
+                                        <div class="picker-search-wrap">
+                                            <input type="text" class="form-control picker-search-input"
+                                                   id="pickerA-search" placeholder="🔍 Type to filter…" autocomplete="off">
+                                        </div>
+                                        <div class="picker-list" id="pickerA-list"></div>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback d-block"
+                                     th:if="${#fields.hasErrors('teamA')}"
+                                     th:errors="*{teamA}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <span th:text="#{admin.match.countryB}">Country B</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="hidden" th:field="*{teamB}" id="teamB">
+                                <div class="country-picker" id="pickerB">
+                                    <div class="picker-trigger"
+                                         th:classappend="${#fields.hasErrors('teamB')} ? 'is-invalid'"
+                                         id="pickerB-trigger" tabindex="0">
+                                        <img class="picker-trigger-logo" id="pickerB-logo" src="" alt="" style="display:none">
+                                        <span class="picker-trigger-placeholder" id="pickerB-placeholder"
+                                              th:text="#{admin.match.country.select}">Select country…</span>
+                                        <span class="picker-trigger-name" id="pickerB-name" style="display:none"></span>
+                                        <i class="bi bi-chevron-down picker-trigger-chevron"></i>
+                                    </div>
+                                    <div class="picker-dropdown" id="pickerB-dropdown">
+                                        <div class="picker-search-wrap">
+                                            <input type="text" class="form-control picker-search-input"
+                                                   id="pickerB-search" placeholder="🔍 Type to filter…" autocomplete="off">
+                                        </div>
+                                        <div class="picker-list" id="pickerB-list"></div>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback d-block"
+                                     th:if="${#fields.hasErrors('teamB')}"
+                                     th:errors="*{teamB}"></div>
+                            </div>
+                        </div>
+
+                        <p class="form-section-title">
+                            <i class="bi bi-calendar-event me-1"></i>Match Details
+                        </p>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <span th:text="#{admin.match.datetime}">Date &amp; Time</span>
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="datetime-local" th:field="*{dateTime}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('dateTime')} ? 'is-invalid'"
+                                       min="2026-06-11T00:00" max="2026-07-19T23:59">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dateTime')}"
+                                     th:errors="*{dateTime}"></div>
+                                <div class="form-text" th:text="#{admin.match.datetime.hint}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" th:text="#{admin.match.city}">City</label>
+                                <input type="text" th:field="*{city}" class="form-control">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label" th:text="#{admin.match.stadium}">Stadium</label>
+                                <input type="text" th:field="*{stadium}" class="form-control">
+                            </div>
+                        </div>
+
+                        <p class="form-section-title">
+                            <i class="bi bi-hash me-1"></i>Stadium Code &amp; Checksum
+                        </p>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label" th:text="#{admin.match.stadiumcode}">Stadium Code</label>
+                                <input type="text" th:field="*{stadiumCode}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('stadiumCode')} ? 'is-invalid'"
+                                       maxlength="4" pattern="\d{4}" id="stadiumCode">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('stadiumCode')}"
+                                     th:errors="*{stadiumCode}"></div>
+                                <div class="form-text" th:text="#{admin.match.stadiumcode.hint}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label" th:text="#{admin.match.checksum}">Checksum</label>
+                                <input type="number" th:field="*{checksum}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('checksum')} ? 'is-invalid'"
+                                       min="0" max="96" id="checksum">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('checksum')}"
+                                     th:errors="*{checksum}"></div>
+                                <div class="form-text" th:text="#{admin.match.checksum.hint}"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-wc">
+                                <i class="bi bi-check-circle me-1"></i>
+                                <span th:text="${editMode} ? #{admin.match.submit.update} : #{admin.match.submit.add}">Save</span>
+                            </button>
+                            <a th:href="@{/admin/matches}" class="btn btn-outline-secondary" th:text="#{form.cancel}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    const WC_COUNTRIES_RAW = /*[[${countries}]]*/ [];
+    const LOCALE = /*[[${#locale.language}]]*/ 'en';
+
+    const WC_COUNTRIES = WC_COUNTRIES_RAW
+        .map(c => ({ ...c, display: LOCALE === 'nl' && c.nameNl ? c.nameNl : c.name }))
+        .sort((a, b) => a.display.localeCompare(b.display));
+
+    const pickerInstances = {};
+
+    function initPicker(id, hiddenInputId, otherHiddenInputId) {
+        const hidden  = document.getElementById(hiddenInputId);
+        const trigger = document.getElementById(id + '-trigger');
+        const dropdown= document.getElementById(id + '-dropdown');
+        const search  = document.getElementById(id + '-search');
+        const list    = document.getElementById(id + '-list');
+        const logo    = document.getElementById(id + '-logo');
+        const nameEl  = document.getElementById(id + '-name');
+        const phEl    = document.getElementById(id + '-placeholder');
+
+        let highlighted = -1;
+
+        function getOtherValue() {
+            const el = document.getElementById(otherHiddenInputId);
+            return el ? el.value : '';
+        }
+
+        function renderList(filter) {
+            const q = (filter || '').toLowerCase();
+            const exclude = getOtherValue();
+            const items = WC_COUNTRIES.filter(c =>
+                c.name !== exclude &&
+                (c.display.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)));
+            list.innerHTML = '';
+            highlighted = -1;
+
+            if (items.length === 0) {
+                list.innerHTML = '<div class="picker-empty">No results</div>';
+                return;
+            }
+
+            items.forEach((c, i) => {
+                const div = document.createElement('div');
+                div.className = 'picker-option' + (hidden.value === c.name ? ' selected' : '');
+                div.dataset.index = i;
+
+                const imgOrIcon = c.logoUrl
+                    ? `<img class="picker-option-logo" src="${c.logoUrl}" alt="" loading="lazy">`
+                    : `<div class="picker-option-logo-placeholder"><i class="bi bi-shield"></i></div>`;
+
+                div.innerHTML = `${imgOrIcon}<span class="picker-option-name">${c.display}</span>`;
+                div.addEventListener('mousedown', e => { e.preventDefault(); selectCountry(c); });
+                list.appendChild(div);
+            });
+        }
+
+        function selectCountry(c) {
+            hidden.value        = c.name;
+            nameEl.textContent  = c.display;
+            if (c.logoUrl) { logo.src = c.logoUrl; logo.style.display = ''; }
+            else             { logo.style.display = 'none'; }
+            phEl.style.display   = 'none';
+            nameEl.style.display = '';
+            closeDropdown();
+
+            const other = pickerInstances[id === 'pickerA' ? 'pickerB' : 'pickerA'];
+            if (other) other.rerender();
+        }
+
+        function openDropdown() {
+            trigger.classList.add('open');
+            dropdown.classList.add('open');
+            search.value = '';
+            renderList('');
+            search.focus();
+        }
+
+        function closeDropdown() {
+            trigger.classList.remove('open');
+            dropdown.classList.remove('open');
+        }
+
+        trigger.addEventListener('click', () => {
+            dropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+        });
+        trigger.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDropdown(); }
+        });
+        search.addEventListener('input', () => renderList(search.value));
+        search.addEventListener('keydown', e => {
+            const opts = list.querySelectorAll('.picker-option');
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                highlighted = Math.min(highlighted + 1, opts.length - 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                highlighted = Math.max(highlighted - 1, 0);
+            } else if (e.key === 'Enter' && highlighted >= 0) {
+                e.preventDefault();
+                opts[highlighted].dispatchEvent(new MouseEvent('mousedown'));
+                return;
+            } else if (e.key === 'Escape') {
+                closeDropdown(); return;
+            }
+            opts.forEach((o, i) => o.classList.toggle('highlighted', i === highlighted));
+            if (highlighted >= 0) opts[highlighted].scrollIntoView({ block: 'nearest' });
+        });
+        document.addEventListener('mousedown', e => {
+            if (!document.getElementById(id).contains(e.target)) closeDropdown();
+        });
+
+        if (hidden.value) {
+            const existing = WC_COUNTRIES.find(c => c.name === hidden.value);
+            if (existing) {
+                nameEl.textContent  = existing.display;
+                if (existing.logoUrl) { logo.src = existing.logoUrl; logo.style.display = ''; }
+                phEl.style.display   = 'none';
+                nameEl.style.display = '';
+            }
+        }
+
+        return { rerender: () => renderList(search.value) };
+    }
+
+    document.getElementById('stadiumCode').addEventListener('input', function () {
+        const code = parseInt(this.value);
+        if (!isNaN(code) && this.value.length === 4) {
+            document.getElementById('checksum').value = code % 97;
+        }
+    });
+
+    pickerInstances['pickerA'] = initPicker('pickerA', 'teamA', 'teamB');
+    pickerInstances['pickerB'] = initPicker('pickerB', 'teamB', 'teamA');
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(#{team.scoreboard.title})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<div class="page-wrapper">
+<main class="main-container">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+        <span th:text="#{${successMessage}}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="mb-0"><i class="bi bi-people-fill me-2 text-wc"></i><span th:text="${team.name}">Team</span></h2>
+            <small class="text-muted">
+                <span th:text="#{team.owner}">Owner:</span>
+                <strong th:text="${team.owner.username}">owner</strong>
+            </small>
+        </div>
+        <div class="d-flex gap-2">
+            <form th:if="${isAdmin}" th:action="@{/admin/teams/{id}/delete(id=${team.id})}" method="post"
+                  th:attr="data-confirm=#{admin.team.delete.confirm}"
+                  onclick="return confirm(this.dataset.confirm)">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i><span th:text="#{admin.team.delete}">Delete Team</span>
+                </button>
+            </form>
+            <a th:href="${isAdmin} ? '/admin/teams' : '/teams'" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>
+                <span th:text="${isAdmin} ? #{admin.teams.title} : #{nav.myteams}">Back</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Invite Code Panel (owner or admin) -->
+        <div class="col-md-4" th:if="${isOwner or isAdmin}">
+            <div class="card">
+                <div class="card-header fw-semibold">
+                    <i class="bi bi-key me-1"></i><span th:text="#{team.invite.code}">Invite Code</span>
+                </div>
+                <div class="card-body">
+                    <div class="invite-code-box text-center p-3 mb-3">
+                        <span class="h4 font-monospace fw-bold text-wc" th:text="${team.inviteCode}">ABCD1234</span>
+                    </div>
+                    <p class="text-muted small" th:text="#{team.invite.share}">Share this code with friends.</p>
+                    <form th:if="${isOwner}" th:action="@{/teams/{id}/regenerate-code(id=${team.id})}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <button type="submit" class="btn btn-outline-warning btn-sm w-100">
+                            <i class="bi bi-arrow-clockwise me-1"></i><span th:text="#{team.invite.regenerate}">Regenerate Code</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Scoreboard -->
+        <div th:class="${isOwner or isAdmin} ? 'col-md-8' : 'col-12'">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold">
+                        <i class="bi bi-bar-chart me-1"></i><span th:text="#{team.scoreboard.title}">Team Scoreboard</span>
+                    </span>
+                    <span class="badge bg-wc fs-6">
+                        <span th:text="#{team.scoreboard.total}">Total:</span>
+                        <span th:text="${teamTotal}">0</span>
+                        <span th:text="#{pts}">pts</span>
+                    </span>
+                </div>
+
+                <!-- Podium (top 3) -->
+                <div class="podium-wrapper">
+                    <div th:each="entry, iter : ${memberScores}" th:if="${iter.index < 3}"
+                         th:class="${iter.index == 0 ? 'podium-slot podium-first order-2' : (iter.index == 1 ? 'podium-slot podium-second order-1' : 'podium-slot podium-third order-3')}">
+                        <div class="podium-info">
+                            <div class="podium-avatar">
+                                <i class="bi bi-trophy-fill"></i>
+                            </div>
+                            <div class="podium-name" th:text="${entry.key.username}">user</div>
+                            <small class="podium-pts">
+                                <span th:text="${entry.value}">0</span>
+                                <span th:text="#{pts}">pts</span>
+                            </small>
+                            <div class="mt-1 d-flex gap-1 flex-wrap justify-content-center">
+                                <span th:if="${entry.key.id == team.owner.id}"
+                                      class="badge bg-info" style="font-size:.65rem"
+                                      th:text="#{team.badge.owner}">Owner</span>
+                                <span th:if="${entry.key.id == currentUser.id}"
+                                      class="badge bg-secondary" style="font-size:.65rem"
+                                      th:text="#{team.badge.you}">You</span>
+                            </div>
+                            <form th:if="${(isOwner or isAdmin) and entry.key.id != currentUser.id}"
+                                  th:action="@{/teams/{tid}/remove/{uid}(tid=${team.id},uid=${entry.key.id})}"
+                                  method="post" class="mt-2"
+                                  onsubmit="return confirm('Remove this member?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2">
+                                    <i class="bi bi-person-x"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="podium-bar">
+                            <span th:text="${iter.index + 1}">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rest of members (4th+) -->
+                <div th:if="${memberScores.size() > 3}" class="card-body p-0">
+                    <table class="table table-hover mb-0 align-middle">
+                        <tbody>
+                            <tr th:each="entry, iter : ${memberScores}" th:if="${iter.index >= 3}">
+                                <td class="text-center ps-3" style="width:50px">
+                                    <span class="text-muted fw-semibold" th:text="${iter.index + 1}">4</span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    <span th:text="${entry.key.username}">username</span>
+                                    <span th:if="${entry.key.id == team.owner.id}"
+                                          class="badge bg-info ms-1" th:text="#{team.badge.owner}">Owner</span>
+                                    <span th:if="${entry.key.id == currentUser.id}"
+                                          class="badge bg-secondary ms-1" th:text="#{team.badge.you}">You</span>
+                                </td>
+                                <td class="text-center fw-bold">
+                                    <span th:text="${entry.value}">0</span>
+                                    <span th:text="#{pts}">pts</span>
+                                </td>
+                                <td th:if="${isOwner or isAdmin}" class="pe-3">
+                                    <form th:unless="${entry.key.id == currentUser.id}"
+                                          th:action="@{/teams/{tid}/remove/{uid}(tid=${team.id},uid=${entry.key.id})}"
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove this member?')">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-person-x"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail per wedstrijd -->
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="mb-0">
+                <i class="bi bi-list-ol me-2 text-wc"></i>
+                <span th:text="#{team.match.details.title}">Detail per wedstrijd</span>
+            </h5>
+            <ul class="nav nav-pills gap-2">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${detailTab == 'upcoming'} ? 'active'"
+                       th:href="@{/teams/{id}(id=${team.id}, detailTab='upcoming')}">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        <span th:text="#{home.tab.upcoming}">Upcoming</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${detailTab == 'past'} ? 'active'"
+                       th:href="@{/teams/{id}(id=${team.id}, detailTab='past')}">
+                        <i class="bi bi-clock-history me-1"></i>
+                        <span th:text="#{home.tab.past}">Past Results</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Empty state -->
+        <div th:if="${#lists.isEmpty(matchDetails)}" class="alert alert-info">
+            <span th:text="${detailTab == 'past'} ? #{team.match.details.past.empty} : #{team.match.details.upcoming.empty}">No matches.</span>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(matchDetails)}" class="accordion" id="matchDetailsAccordion">
+            <div th:each="entry, iter : ${matchDetails}" class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse"
+                            th:attr="data-bs-target='#matchCollapse' + ${iter.index},
+                                     aria-controls='matchCollapse' + ${iter.index}"
+                            aria-expanded="false">
+                        <span class="flex-grow-1 d-flex align-items-center gap-2 flex-wrap">
+                            <span class="fw-semibold d-flex align-items-center gap-1"
+                                  th:with="infoA=${@countryRegistry.get(entry.match.teamA)}, infoB=${@countryRegistry.get(entry.match.teamB)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
+                                     height="20" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(entry.match.teamA, #locale)}">A</span>
+                                <span class="text-muted" th:text="#{match.vs}">vs</span>
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
+                                     height="20" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(entry.match.teamB, #locale)}">B</span>
+                            </span>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(entry.match.dateTime, #messages.msg('date.format'))}">date</small>
+                        </span>
+                        <span th:if="${entry.match.hasResult()}"
+                              class="badge bg-success me-3">
+                            <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
+                        </span>
+                        <span th:unless="${entry.match.hasResult()}"
+                              class="badge bg-secondary me-3"
+                              th:text="#{admin.status.pending}">Pending</span>
+                    </button>
+                </h2>
+                <div th:id="'matchCollapse' + ${iter.index}"
+                     class="accordion-collapse collapse"
+                     data-bs-parent="#matchDetailsAccordion">
+                    <div class="accordion-body p-0">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th th:text="#{team.scoreboard.member}">Member</th>
+                                    <th class="text-center" th:text="#{team.match.detail.prediction}">Prognose</th>
+                                    <th class="text-center" th:text="#{team.match.detail.points}">Punten</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${entry.rows}">
+                                    <td>
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        <span th:text="${row.user.username}">username</span>
+                                        <span th:if="${row.user.id == currentUser.id}"
+                                              class="badge bg-secondary ms-1"
+                                              th:text="#{team.badge.you}">You</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${row.prediction != null}"
+                                              th:text="${row.prediction.predictedScoreA + ' - ' + row.prediction.predictedScoreB}">0-0</span>
+                                        <span th:unless="${row.prediction != null}"
+                                              class="text-muted"
+                                              th:text="#{team.match.detail.no.prediction}">—</span>
+                                    </td>
+                                    <td class="text-center fw-bold">
+                                        <span th:if="${row.prediction != null and row.prediction.points != null}"
+                                              class="badge bg-wc">
+                                            <span th:text="${row.prediction.points}">0</span>
+                                            <span th:text="#{pts}">pts</span>
+                                        </span>
+                                        <span th:if="${row.prediction == null or row.prediction.points == null}"
+                                              class="text-muted">—</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination for match details -->
+        <nav th:if="${detailTotalPages > 1}" aria-label="Match detail pages" class="d-flex justify-content-center mt-3">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" th:classappend="${detailCurrentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/teams/{id}(id=${team.id}, detailPage=${detailCurrentPage - 1}, detailTab=${detailTab})}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(0, detailTotalPages - 1)}"
+                    class="page-item" th:classappend="${i == detailCurrentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/teams/{id}(id=${team.id}, detailPage=${i}, detailTab=${detailTab})}" th:text="${i + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${detailCurrentPage == detailTotalPages - 1} ? 'disabled'">
+                    <a class="page-link" th:href="@{/teams/{id}(id=${team.id}, detailPage=${detailCurrentPage + 1}, detailTab=${detailTab})}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
