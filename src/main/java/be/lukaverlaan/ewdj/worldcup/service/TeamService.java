@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,10 +86,12 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getAllTeamsWithScores() {
         List<Team> teams = teamRepository.findAll();
+        Set<User> allMembers = teams.stream().flatMap(t -> t.getMembers().stream()).collect(Collectors.toSet());
+        java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(allMembers);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Team team : teams) {
             int total = team.getMembers().stream()
-                .mapToInt(predictionRepository::sumPointsByUser)
+                .mapToInt(m -> pointsMap.getOrDefault(m.getId(), 0))
                 .sum();
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("team", team);
@@ -114,10 +117,12 @@ public class TeamService {
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getTop10Teams() {
         List<Team> teams = teamRepository.findAll();
+        Set<User> allMembers = teams.stream().flatMap(t -> t.getMembers().stream()).collect(Collectors.toSet());
+        java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(allMembers);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Team team : teams) {
             int total = team.getMembers().stream()
-                .mapToInt(predictionRepository::sumPointsByUser)
+                .mapToInt(m -> pointsMap.getOrDefault(m.getId(), 0))
                 .sum();
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("team", team);

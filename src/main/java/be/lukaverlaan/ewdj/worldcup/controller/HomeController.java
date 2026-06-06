@@ -57,8 +57,9 @@ public class HomeController {
             // Rank per team
             List<Map<String, Object>> teamRankings = new ArrayList<>();
             for (Team team : teamService.findTeamsForUser(user)) {
+                java.util.Map<Long, Integer> pts = predictionRepository.getPointsMapForUsers(team.getMembers());
                 List<User> sorted = team.getMembers().stream()
-                    .sorted((a, b) -> predictionRepository.sumPointsByUser(b) - predictionRepository.sumPointsByUser(a))
+                    .sorted((a, b) -> pts.getOrDefault(b.getId(), 0) - pts.getOrDefault(a.getId(), 0))
                     .toList();
                 int rank = sorted.stream().map(User::getId).toList().indexOf(user.getId()) + 1;
                 Map<String, Object> entry = new LinkedHashMap<>();

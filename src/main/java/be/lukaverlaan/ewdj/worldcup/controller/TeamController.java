@@ -5,6 +5,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.exception.TeamNotFoundException;
 import be.lukaverlaan.ewdj.worldcup.form.CreateTeamForm;
 import be.lukaverlaan.ewdj.worldcup.form.JoinTeamForm;
+import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import be.lukaverlaan.ewdj.worldcup.service.TeamService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
 import jakarta.validation.Valid;
@@ -26,10 +27,12 @@ public class TeamController {
 
     private final TeamService teamService;
     private final UserService userService;
+    private final PredictionRepository predictionRepository;
 
-    public TeamController(TeamService teamService, UserService userService) {
+    public TeamController(TeamService teamService, UserService userService, PredictionRepository predictionRepository) {
         this.teamService = teamService;
         this.userService = userService;
+        this.predictionRepository = predictionRepository;
     }
 
     @GetMapping
@@ -98,10 +101,11 @@ public class TeamController {
         if (!isMember && !isAdmin) {
             throw new SecurityException("team.access.denied");
         }
+        java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(team.getMembers());
         Map<User, Integer> memberScores = new LinkedHashMap<>();
         team.getMembers().stream()
-            .sorted((a, b) -> teamService.getTotalScoreForUser(b) - teamService.getTotalScoreForUser(a))
-            .forEach(m -> memberScores.put(m, teamService.getTotalScoreForUser(m)));
+            .sorted((a, b) -> pointsMap.getOrDefault(b.getId(), 0) - pointsMap.getOrDefault(a.getId(), 0))
+            .forEach(m -> memberScores.put(m, pointsMap.getOrDefault(m.getId(), 0)));
 
         int teamTotal = memberScores.values().stream().mapToInt(Integer::intValue).sum();
         Page<Map<String, Object>> matchDetailsPage =
