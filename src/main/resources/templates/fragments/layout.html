@@ -54,33 +54,33 @@
         <!-- Navigation links -->
         <nav class="sidebar-nav">
             <ul>
-                <li>
+                <li class="sidebar-bottom-nav-item">
                     <a th:href="@{/}" class="sidebar-link">
                         <i class="bi bi-house"></i>
                         <span th:text="#{nav.home}">Home</span>
                     </a>
                 </li>
 
-                <li class="sidebar-section-label" th:text="#{nav.section.tournament}">Toernooi</li>
-                <li>
+                <li class="sidebar-section-label sidebar-bottom-nav-item" th:text="#{nav.section.tournament}">Toernooi</li>
+                <li class="sidebar-bottom-nav-item">
                     <a th:href="@{/groups}" class="sidebar-link">
                         <i class="bi bi-grid-3x3-gap-fill"></i>
                         <span th:text="#{nav.groups}">Groepsfase</span>
                     </a>
                 </li>
-                <li>
+                <li class="sidebar-bottom-nav-item">
                     <a th:href="@{/bracket}" class="sidebar-link">
                         <i class="bi bi-diagram-3"></i>
                         <span th:text="#{nav.bracket}">Bracket</span>
                     </a>
                 </li>
-                <li>
+                <li class="sidebar-bottom-nav-item">
                     <a th:href="@{/matches}" class="sidebar-link">
                         <i class="bi bi-calendar3"></i>
                         <span th:text="#{nav.matches}">Wedstrijden</span>
                     </a>
                 </li>
-                <li>
+                <li class="sidebar-bottom-nav-item">
                     <a th:href="@{/scoreboard}" class="sidebar-link">
                         <i class="bi bi-trophy"></i>
                         <span th:text="#{nav.scoreboard}">Scoreboard</span>
