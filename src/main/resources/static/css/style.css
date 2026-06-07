@@ -405,6 +405,13 @@ body.app-body {
     .sidebar-bottom-nav-item { display: none; }
     .sidebar-logo { display: none; }
     .sidebar-lang-btns { display: none !important; }
+    .sidebar-footer {
+        flex-direction: row;
+        align-items: center;
+        gap: .5rem;
+    }
+    .sidebar-bottom-actions { display: contents; }
+    .sidebar-logout { margin-left: auto; }
     .mobile-header { display: flex; }
     .bottom-nav { display: flex; }
     .page-wrapper {
