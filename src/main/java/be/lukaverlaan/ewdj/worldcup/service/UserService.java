@@ -62,6 +62,13 @@ public class UserService implements UserDetailsService {
         return userRepository.existsByEmail(email);
     }
 
+    public User changeUsername(String currentUsername, String newUsername) {
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + currentUsername));
+        user.setUsername(newUsername);
+        return userRepository.save(user);
+    }
+
     public User createAdminUser(String username, String rawPassword, String email) {
         if (userRepository.existsByUsername(username)) return userRepository.findByUsername(username).get();
         User admin = new User(username, passwordEncoder.encode(rawPassword), email, Set.of("ADMIN"));

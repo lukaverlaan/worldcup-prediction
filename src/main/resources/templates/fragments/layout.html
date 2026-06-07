@@ -115,7 +115,8 @@
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <div class="user-info">
-                    <span class="user-name" th:text="${#authentication.name}" th:title="${#authentication.name}">gebruiker</span>
+                    <a th:href="@{/profile}" class="user-name text-decoration-none"
+                       th:text="${#authentication.name}" th:title="#{profile.title}">gebruiker</a>
                     <span class="user-role-badge" sec:authorize="hasRole('ADMIN')" th:text="#{role.admin}">Admin</span>
                     <span class="user-role-badge" sec:authorize="!hasRole('ADMIN')" th:text="#{role.user}">User</span>
                 </div>
