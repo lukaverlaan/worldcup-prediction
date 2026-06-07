@@ -60,6 +60,8 @@
                         <span th:text="#{nav.home}">Home</span>
                     </a>
                 </li>
+
+                <li class="sidebar-section-label" th:text="#{nav.section.tournament}">Toernooi</li>
                 <li>
                     <a th:href="@{/groups}" class="sidebar-link">
                         <i class="bi bi-grid-3x3-gap-fill"></i>
@@ -78,6 +80,8 @@
                         <span th:text="#{nav.scoreboard}">Scoreboard</span>
                     </a>
                 </li>
+
+                <li class="sidebar-section-label" sec:authorize="isAuthenticated()" th:text="#{nav.section.mijn}">Mijn account</li>
                 <li sec:authorize="isAuthenticated()">
                     <a th:href="@{/my-predictions}" class="sidebar-link">
                         <i class="bi bi-card-checklist"></i>
@@ -90,6 +94,8 @@
                         <span th:text="#{nav.myteams}">My Teams</span>
                     </a>
                 </li>
+
+                <li class="sidebar-section-label" sec:authorize="hasRole('ADMIN')" th:text="#{nav.section.admin}">Beheer</li>
                 <li sec:authorize="hasRole('ADMIN')">
                     <a th:href="@{/admin/matches}" class="sidebar-link">
                         <i class="bi bi-gear"></i>

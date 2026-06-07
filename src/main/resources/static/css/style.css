@@ -117,6 +117,23 @@ body.app-body {
     flex-shrink: 0;
 }
 
+.sidebar-section-label {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: .9rem .75rem .25rem;
+    list-style: none;
+    border-top: 1px solid var(--glass-border);
+    margin-top: .25rem;
+}
+
+.sidebar-section-label:first-of-type {
+    border-top: none;
+    margin-top: 0;
+}
+
 /* Sidebar footer */
 .sidebar-footer {
     padding: .75rem;
@@ -518,7 +535,7 @@ body.app-body {
 
 .stats-widget-header {
     background: rgba(255,255,255,.05);
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 2px solid var(--wc-gold);
     padding: .7rem 1rem;
     font-size: .85rem;
     font-weight: 700;
@@ -2011,12 +2028,16 @@ tr.clickable-row:hover > td {
 }
 
 .home-dash-card {
-    background: var(--card-bg, #1a1f2e);
-    border: 1px solid rgba(255,255,255,.08);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-top: 3px solid var(--wc-gold);
     border-radius: 12px;
     padding: 1.2rem 1.3rem;
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
 }
 
 .home-dash-card-label {
@@ -2024,7 +2045,7 @@ tr.clickable-row:hover > td {
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
-    color: #888;
+    color: var(--wc-gold);
     margin-bottom: .9rem;
 }
 
@@ -2052,7 +2073,7 @@ tr.clickable-row:hover > td {
 .home-dash-vs {
     font-size: .75rem;
     font-weight: 700;
-    color: #666;
+    color: var(--text-dim);
     padding: 0 .3rem;
 }
 .home-dash-meta {
@@ -2159,11 +2180,15 @@ tr.clickable-row:hover > td {
     gap: .75rem;
     padding: .7rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,.06);
+    border-left: 3px solid transparent;
     cursor: pointer;
-    transition: background .12s;
+    transition: background .15s, border-color .15s;
 }
 .match-list-row:last-child { border-bottom: none; }
-.match-list-row:hover { background: rgba(255,255,255,.04); }
+.match-list-row:hover {
+    background: rgba(255,255,255,.04);
+    border-left-color: var(--wc-red);
+}
 
 /* Teams + meta wrapper: op mobiel stapelen we datum onder teams */
 .match-list-body {
@@ -2196,7 +2221,7 @@ tr.clickable-row:hover > td {
 }
 .match-list-vs {
     font-size: .7rem;
-    color: #666;
+    color: var(--text-dim);
     font-weight: 700;
     white-space: nowrap;
     flex-shrink: 0;
