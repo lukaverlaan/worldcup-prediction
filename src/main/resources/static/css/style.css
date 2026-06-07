@@ -1855,3 +1855,156 @@ tr.clickable-row:hover > td {
         width: auto;
     }
 }
+
+/* ── Vote popup ───────────── */
+.vote-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.vote-modal {
+    background: var(--glass-bg-deep, #1a1f2e);
+    border: 1px solid var(--glass-border, rgba(255,255,255,.12));
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 540px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    animation: slideUp .3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.vote-modal--thanks {
+    text-align: center;
+    max-width: 360px;
+}
+
+.vote-modal-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.vote-trophy {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: .5rem;
+}
+
+.vote-modal-header h3 {
+    color: var(--wc-gold, #f39c12);
+    font-weight: 800;
+    margin-bottom: .25rem;
+}
+
+.vote-modal-header p,
+.vote-modal--thanks p {
+    color: var(--text-secondary, #aaa);
+    font-size: .9rem;
+    margin: 0;
+}
+
+.vote-modal--thanks h3 {
+    color: var(--wc-gold, #f39c12);
+    font-weight: 800;
+    margin: .75rem 0 .5rem;
+}
+
+.vote-country-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.vote-country-btn {
+    background: var(--glass-bg, rgba(255,255,255,.05));
+    border: 1px solid var(--glass-border, rgba(255,255,255,.12));
+    border-radius: 8px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    color: var(--text-secondary, #aaa);
+    font-size: .72rem;
+    font-weight: 600;
+    min-height: 90px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.vote-country-btn img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.vote-country-btn:hover {
+    border-color: rgba(243,156,18,.5);
+    background: rgba(243,156,18,.08);
+}
+
+.vote-country-btn.selected {
+    border-color: var(--wc-gold, #f39c12);
+    background: rgba(243,156,18,.15);
+    color: var(--wc-gold, #f39c12);
+}
+
+.vote-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.vote-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--glass-border, rgba(255,255,255,.12));
+    border-radius: 8px;
+    color: var(--text-secondary, #aaa);
+    padding: 8px 18px;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: border-color .15s;
+}
+
+.vote-btn-cancel:hover { border-color: rgba(255,255,255,.3); }
+
+.vote-btn-submit {
+    background: var(--wc-gold, #f39c12);
+    border: none;
+    border-radius: 8px;
+    color: #000;
+    padding: 8px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: .85rem;
+    transition: opacity .15s;
+}
+
+.vote-btn-submit:disabled {
+    opacity: .4;
+    cursor: default;
+}
+
+.vote-btn-submit:not(:disabled):hover { opacity: .85; }
