@@ -2002,3 +2002,250 @@ tr.clickable-row:hover > td {
 }
 
 .vote-btn-submit:not(:disabled):hover { opacity: .85; }
+
+/* ── Homepage dashboard kaarten ─────────────────────────── */
+.home-dashboard-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.home-dash-card {
+    background: var(--card-bg, #1a1f2e);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 1.2rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-dash-card-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: .9rem;
+}
+
+/* Volgende wedstrijd */
+.home-dash-match {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .6rem;
+}
+.home-dash-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    flex: 1;
+    text-align: center;
+}
+.home-dash-flag { width: 48px; height: auto; border-radius: 4px; }
+.home-dash-flag-placeholder { font-size: 2rem; color: #555; }
+.home-dash-vs {
+    font-size: .75rem;
+    font-weight: 700;
+    color: #666;
+    padding: 0 .3rem;
+}
+.home-dash-meta {
+    font-size: .78rem;
+    color: #999;
+    margin-bottom: .2rem;
+}
+
+/* Mijn teams */
+.home-dash-team-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.home-dash-team-row:last-of-type { border-bottom: none; }
+.home-dash-team-info { display: flex; align-items: center; font-size: .88rem; }
+.home-dash-team-rank { text-align: right; }
+.home-dash-rank-num { font-size: 1.1rem; font-weight: 700; color: var(--wc-red, #c0392b); }
+.home-dash-rank-total { font-size: .75rem; color: #888; margin-left: .2rem; }
+
+/* Top teams */
+.home-dash-top-row {
+    display: flex;
+    align-items: center;
+    padding: .45rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    font-size: .88rem;
+}
+.home-dash-top-row:last-of-type { border-bottom: none; }
+.home-dash-top-rank { font-size: 1rem; }
+.rank-gold  { color: #f1c40f; }
+.rank-silver { color: #bdc3c7; }
+.rank-bronze { color: #cd7f32; }
+.home-dash-top-pts { font-size: .8rem; color: #aaa; white-space: nowrap; }
+.home-dash-top-pts span { font-weight: 700; color: #e0e0e0; margin-right: .15rem; }
+
+/* ── Wedstrijdenlijst (kaarten) ──────────────────────────── */
+.home-match-list { display: flex; flex-direction: column; gap: .6rem; }
+
+.home-match-card {
+    background: var(--card-bg, #1a1f2e);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: .8rem 1.1rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+.home-match-card:hover {
+    border-color: rgba(255,255,255,.2);
+    background: #1f2640;
+}
+
+.home-match-teams {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+.home-match-team {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: 1;
+    font-size: .9rem;
+}
+.home-match-team-right {
+    justify-content: flex-end;
+    text-align: right;
+}
+.home-match-score {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    min-width: 60px;
+    justify-content: center;
+}
+.home-match-sep { color: #555; }
+.home-match-vs {
+    font-size: .72rem;
+    color: #666;
+    font-weight: 600;
+}
+.home-match-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: .75rem;
+    color: #888;
+    margin-top: .5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ── Match lijst tabel stijl ─────────────────────────────── */
+.match-list-table { display: flex; flex-direction: column; }
+
+.match-list-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    cursor: pointer;
+    transition: background .12s;
+}
+.match-list-row:last-child { border-bottom: none; }
+.match-list-row:hover { background: rgba(255,255,255,.04); }
+
+/* Teams + meta wrapper: op mobiel stapelen we datum onder teams */
+.match-list-body {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.match-list-teams {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+.match-list-team {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.match-list-vs {
+    font-size: .7rem;
+    color: #666;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0 .2rem;
+}
+.match-list-info {
+    display: flex;
+    flex-direction: column;
+    font-size: .75rem;
+    color: #888;
+    white-space: nowrap;
+    text-align: right;
+    gap: .1rem;
+    flex-shrink: 0;
+}
+.match-list-stadium { color: #666; }
+.match-list-round { flex-shrink: 0; }
+
+@media (max-width: 600px) {
+    .match-list-num { display: none; }
+    .match-list-round { display: none; }
+    .match-list-body { flex-wrap: wrap; gap: .3rem; }
+    .match-list-teams { flex: 1 1 100%; }
+    .match-list-info { text-align: left; flex: 1 1 100%; font-size: .72rem; }
+    .match-list-row { gap: .5rem; padding: .65rem .75rem; }
+}
+
+/* ── Poule positie widget ────────────────────────────────── */
+.home-dash-rank-big {
+    display: flex;
+    align-items: baseline;
+    gap: .4rem;
+    margin-bottom: .6rem;
+}
+.home-dash-rank-big-num {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--wc-red, #c0392b);
+    line-height: 1;
+}
+.home-dash-rank-big-total {
+    font-size: 1.1rem;
+    color: #888;
+    font-weight: 500;
+}
+
+/* Homepage fixes */
+.home-dash-meta-center { justify-content: center; text-align: center; }
+.home-dash-card .btn { padding-top: .28rem !important; padding-bottom: .28rem !important; font-size: .82rem; }
+
+.match-list-num { font-size: .8rem; color: #666; min-width: 28px; text-align: right; flex-shrink: 0; }
+.match-list-chevron { font-size: .75rem; flex-shrink: 0; margin-left: .5rem; }

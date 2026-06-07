@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,20 @@ public class MatchController {
         this.predictionService = predictionService;
         this.userService = userService;
         this.webClientService = webClientService;
+    }
+
+    @GetMapping
+    public String matchList(@RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "upcoming") String tab,
+                            Model model) {
+        Page<Match> matchPage = "past".equals(tab)
+                ? matchService.findPast(page, 15)
+                : matchService.findUpcoming(page, 15);
+        model.addAttribute("matches", matchPage.getContent());
+        model.addAttribute("currentPage", matchPage.getNumber());
+        model.addAttribute("totalPages", matchPage.getTotalPages());
+        model.addAttribute("tab", tab);
+        return "match/list";
     }
 
     @GetMapping("/{id}")

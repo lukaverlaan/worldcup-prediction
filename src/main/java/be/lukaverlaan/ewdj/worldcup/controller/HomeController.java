@@ -39,17 +39,19 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String home(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "upcoming") String tab,
-                       Model model, Authentication auth) {
-        log.info("GET /, page={}, tab={}", page, tab);
-        Page<Match> matchPage = "past".equals(tab)
-                ? matchService.findPast(page, 10)
-                : matchService.findUpcoming(page, 10);
-        model.addAttribute("matches", matchPage.getContent());
-        model.addAttribute("currentPage", matchPage.getNumber());
-        model.addAttribute("totalPages", matchPage.getTotalPages());
-        model.addAttribute("tab", tab);
+    public String home(Model model, Authentication auth) {
+        log.info("GET /");
+        // Homepage toont enkel 5 komende wedstrijden
+        List<Match> upcomingMatches = matchService.findUpcoming(0, 5).getContent();
+        model.addAttribute("matches", upcomingMatches);
+
+        // Volgende wedstrijd (voor iedereen zichtbaar)
+        matchService.findUpcoming(0, 1).getContent().stream().findFirst()
+            .ifPresent(m -> model.addAttribute("nextMatch", m));
+
+        // Top 3 teams voor het scoreboard widget
+        List<Map<String, Object>> top10 = teamService.getTop10Teams();
+        model.addAttribute("top3Teams", top10.size() > 3 ? top10.subList(0, 3) : top10);
 
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());

@@ -9,15 +9,13 @@
 <div class="page-wrapper">
 <main class="main-container">
 
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
         <span th:text="#{${successMessage}}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <!-- Top row: Hero + Stats widget -->
+    <!-- Hero banner -->
     <div class="home-top-row mb-4">
-
-        <!-- Hero Banner -->
         <div class="hero-banner">
             <div class="hero-banner-content">
                 <p class="hero-eyebrow" th:text="#{home.hero.eyebrow}">World Cup · Jun – Jul 2026</p>
@@ -48,14 +46,13 @@
             </div>
         </div>
 
-        <!-- Stats Widget (only when logged in) -->
+        <!-- Stats Widget (alleen ingelogd) -->
         <div class="stats-widget" sec:authorize="isAuthenticated()">
             <div class="stats-widget-header">
                 <i class="bi bi-person-circle me-2"></i>
                 <span th:text="${#authentication.name}">gebruiker</span>
             </div>
             <div class="stats-widget-body">
-                <!-- Total points + streak -->
                 <div class="stats-pts-block">
                     <div class="stats-pts-value" th:text="${totalPoints}">0</div>
                     <div class="stats-pts-label" th:text="#{stats.total.points}">Totaal punten</div>
@@ -65,8 +62,6 @@
                         <span th:text="#{stats.streak}">reeks</span>
                     </div>
                 </div>
-
-                <!-- Team rankings -->
                 <div class="stats-rankings" th:if="${!#lists.isEmpty(teamRankings)}">
                     <div class="stats-section-title" th:text="#{stats.rankings}">Klassement</div>
                     <div th:each="tr : ${teamRankings}" class="stats-team-rank">
@@ -91,102 +86,119 @@
                 </a>
             </div>
         </div>
+    </div>
+
+    <!-- Dashboard kaarten: rij 1 -->
+    <div class="home-dashboard-row mb-3">
+
+        <!-- Volgende wedstrijd -->
+        <div class="home-dash-card" th:if="${nextMatch != null}">
+            <div class="home-dash-card-label" th:text="#{home.next.match}">Volgende wedstrijd</div>
+            <div class="home-dash-match">
+                <div class="home-dash-team" th:with="infoA=${@countryRegistry.get(nextMatch.teamA)}">
+                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" alt="" class="home-dash-flag">
+                    <i th:unless="${infoA != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
+                    <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamA, #locale)}">Team A</span>
+                </div>
+                <div class="home-dash-vs">VS</div>
+                <div class="home-dash-team" th:with="infoB=${@countryRegistry.get(nextMatch.teamB)}">
+                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" alt="" class="home-dash-flag">
+                    <i th:unless="${infoB != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
+                    <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamB, #locale)}">Team B</span>
+                </div>
+            </div>
+            <div class="home-dash-meta home-dash-meta-center">
+                <i class="bi bi-calendar3 me-1"></i>
+                <span th:text="${#temporals.format(nextMatch.dateTime, #messages.msg('date.format'))}"></span>
+            </div>
+            <div class="home-dash-meta home-dash-meta-center" th:if="${nextMatch.stadium != null}">
+                <i class="bi bi-geo-alt me-1"></i>
+                <span th:text="${nextMatch.stadium}"></span>
+            </div>
+            <a th:href="@{/matches/{id}(id=${nextMatch.id},from='home')}" class="btn btn-wc btn-sm w-100 mt-3 d-flex align-items-center justify-content-center">
+                <i class="bi bi-pencil-square me-2"></i><span th:text="#{home.do.prediction}">Doe je voorspelling</span>
+            </a>
+        </div>
+
+        <!-- Mijn teams (alleen ingelogd, meerdere teams) -->
+        <div class="home-dash-card" sec:authorize="isAuthenticated()"
+             th:if="${!#lists.isEmpty(teamRankings) and teamRankings.size() > 1}">
+            <div class="home-dash-card-label" th:text="#{nav.myteams}">Mijn teams</div>
+            <div th:each="tr : ${teamRankings}" class="home-dash-team-row">
+                <div class="home-dash-team-info">
+                    <i class="bi bi-people-fill text-wc me-2"></i>
+                    <span class="fw-semibold" th:text="${tr.teamName}">Team</span>
+                </div>
+                <div class="home-dash-team-rank">
+                    <span class="home-dash-rank-num" th:text="'#' + ${tr.rank}"></span>
+                    <span class="home-dash-rank-total" th:text="'/ ' + ${tr.total}"></span>
+                </div>
+            </div>
+            <a th:href="@{/teams}" class="btn btn-outline-secondary btn-sm w-100 mt-auto pt-3 d-flex align-items-center justify-content-center">
+                <i class="bi bi-arrow-right me-2"></i><span th:text="#{home.view.teams}">Bekijk teams</span>
+            </a>
+        </div>
+
+        <!-- Top Teams widget -->
+        <div class="home-dash-card" th:if="${!#lists.isEmpty(top3Teams)}">
+            <div class="home-dash-card-label" th:text="#{nav.scoreboard}">Top Teams</div>
+            <div th:each="entry, iter : ${top3Teams}" class="home-dash-top-row">
+                <span th:class="${iter.index == 0 ? 'home-dash-top-rank rank-gold' : (iter.index == 1 ? 'home-dash-top-rank rank-silver' : 'home-dash-top-rank rank-bronze')}">
+                    <i th:class="${iter.index == 0 ? 'bi bi-trophy-fill' : (iter.index == 1 ? 'bi bi-award-fill' : 'bi bi-award')}"></i>
+                </span>
+                <span class="fw-semibold flex-grow-1 ms-2" th:text="${entry.team.name}">Team</span>
+                <span class="home-dash-top-pts">
+                    <span th:text="${entry.totalScore}">0</span>
+                    <small th:text="#{pts}">ptn</small>
+                </span>
+            </div>
+            <a th:href="@{/scoreboard}" class="btn btn-outline-secondary btn-sm w-100 mt-auto pt-3 d-flex align-items-center justify-content-center">
+                <i class="bi bi-trophy me-2"></i><span th:text="#{home.full.ranking}">Volledige ranking</span>
+            </a>
+        </div>
 
     </div>
 
-    <!-- Tab bar + Admin button -->
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <ul class="nav nav-pills gap-2">
-            <li class="nav-item">
-                <a class="nav-link" th:classappend="${tab == 'upcoming'} ? 'active'"
-                   th:href="@{/(tab='upcoming')}">
-                    <i class="bi bi-calendar-event me-1"></i>
-                    <span th:text="#{home.tab.upcoming}">Upcoming</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:classappend="${tab == 'past'} ? 'active'"
-                   th:href="@{/(tab='past')}">
-                    <i class="bi bi-clock-history me-1"></i>
-                    <span th:text="#{home.tab.past}">Past Results</span>
-                </a>
-            </li>
-        </ul>
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/matches}" class="btn btn-sm btn-outline-danger">
-            <i class="bi bi-gear me-1"></i><span th:text="#{home.admin.manage}">Manage Matches</span>
-        </a>
-    </div>
+    <!-- Komende wedstrijden compact lijst -->
+    <div class="home-dash-card p-0 mb-2" th:unless="${#lists.isEmpty(matches)}">
+        <div class="home-dash-card-label px-3 pt-3" th:text="#{home.tab.upcoming}">Komende wedstrijden</div>
+        <div class="match-list-table">
+            <div th:each="match : ${matches}"
+                 class="match-list-row clickable-row"
+                 th:data-href="@{/matches/{id}(id=${match.id},from='home')}">
 
-    <!-- Empty state -->
-    <div th:if="${#lists.isEmpty(matches)}" class="alert alert-info">
-        <span th:text="${tab == 'past'} ? #{home.matches.past.empty} : #{home.matches.empty}">No matches.</span>
-    </div>
-
-    <!-- Match table -->
-    <div th:unless="${#lists.isEmpty(matches)}" class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th th:text="#{home.column.match}">Match</th>
-                    <th class="match-col-date" th:text="#{home.column.date}">Date</th>
-                    <th class="match-col-location" th:text="#{home.column.location}">Location</th>
-                    <th th:text="#{home.column.result}">Result</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="match : ${matches}"
-                    class="clickable-row"
-                    th:data-href="@{/matches/{id}(id=${match.id},from='home')}">
-                    <td>
-                        <div class="match-teams-cell">
-                            <span class="match-team-row" th:with="infoA=${@countryRegistry.get(match.teamA)}">
-                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
-                                     height="24" class="country-logo" alt="">
-                                <span class="fw-bold"
-                                      th:text="${@countryRegistry.getDisplayName(match.teamA, #locale)}">Team A</span>
-                            </span>
-                            <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
-                            <span class="match-team-row" th:with="infoB=${@countryRegistry.get(match.teamB)}">
-                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
-                                     height="24" class="country-logo" alt="">
-                                <span class="fw-bold"
-                                      th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">Team B</span>
-                            </span>
-                            <small class="match-date-mobile text-muted"
-                                   th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}"></small>
+                <div class="match-list-body">
+                    <div class="match-list-teams">
+                        <div class="match-list-team" th:with="infoA=${@countryRegistry.get(match.teamA)}">
+                            <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                            <span th:text="${@countryRegistry.getDisplayName(match.teamA, #locale)}">Team A</span>
                         </div>
-                    </td>
-                    <td class="match-col-date" th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}">Date</td>
-                    <td class="match-col-location" th:text="${match.city} + (${match.stadium} != null ? ' – ' + ${match.stadium} : '')">Location</td>
-                    <td>
-                        <span th:if="${match.hasResult()}" class="badge bg-success"
-                              th:text="${match.officialScoreA} + ' – ' + ${match.officialScoreB}">3-1</span>
-                        <span th:unless="${match.hasResult()}" class="badge bg-secondary" th:text="#{home.result.tbd}">TBD</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        <div class="match-list-vs" th:if="${match.hasResult()}">
+                            <span th:text="${match.officialScoreA}">0</span>
+                            <span style="color:#555">–</span>
+                            <span th:text="${match.officialScoreB}">0</span>
+                        </div>
+                        <div class="match-list-vs" th:unless="${match.hasResult()}">vs</div>
+                        <div class="match-list-team" th:with="infoB=${@countryRegistry.get(match.teamB)}">
+                            <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                            <span th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">Team B</span>
+                        </div>
+                    </div>
+                    <div class="match-list-info">
+                        <span th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}"></span>
+                        <span th:if="${match.stadium != null}" class="match-list-stadium">
+                            <i class="bi bi-geo-alt me-1"></i><span th:text="${match.stadium}"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="px-3 pb-3 pt-1">
+            <a th:href="@{/matches}" class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center justify-content-center">
+                <i class="bi bi-calendar3 me-2"></i><span th:text="#{home.all.matches}">Bekijk alle wedstrijden</span>
+            </a>
+        </div>
     </div>
-
-    <!-- Pagination -->
-    <nav th:if="${totalPages > 1}" aria-label="Match pages" class="d-flex justify-content-center mt-3">
-        <ul class="pagination pagination-sm mb-0">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link" th:href="@{/(page=${currentPage - 1}, tab=${tab})}">
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-            </li>
-            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/(page=${i}, tab=${tab})}" th:text="${i + 1}">1</a>
-            </li>
-            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/(page=${currentPage + 1}, tab=${tab})}">
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
 
 </main>
 
@@ -195,7 +207,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.querySelectorAll('tr.clickable-row').forEach(function(row) {
+    document.querySelectorAll('.clickable-row').forEach(function(row) {
         row.addEventListener('click', function() {
             var href = this.dataset.href;
             if (href) window.location.href = href;
