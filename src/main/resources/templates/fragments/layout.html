@@ -138,6 +138,17 @@
                 </div>
             </div>
             <div class="sidebar-bottom-actions">
+                <div class="d-flex gap-1 sidebar-lang-btns">
+                    <button type="button"
+                            th:class="${#locale.language == 'en'} ? 'lang-btn active' : 'lang-btn'"
+                            onclick="switchLang('en')">EN</button>
+                    <button type="button"
+                            th:class="${#locale.language == 'nl'} ? 'lang-btn active' : 'lang-btn'"
+                            onclick="switchLang('nl')">NL</button>
+                    <button type="button"
+                            th:class="${#locale.language == 'fr'} ? 'lang-btn active' : 'lang-btn'"
+                            onclick="switchLang('fr')">FR</button>
+                </div>
                 <form th:action="@{/logout}" method="post" class="ms-auto">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                     <button type="submit" class="sidebar-logout" th:title="#{nav.logout}">

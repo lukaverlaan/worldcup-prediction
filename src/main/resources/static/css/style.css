@@ -404,6 +404,7 @@ body.app-body {
     .sidebar.open { transform: translateX(0); }
     .sidebar-bottom-nav-item { display: none; }
     .sidebar-logo { display: none; }
+    .sidebar-lang-btns { display: none !important; }
     .mobile-header { display: flex; }
     .bottom-nav { display: flex; }
     .page-wrapper {
