@@ -1666,6 +1666,7 @@ tr.clickable-row:hover > td {
     font-size: .5rem;
     font-weight: 800;
     letter-spacing: .05em;
+    text-transform: uppercase;
     color: #fff;
     text-align: center;
     padding: 2px 2px;
@@ -1708,6 +1709,9 @@ tr.clickable-row:hover > td {
 .bk-col-mirror {
     /* mirrored columns look identical */
 }
+
+.bk-col-label .label-short { display: none; color: var(--wc-gold); }
+.bk-col-label .label-full { display: inline; color: var(--wc-gold); }
 
 .bk-col-label {
     font-size: .58rem;
@@ -1832,3 +1836,8 @@ tr.clickable-row:hover > td {
     margin-top: 4px;
 }
 
+
+@media (max-width: 768px) {
+    .bk-col-label .label-full { display: none; }
+    .bk-col-label .label-short { display: inline; }
+}

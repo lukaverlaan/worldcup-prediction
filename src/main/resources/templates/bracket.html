@@ -23,7 +23,7 @@
         <div class="bk-groups bk-groups-left">
             <div th:each="g,i : ${groupCards}" th:if="${i.index < 6}" class="bk-group-card"
                  th:style="'border-color:' + ${g.color}">
-                <div class="bk-group-letter" th:style="'background:' + ${g.color}" th:text="'GROEP ' + ${g.letter}">GROEP A</div>
+                <div class="bk-group-letter" th:style="'background:' + ${g.color}" th:text="${#messages.msg('bracket.group') + ' ' + g.letter}">GROEP A</div>
                 <div class="bk-group-teams">
                     <div th:each="t : ${g.teams}" class="bk-group-team">
                         <img th:if="${t.badge != null}" th:src="@{/images/badges/{b}.png(b=${t.badge})}" class="bk-flag" alt="">
@@ -38,7 +38,7 @@
 
             <!-- Round of 32 LEFT -->
             <div class="bk-col">
-                <div class="bk-col-label" th:text="#{bracket.round32}">R32</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.round32}"></span><span class="label-short" th:text="#{bracket.round32.short}"></span></div>
                 <div class="bk-slots" style="--slots:8">
                     <th:block th:each="m,i : ${bracketRounds['Round of 32']}">
                         <div th:if="${i.index < 8}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -59,7 +59,7 @@
 
             <!-- Round of 16 LEFT -->
             <div class="bk-col">
-                <div class="bk-col-label" th:text="#{bracket.round16}">R16</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.round16}"></span><span class="label-short" th:text="#{bracket.round16.short}"></span></div>
                 <div class="bk-slots" style="--slots:4">
                     <th:block th:each="m,i : ${bracketRounds['Round of 16']}">
                         <div th:if="${i.index < 4}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -80,7 +80,7 @@
 
             <!-- Quarter-finals LEFT -->
             <div class="bk-col">
-                <div class="bk-col-label" th:text="#{bracket.qf}">QF</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.qf}"></span><span class="label-short" th:text="#{bracket.qf.short}"></span></div>
                 <div class="bk-slots" style="--slots:2">
                     <th:block th:each="m,i : ${bracketRounds['Quarter-finals']}">
                         <div th:if="${i.index < 2}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -101,7 +101,7 @@
 
             <!-- Semi-finals LEFT -->
             <div class="bk-col">
-                <div class="bk-col-label" th:text="#{bracket.sf}">SF</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.sf}"></span><span class="label-short" th:text="#{bracket.sf.short}"></span></div>
                 <div class="bk-slots" style="--slots:1">
                     <th:block th:each="m,i : ${bracketRounds['Semi-finals']}">
                         <div th:if="${i.index < 1}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -122,7 +122,7 @@
 
             <!-- CENTER: Final + Champion + 3rd Place -->
             <div class="bk-center">
-                <div class="bk-col-label" th:text="#{bracket.final}">Finale</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.final}"></span><span class="label-short" th:text="#{bracket.final.short}"></span></div>
                 <th:block th:each="m : ${bracketRounds['Final']}">
                     <div class="bk-slot bk-slot-final" th:classappend="${m.played} ? ' bk-slot-played' : ''">
                         <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
@@ -143,7 +143,7 @@
                     <div class="bk-champion-label" th:text="#{bracket.champion}">Wereldkampioen</div>
                 </div>
 
-                <div class="bk-col-label mt-3" th:text="#{bracket.third}">3de Plaats</div>
+                <div class="bk-col-label mt-3"><span class="label-full" th:text="#{bracket.third}"></span><span class="label-short" th:text="#{bracket.third.short}"></span></div>
                 <th:block th:each="m : ${bracketRounds['3rd Place Final']}">
                     <div class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
                         <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
@@ -162,7 +162,7 @@
 
             <!-- Semi-finals RIGHT -->
             <div class="bk-col bk-col-mirror">
-                <div class="bk-col-label" th:text="#{bracket.sf}">SF</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.sf}"></span><span class="label-short" th:text="#{bracket.sf.short}"></span></div>
                 <div class="bk-slots" style="--slots:1">
                     <th:block th:each="m,i : ${bracketRounds['Semi-finals']}">
                         <div th:if="${i.index >= 1}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -183,7 +183,7 @@
 
             <!-- Quarter-finals RIGHT -->
             <div class="bk-col bk-col-mirror">
-                <div class="bk-col-label" th:text="#{bracket.qf}">QF</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.qf}"></span><span class="label-short" th:text="#{bracket.qf.short}"></span></div>
                 <div class="bk-slots" style="--slots:2">
                     <th:block th:each="m,i : ${bracketRounds['Quarter-finals']}">
                         <div th:if="${i.index >= 2}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -204,7 +204,7 @@
 
             <!-- Round of 16 RIGHT -->
             <div class="bk-col bk-col-mirror">
-                <div class="bk-col-label" th:text="#{bracket.round16}">R16</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.round16}"></span><span class="label-short" th:text="#{bracket.round16.short}"></span></div>
                 <div class="bk-slots" style="--slots:4">
                     <th:block th:each="m,i : ${bracketRounds['Round of 16']}">
                         <div th:if="${i.index >= 4}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -225,7 +225,7 @@
 
             <!-- Round of 32 RIGHT -->
             <div class="bk-col bk-col-mirror">
-                <div class="bk-col-label" th:text="#{bracket.round32}">R32</div>
+                <div class="bk-col-label"><span class="label-full" th:text="#{bracket.round32}"></span><span class="label-short" th:text="#{bracket.round32.short}"></span></div>
                 <div class="bk-slots" style="--slots:8">
                     <th:block th:each="m,i : ${bracketRounds['Round of 32']}">
                         <div th:if="${i.index >= 8}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
@@ -250,7 +250,7 @@
         <div class="bk-groups bk-groups-right">
             <div th:each="g,i : ${groupCards}" th:if="${i.index >= 6}" class="bk-group-card"
                  th:style="'border-color:' + ${g.color}">
-                <div class="bk-group-letter" th:style="'background:' + ${g.color}" th:text="'GROEP ' + ${g.letter}">GROEP G</div>
+                <div class="bk-group-letter" th:style="'background:' + ${g.color}" th:text="${#messages.msg('bracket.group') + ' ' + g.letter}">GROEP G</div>
                 <div class="bk-group-teams">
                     <div th:each="t : ${g.teams}" class="bk-group-team">
                         <img th:if="${t.badge != null}" th:src="@{/images/badges/{b}.png(b=${t.badge})}" class="bk-flag" alt="">
