@@ -2189,6 +2189,9 @@ tr.clickable-row:hover > td {
     background: rgba(255,255,255,.04);
     border-left-color: var(--wc-red);
 }
+.match-list-row:first-child:hover {
+    border-top-left-radius: 9px;
+}
 
 /* Teams + meta wrapper: op mobiel stapelen we datum onder teams */
 .match-list-body {
