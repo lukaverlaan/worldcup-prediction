@@ -306,6 +306,10 @@ body.app-body {
     margin: 0 auto;
 }
 
+.main-container--full {
+    max-width: none;
+}
+
 /* ── Footer ──────────────────── */
 .footer {
     background: transparent !important;
@@ -1633,8 +1637,9 @@ tr.clickable-row:hover > td {
 
 /* ── Bracket ─────────────────── */
 .bracket-scroll {
-    overflow-x: auto;
+    overflow-x: visible;
     padding-bottom: 1rem;
+    width: 100%;
 }
 
 /* Outer container: groups + bracket */
@@ -1642,7 +1647,7 @@ tr.clickable-row:hover > td {
     display: flex;
     align-items: stretch;
     gap: 6px;
-    min-width: 900px;
+    width: 100%;
 }
 
 /* Group card columns */
@@ -1651,7 +1656,7 @@ tr.clickable-row:hover > td {
     flex-direction: column;
     gap: 4px;
     flex-shrink: 0;
-    width: 72px;
+    width: 76px;
     justify-content: space-evenly;
 }
 
@@ -1663,13 +1668,13 @@ tr.clickable-row:hover > td {
 }
 
 .bk-group-letter {
-    font-size: .5rem;
+    font-size: .6rem;
     font-weight: 800;
     letter-spacing: .05em;
     text-transform: uppercase;
     color: #fff;
     text-align: center;
-    padding: 2px 2px;
+    padding: 3px 2px;
 }
 
 .bk-group-teams {
@@ -1682,8 +1687,8 @@ tr.clickable-row:hover > td {
 .bk-group-team {
     display: flex;
     align-items: center;
-    gap: 3px;
-    font-size: .58rem;
+    gap: 4px;
+    font-size: .68rem;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -1714,13 +1719,13 @@ tr.clickable-row:hover > td {
 .bk-col-label .label-full { display: inline; color: var(--wc-gold); }
 
 .bk-col-label {
-    font-size: .58rem;
+    font-size: .7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .07em;
     color: var(--wc-gold);
     text-align: center;
-    padding: 4px 0 6px;
+    padding: 4px 0 8px;
     white-space: nowrap;
 }
 
@@ -1733,7 +1738,7 @@ tr.clickable-row:hover > td {
     align-items: center;
     flex: 1;
     width: 100%;
-    min-height: 540px;
+    min-height: 700px;
 }
 
 /* Individual match card */
@@ -1741,8 +1746,8 @@ tr.clickable-row:hover > td {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 6px;
-    width: 88%;
-    max-width: 100px;
+    width: 92%;
+    max-width: none;
     overflow: hidden;
     flex-shrink: 0;
     transition: border-color .2s;
@@ -1753,7 +1758,7 @@ tr.clickable-row:hover > td {
 }
 
 .bk-slot-final {
-    max-width: 120px;
+    max-width: none;
     border-color: var(--wc-gold);
     box-shadow: 0 0 16px rgba(243,156,18,.3);
 }
@@ -1761,9 +1766,9 @@ tr.clickable-row:hover > td {
 .bk-team {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 6px;
-    font-size: .65rem;
+    gap: 5px;
+    padding: 6px 8px;
+    font-size: .75rem;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--glass-border);
 }
@@ -1796,8 +1801,8 @@ tr.clickable-row:hover > td {
 
 /* Flag images */
 .bk-flag {
-    width: 16px;
-    height: 11px;
+    width: 20px;
+    height: 14px;
     object-fit: cover;
     border-radius: 2px;
     flex-shrink: 0;
@@ -1805,7 +1810,7 @@ tr.clickable-row:hover > td {
 
 /* Center column: Final + Champion + 3rd */
 .bk-center {
-    flex: 0 0 130px;
+    flex: 0 0 120px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1827,17 +1832,26 @@ tr.clickable-row:hover > td {
 }
 
 .bk-champion-label {
-    font-size: .6rem;
+    font-size: .75rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .1em;
     color: var(--wc-gold);
     text-align: center;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 
 @media (max-width: 768px) {
     .bk-col-label .label-full { display: none; }
     .bk-col-label .label-short { display: inline; }
+
+    .bracket-scroll {
+        overflow-x: auto;
+    }
+
+    .bk-outer {
+        min-width: 900px;
+        width: auto;
+    }
 }
