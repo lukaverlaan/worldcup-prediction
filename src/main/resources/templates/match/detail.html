@@ -97,17 +97,20 @@
                         <div id="panel-team" th:style="${teamStats == null} ? 'display:none' : ''">
                             <div th:if="${teamStats != null}">
                                 <p class="text-muted mb-1" style="font-size:.72rem" th:text="#{stats.based.on(${teamStats.total})}"></p>
-                                <div class="d-flex rounded overflow-hidden mb-1" style="height:22px">
+                                <div class="d-flex mb-1" style="height:22px;border-radius:6px;overflow:hidden;transform:translateZ(0)">
                                     <div class="bg-success d-flex align-items-center justify-content-center text-white fw-bold"
-                                         style="font-size:.7rem" th:style="'width:' + ${teamStats.winPctAInt()} + '%'">
+                                         style="font-size:.7rem"
+                                         th:style="'width:' + ${teamStats.winPctAInt()} + '%;border-radius:' + (${teamStats.winPctAInt()==100} ? '6px' : (${teamStats.winPctAInt()>0} ? '6px 0 0 6px' : '0'))">
                                         <span th:if="${teamStats.winPctAInt() >= 10}" th:text="${teamStats.winPctAInt()} + '%'"></span>
                                     </div>
                                     <div class="bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
-                                         style="font-size:.7rem" th:style="'width:' + ${teamStats.drawPctInt()} + '%'">
+                                         style="font-size:.7rem"
+                                         th:style="'width:' + ${teamStats.drawPctInt()} + '%;border-radius:' + (${teamStats.drawPctInt()==100} ? '6px' : (${teamStats.winPctAInt()==0 and teamStats.drawPctInt()>0} ? '6px 0 0 6px' : (${teamStats.winPctBInt()==0 and teamStats.drawPctInt()>0} ? '0 6px 6px 0' : '0')))">
                                         <span th:if="${teamStats.drawPctInt() >= 10}" th:text="${teamStats.drawPctInt()} + '%'"></span>
                                     </div>
                                     <div class="bg-danger d-flex align-items-center justify-content-center text-white fw-bold"
-                                         style="font-size:.7rem" th:style="'width:' + ${teamStats.winPctBInt()} + '%'">
+                                         style="font-size:.7rem"
+                                         th:style="'width:' + ${teamStats.winPctBInt()} + '%;border-radius:' + (${teamStats.winPctBInt()==100} ? '6px' : (${teamStats.winPctBInt()>0} ? '0 6px 6px 0' : '0'))">
                                         <span th:if="${teamStats.winPctBInt() >= 10}" th:text="${teamStats.winPctBInt()} + '%'"></span>
                                     </div>
                                 </div>
@@ -126,17 +129,20 @@
                         <!-- Global panel -->
                         <div id="panel-global" th:style="${teamStats != null} ? 'display:none' : ''">
                             <p class="text-muted mb-1" style="font-size:.72rem" th:text="#{stats.based.on(${globalStats.total})}"></p>
-                            <div class="d-flex rounded overflow-hidden mb-1" style="height:22px">
+                            <div class="d-flex mb-1" style="height:22px;border-radius:6px;overflow:hidden;transform:translateZ(0)">
                                 <div class="bg-success d-flex align-items-center justify-content-center text-white fw-bold"
-                                     style="font-size:.7rem" th:style="'width:' + ${globalStats.winPctAInt()} + '%'">
+                                     style="font-size:.7rem"
+                                     th:style="'width:' + ${globalStats.winPctAInt()} + '%;border-radius:' + (${globalStats.winPctAInt()==100} ? '6px' : (${globalStats.winPctAInt()>0} ? '6px 0 0 6px' : '0'))">
                                     <span th:if="${globalStats.winPctAInt() >= 10}" th:text="${globalStats.winPctAInt()} + '%'"></span>
                                 </div>
                                 <div class="bg-secondary d-flex align-items-center justify-content-center text-white fw-bold"
-                                     style="font-size:.7rem" th:style="'width:' + ${globalStats.drawPctInt()} + '%'">
+                                     style="font-size:.7rem"
+                                     th:style="'width:' + ${globalStats.drawPctInt()} + '%;border-radius:' + (${globalStats.drawPctInt()==100} ? '6px' : (${globalStats.winPctAInt()==0 and globalStats.drawPctInt()>0} ? '6px 0 0 6px' : (${globalStats.winPctBInt()==0 and globalStats.drawPctInt()>0} ? '0 6px 6px 0' : '0')))">
                                     <span th:if="${globalStats.drawPctInt() >= 10}" th:text="${globalStats.drawPctInt()} + '%'"></span>
                                 </div>
                                 <div class="bg-danger d-flex align-items-center justify-content-center text-white fw-bold"
-                                     style="font-size:.7rem" th:style="'width:' + ${globalStats.winPctBInt()} + '%'">
+                                     style="font-size:.7rem"
+                                     th:style="'width:' + ${globalStats.winPctBInt()} + '%;border-radius:' + (${globalStats.winPctBInt()==100} ? '6px' : (${globalStats.winPctBInt()>0} ? '0 6px 6px 0' : '0'))">
                                     <span th:if="${globalStats.winPctBInt() >= 10}" th:text="${globalStats.winPctBInt()} + '%'"></span>
                                 </div>
                             </div>
