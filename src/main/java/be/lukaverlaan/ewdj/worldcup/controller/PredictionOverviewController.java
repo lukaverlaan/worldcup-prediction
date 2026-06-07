@@ -3,6 +3,7 @@ package be.lukaverlaan.ewdj.worldcup.controller;
 import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
+import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -19,10 +20,13 @@ public class PredictionOverviewController {
 
     private final UserService userService;
     private final PredictionRepository predictionRepository;
+    private final PredictionService predictionService;
 
-    public PredictionOverviewController(UserService userService, PredictionRepository predictionRepository) {
+    public PredictionOverviewController(UserService userService, PredictionRepository predictionRepository,
+                                        PredictionService predictionService) {
         this.userService = userService;
         this.predictionRepository = predictionRepository;
+        this.predictionService = predictionService;
     }
 
     @GetMapping("/my-predictions")
@@ -40,7 +44,9 @@ public class PredictionOverviewController {
 
         model.addAttribute("pastPredictions", past);
         model.addAttribute("upcomingPredictions", upcoming);
+        int streak = predictionService.getStreakForUser(user);
         model.addAttribute("totalPoints", totalPoints);
+        model.addAttribute("streak", streak);
         model.addAttribute("user", user);
         return "my-predictions";
     }

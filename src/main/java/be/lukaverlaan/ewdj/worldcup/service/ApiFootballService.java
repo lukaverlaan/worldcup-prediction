@@ -22,8 +22,11 @@ public class ApiFootballService {
         Map.entry("Côte d'Ivoire", "Ivory Coast"),
         Map.entry("Korea Republic", "South Korea"),
         Map.entry("Bosnia", "Bosnia and Herzegovina"),
+        Map.entry("Bosnia & Herzegovina", "Bosnia and Herzegovina"),
         Map.entry("Congo DR", "DR Congo"),
-        Map.entry("Curaçao", "Curaçao")
+        Map.entry("Curaçao", "Curaçao"),
+        Map.entry("Türkiye", "Turkey"),
+        Map.entry("Cape Verde Islands", "Cape Verde")
     );
 
     private final WebClient client;

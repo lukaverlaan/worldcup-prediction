@@ -12,6 +12,9 @@
             <p class="text-muted mb-0 mt-1">
                 <span th:text="#{mypred.total.points}">Totaal:</span>
                 <strong class="text-wc" th:text="${totalPoints} + ' ptn'">0 ptn</strong>
+                <span th:if="${streak > 0}" class="ms-2 streak-badge">
+                    🔥 <span th:text="${streak}">0</span> <span th:text="#{stats.streak}">reeks</span>
+                </span>
             </p>
         </div>
     </div>

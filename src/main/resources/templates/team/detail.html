@@ -86,6 +86,9 @@
                                 <span th:text="${entry.value}">0</span>
                                 <span th:text="#{pts}">pts</span>
                             </small>
+                            <div th:if="${streaks[entry.key.id] > 0}" class="member-streak">
+                                🔥 <span th:text="${streaks[entry.key.id]}">0</span>
+                            </div>
                             <div class="mt-1 d-flex gap-1 flex-wrap justify-content-center">
                                 <span th:if="${entry.key.id == team.owner.id}"
                                       class="badge bg-info" style="font-size:.65rem"
@@ -121,6 +124,9 @@
                                 <td>
                                     <i class="bi bi-person-circle me-1"></i>
                                     <span th:text="${entry.key.username}">username</span>
+                                    <span th:if="${streaks[entry.key.id] > 0}" class="member-streak ms-1">
+                                        🔥 <span th:text="${streaks[entry.key.id]}">0</span>
+                                    </span>
                                     <span th:if="${entry.key.id == team.owner.id}"
                                           class="badge bg-info ms-1" th:text="#{team.badge.owner}">Owner</span>
                                     <span th:if="${entry.key.id == currentUser.id}"

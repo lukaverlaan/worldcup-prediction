@@ -91,6 +91,23 @@ public class PredictionService {
         return predictionRepository.findByUser(user);
     }
 
+    @Transactional(readOnly = true)
+    public int getStreakForUser(User user) {
+        List<Prediction> played = predictionRepository.findByUser(user).stream()
+            .filter(p -> p.getPoints() != null)
+            .sorted((a, b) -> b.getMatch().getDateTime().compareTo(a.getMatch().getDateTime()))
+            .toList();
+        int streak = 0;
+        for (Prediction p : played) {
+            if (p.getPoints() > 0) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
     private boolean isUniqueExactInAnyTeam(Prediction target, List<Prediction> all) {
         List<Team> userTeams = teamRepository.findByMembersContains(target.getUser());
         int officialA = target.getMatch().getOfficialScoreA();

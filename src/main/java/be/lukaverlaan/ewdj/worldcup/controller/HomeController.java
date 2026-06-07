@@ -4,6 +4,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Team;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import be.lukaverlaan.ewdj.worldcup.service.MatchService;
+import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.TeamService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +26,16 @@ public class HomeController {
     private final UserService userService;
     private final TeamService teamService;
     private final PredictionRepository predictionRepository;
+    private final PredictionService predictionService;
 
     public HomeController(MatchService matchService, UserService userService,
-                          TeamService teamService, PredictionRepository predictionRepository) {
+                          TeamService teamService, PredictionRepository predictionRepository,
+                          PredictionService predictionService) {
         this.matchService = matchService;
         this.userService = userService;
         this.teamService = teamService;
         this.predictionRepository = predictionRepository;
+        this.predictionService = predictionService;
     }
 
     @GetMapping("/")
@@ -51,8 +55,10 @@ public class HomeController {
             User user = userService.findByUsername(auth.getName());
             int totalPoints = predictionRepository.sumPointsByUser(user);
             int predictionCount = predictionRepository.findByUser(user).size();
+            int streak = predictionService.getStreakForUser(user);
             model.addAttribute("totalPoints", totalPoints);
             model.addAttribute("predictionCount", predictionCount);
+            model.addAttribute("streak", streak);
 
             // Rank per team
             List<Map<String, Object>> teamRankings = new ArrayList<>();
