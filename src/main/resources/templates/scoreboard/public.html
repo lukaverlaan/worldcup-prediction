@@ -27,7 +27,18 @@
                         <div class="podium-avatar">
                             <i class="bi bi-people-fill"></i>
                         </div>
-                        <div class="podium-name" th:text="${entry.team.name}">Team</div>
+                        <!-- own team → link to detail, other team → modal -->
+                        <div th:if="${userTeamIds.contains(entry.team.id)}">
+                            <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="podium-name text-decoration-none"
+                               th:text="${entry.team.name}">Team</a>
+                        </div>
+                        <div th:unless="${userTeamIds.contains(entry.team.id)}">
+                            <span class="podium-name team-preview-link"
+                                  style="cursor:pointer;text-decoration:underline dotted"
+                                  th:data-team-id="${entry.team.id}"
+                                  th:data-team-name="${entry.team.name}"
+                                  th:text="${entry.team.name}">Team</span>
+                        </div>
                         <small class="podium-pts">
                             <span th:text="${entry.totalScore}">0</span>
                             <span th:text="#{pts}">pts</span>
@@ -47,12 +58,22 @@
                 <div class="card-body p-0">
                     <table class="table table-hover mb-0 align-middle">
                         <tbody>
-                            <tr th:each="entry, iter : ${top10}" th:if="${iter.index >= 3}">
+                            <tr th:each="entry, iter : ${top10}" th:if="${iter.index >= 3}"
+                                th:classappend="${!userTeamIds.contains(entry.team.id)} ? 'team-preview-row' : ''"
+                                th:data-team-id="${entry.team.id}"
+                                th:data-team-name="${entry.team.name}"
+                                style="cursor:pointer">
                                 <td class="text-center ps-3 fw-semibold text-muted" style="width:55px"
                                     th:text="${iter.index + 1}">4</td>
                                 <td>
                                     <i class="bi bi-people-fill me-2 text-wc"></i>
-                                    <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
+                                    <th:block th:if="${userTeamIds.contains(entry.team.id)}">
+                                        <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="fw-semibold text-decoration-none"
+                                           th:text="${entry.team.name}" onclick="event.stopPropagation()">Team</a>
+                                    </th:block>
+                                    <th:block th:unless="${userTeamIds.contains(entry.team.id)}">
+                                        <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
+                                    </th:block>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-secondary" th:text="${entry.memberCount}">0</span>
@@ -76,6 +97,102 @@
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </div>
 
+<!-- Team Preview Modal -->
+<div class="modal fade" id="teamPreviewModal" tabindex="-1" aria-hidden="true"
+     th:data-pts="#{pts}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#1e2330;border:1px solid rgba(255,255,255,.1);color:#e0e0e0">
+            <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,.1)">
+                <h5 class="modal-title">
+                    <i class="bi bi-people-fill me-2 text-wc"></i>
+                    <span id="modalTeamName"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="modalLoading" class="text-center py-4">
+                    <div class="spinner-border text-secondary" role="status"></div>
+                </div>
+                <div id="modalContent" class="d-none">
+                    <table class="table mb-0 align-middle" style="color:#e0e0e0">
+                        <thead style="border-bottom:1px solid rgba(255,255,255,.1)">
+                            <tr>
+                                <th class="ps-3" style="width:50px;color:#aaa;font-weight:500">#</th>
+                                <th style="color:#aaa;font-weight:500"></th>
+                                <th class="text-end pe-3" style="color:#aaa;font-weight:500"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalMemberList"></tbody>
+                    </table>
+                </div>
+                <div id="modalError" class="d-none alert alert-danger m-3">
+                    Kon teamleden niet laden.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const previewModal = new bootstrap.Modal(document.getElementById('teamPreviewModal'));
+    const ptsLabel = document.getElementById('teamPreviewModal').dataset.pts || 'pts';
+
+    function openTeamPreview(teamId, teamName) {
+        document.getElementById('modalTeamName').textContent = teamName;
+        document.getElementById('modalLoading').classList.remove('d-none');
+        document.getElementById('modalContent').classList.add('d-none');
+        document.getElementById('modalError').classList.add('d-none');
+        previewModal.show();
+
+        fetch('/teams/' + teamId + '/preview')
+            .then(r => r.json())
+            .then(members => {
+                const tbody = document.getElementById('modalMemberList');
+                tbody.innerHTML = '';
+                members.forEach((m, i) => {
+                    const picUrl = '/profile/picture/' + encodeURIComponent(m.username) + '?v=' + m.pictureVersion;
+                    const tr = document.createElement('tr');
+                    tr.style.borderBottom = '1px solid rgba(255,255,255,.07)';
+                    tr.innerHTML = `
+                        <td class="text-center ps-3 fw-semibold" style="color:#888">${i + 1}</td>
+                        <td>
+                            <img src="${picUrl}" alt="" width="32" height="32"
+                                 style="border-radius:50%;object-fit:cover;margin-right:10px"
+                                 onerror="this.style.display='none'">
+                            <span class="fw-semibold" style="color:#e0e0e0">${escHtml(m.username)}</span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <span class="badge bg-wc">${m.points} ${ptsLabel}</span>
+                        </td>`;
+                    tbody.appendChild(tr);
+                });
+                document.getElementById('modalLoading').classList.add('d-none');
+                document.getElementById('modalContent').classList.remove('d-none');
+            })
+            .catch(() => {
+                document.getElementById('modalLoading').classList.add('d-none');
+                document.getElementById('modalError').classList.remove('d-none');
+            });
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Podium preview links
+    document.querySelectorAll('.team-preview-link').forEach(el => {
+        el.addEventListener('click', () => {
+            openTeamPreview(el.dataset.teamId, el.dataset.teamName);
+        });
+    });
+
+    // Table rows for non-member teams
+    document.querySelectorAll('.team-preview-row').forEach(row => {
+        row.addEventListener('click', () => {
+            openTeamPreview(row.dataset.teamId, row.dataset.teamName);
+        });
+    });
+</script>
 </body>
 </html>

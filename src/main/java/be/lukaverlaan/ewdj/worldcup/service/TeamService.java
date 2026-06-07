@@ -180,6 +180,31 @@ public class TeamService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getTeamMemberPreview(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new TeamNotFoundException("team.notfound"));
+        Set<User> members = team.getMembers();
+        java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(members);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (User member : members) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("username", member.getUsername());
+            row.put("points", pointsMap.getOrDefault(member.getId(), 0));
+            java.time.Instant updatedAt = member.getProfilePictureUpdatedAt();
+            row.put("pictureVersion", updatedAt != null ? updatedAt.toEpochMilli() : 0);
+            result.add(row);
+        }
+        result.sort((a, b) -> (int) b.get("points") - (int) a.get("points"));
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Long> getTeamIdsForUser(User user) {
+        return teamRepository.findByMembersContains(user).stream()
+            .map(Team::getId).collect(Collectors.toSet());
+    }
+
     private PredictionStats computeStatsInline(List<Prediction> predictions) {
         if (predictions.isEmpty()) return new PredictionStats(0, 0, 0, 0, 0, 0);
         int total = predictions.size();

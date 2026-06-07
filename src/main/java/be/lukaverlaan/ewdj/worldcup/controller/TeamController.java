@@ -154,6 +154,12 @@ public class TeamController {
         return "redirect:/teams/" + id;
     }
 
+    @GetMapping("/{id}/preview")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> teamPreview(@PathVariable Long id) {
+        return teamService.getTeamMemberPreview(id);
+    }
+
     @PostMapping("/{id}/remove/{memberId}")
     public String removeMember(@PathVariable Long id, @PathVariable Long memberId,
                                Authentication auth, RedirectAttributes ra) {
