@@ -1,6 +1,8 @@
 package be.lukaverlaan.ewdj.worldcup.controller;
 
 import be.lukaverlaan.ewdj.worldcup.domain.User;
+import be.lukaverlaan.ewdj.worldcup.form.ChangeEmailForm;
+import be.lukaverlaan.ewdj.worldcup.form.ChangePasswordForm;
 import be.lukaverlaan.ewdj.worldcup.form.ChangeUsernameForm;
 import be.lukaverlaan.ewdj.worldcup.form.RegistrationForm;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
@@ -41,6 +43,8 @@ public class UserController {
         model.addAttribute("hasPicture", updatedAt != null);
         model.addAttribute("pictureVersion", updatedAt != null ? updatedAt.toEpochMilli() : 0);
         model.addAttribute("changeUsernameForm", new ChangeUsernameForm());
+        model.addAttribute("changeEmailForm", new ChangeEmailForm());
+        model.addAttribute("changePasswordForm", new ChangePasswordForm());
         return "profile";
     }
 
@@ -122,6 +126,60 @@ public class UserController {
             .header(HttpHeaders.CACHE_CONTROL, "no-cache")
             .contentType(MediaType.valueOf("image/svg+xml"))
             .body(svg.getBytes());
+    }
+
+    @PostMapping("/profile/email")
+    public String changeEmail(@AuthenticationPrincipal UserDetails userDetails,
+                              @Valid @ModelAttribute("changeEmailForm") ChangeEmailForm form,
+                              BindingResult result, Model model, RedirectAttributes ra) {
+        User currentUser = userService.findByUsername(userDetails.getUsername());
+        if (!form.getNewEmail().equals(form.getConfirmEmail())) {
+            result.rejectValue("confirmEmail", "validation.email.mismatch", "E-mailadressen komen niet overeen");
+        }
+        if (!result.hasFieldErrors("newEmail") && form.getNewEmail().equalsIgnoreCase(currentUser.getEmail())) {
+            result.rejectValue("newEmail", "validation.email.same", "Dit is al je huidige e-mailadres");
+        }
+        if (!result.hasFieldErrors("newEmail") && userService.emailExists(form.getNewEmail())) {
+            result.rejectValue("newEmail", "validation.email.taken", "Dit e-mailadres is al in gebruik");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("user", currentUser);
+            model.addAttribute("hasPicture", userService.getProfilePictureUpdatedAt(userDetails.getUsername()) != null);
+            model.addAttribute("pictureVersion", userService.getProfilePictureUpdatedAt(userDetails.getUsername()) != null ? userService.getProfilePictureUpdatedAt(userDetails.getUsername()).toEpochMilli() : 0);
+            model.addAttribute("changeUsernameForm", new ChangeUsernameForm());
+            model.addAttribute("changePasswordForm", new ChangePasswordForm());
+            model.addAttribute("openCard", "email");
+            return "profile";
+        }
+        userService.changeEmail(userDetails.getUsername(), form.getNewEmail().trim());
+        ra.addFlashAttribute("successMessage", "profile.email.success");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/password")
+    public String changePassword(@AuthenticationPrincipal UserDetails userDetails,
+                                 @Valid @ModelAttribute("changePasswordForm") ChangePasswordForm form,
+                                 BindingResult result, Model model, RedirectAttributes ra) {
+        User currentUser = userService.findByUsername(userDetails.getUsername());
+        if (!result.hasFieldErrors("currentPassword") && !userService.checkPassword(userDetails.getUsername(), form.getCurrentPassword())) {
+            result.rejectValue("currentPassword", "validation.password.wrong", "Huidig wachtwoord is onjuist");
+        }
+        if (!result.hasFieldErrors("newPassword") && !result.hasFieldErrors("confirmPassword")
+                && !form.getNewPassword().equals(form.getConfirmPassword())) {
+            result.rejectValue("confirmPassword", "validation.password.mismatch", "Wachtwoorden komen niet overeen");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("user", currentUser);
+            model.addAttribute("hasPicture", userService.getProfilePictureUpdatedAt(userDetails.getUsername()) != null);
+            model.addAttribute("pictureVersion", userService.getProfilePictureUpdatedAt(userDetails.getUsername()) != null ? userService.getProfilePictureUpdatedAt(userDetails.getUsername()).toEpochMilli() : 0);
+            model.addAttribute("changeUsernameForm", new ChangeUsernameForm());
+            model.addAttribute("changeEmailForm", new ChangeEmailForm());
+            model.addAttribute("openCard", "password");
+            return "profile";
+        }
+        userService.changePassword(userDetails.getUsername(), form.getNewPassword());
+        ra.addFlashAttribute("successMessage", "profile.password.success");
+        return "redirect:/profile";
     }
 
     @PostMapping("/profile/picture/reset")

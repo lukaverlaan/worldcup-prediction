@@ -51,37 +51,119 @@
         </div>
     </div>
 
+    <!-- Accountgegevens kaart met inline edit -->
     <div class="card shadow-sm mb-4">
         <div class="card-header fw-semibold">
             <i class="bi bi-person me-1"></i><span th:text="#{profile.info.title}">Accountgegevens</span>
         </div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-4" th:text="#{form.username}">Gebruikersnaam</dt>
-                <dd class="col-sm-8 fw-bold" th:text="${user.username}">username</dd>
-                <dt class="col-sm-4" th:text="#{form.email}">E-mail</dt>
-                <dd class="col-sm-8" th:text="${user.email}">email</dd>
-            </dl>
+        <div class="card-body p-0">
+
+            <!-- Gebruikersnaam rij -->
+            <div class="profile-row px-4 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small mb-1" th:text="#{form.username}">Gebruikersnaam</div>
+                        <div class="fw-semibold" th:text="${user.username}">username</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                            onclick="toggleEdit('username')" id="btnUsername">
+                        <i class="bi bi-pencil me-1"></i><span th:text="#{profile.change.username}">Wijzigen</span>
+                    </button>
+                </div>
+                <div id="editUsername" th:class="${openCard == 'username'} ? 'edit-panel mt-3' : 'edit-panel mt-3 d-none'">
+                    <form th:action="@{/profile/username}" method="post" th:object="${changeUsernameForm}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted" th:text="#{profile.new.username}">Nieuwe gebruikersnaam</label>
+                            <input type="text" th:field="*{newUsername}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('newUsername')} ? 'is-invalid'"
+                                   th:placeholder="${user.username}" autofocus>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('newUsername')}"
+                                 th:errors="*{newUsername}"></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-wc btn-sm" th:text="#{profile.save.username}">Opslaan</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit('username')" th:text="#{form.cancel}">Annuleren</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="my-0 mx-4">
+
+            <!-- E-mail rij -->
+            <div class="profile-row px-4 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-muted small mb-1" th:text="#{form.email}">E-mailadres</div>
+                        <div class="fw-semibold" th:text="${user.email}">email</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                            onclick="toggleEdit('email')" id="btnEmail">
+                        <i class="bi bi-pencil me-1"></i><span th:text="#{profile.change.email}">Wijzigen</span>
+                    </button>
+                </div>
+                <div id="editEmail" th:class="${openCard == 'email'} ? 'edit-panel mt-3' : 'edit-panel mt-3 d-none'">
+                    <form th:action="@{/profile/email}" method="post" th:object="${changeEmailForm}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted" th:text="#{profile.new.email}">Nieuw e-mailadres</label>
+                            <input type="email" th:field="*{newEmail}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('newEmail')} ? 'is-invalid'"
+                                   th:placeholder="${user.email}">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('newEmail')}"
+                                 th:errors="*{newEmail}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted" th:text="#{profile.confirm.email}">Bevestig e-mailadres</label>
+                            <input type="email" th:field="*{confirmEmail}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('confirmEmail')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmEmail')}"
+                                 th:errors="*{confirmEmail}"></div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-wc btn-sm" th:text="#{profile.save.username}">Opslaan</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleEdit('email')" th:text="#{form.cancel}">Annuleren</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-header fw-semibold">
-            <i class="bi bi-pencil me-1"></i><span th:text="#{profile.change.username}">Gebruikersnaam wijzigen</span>
+    <!-- Wachtwoord wijzigen kaart -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header fw-semibold d-flex justify-content-between align-items-center"
+             onclick="toggleEdit('Password')" style="cursor:pointer">
+            <span><i class="bi bi-lock me-1"></i><span th:text="#{profile.change.password}">Wachtwoord wijzigen</span></span>
+            <i class="bi bi-chevron-down" id="btnPassword"></i>
         </div>
-        <div class="card-body">
-            <form th:action="@{/profile/username}" method="post" th:object="${changeUsernameForm}">
+        <div id="editPassword" th:class="${openCard == 'password'} ? 'card-body px-4 py-3' : 'card-body px-4 py-3 d-none'">
+            <form th:action="@{/profile/password}" method="post" th:object="${changePasswordForm}">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <div class="mb-3">
-                    <label class="form-label" th:text="#{profile.new.username}">Nieuwe gebruikersnaam</label>
-                    <input type="text" th:field="*{newUsername}"
-                           class="form-control"
-                           th:classappend="${#fields.hasErrors('newUsername')} ? 'is-invalid'"
-                           th:placeholder="${user.username}">
-                    <div class="invalid-feedback" th:if="${#fields.hasErrors('newUsername')}"
-                         th:errors="*{newUsername}"></div>
+                    <label class="form-label small text-muted" th:text="#{profile.current.password}">Huidig wachtwoord</label>
+                    <input type="password" th:field="*{currentPassword}" class="form-control"
+                           th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('currentPassword')}"
+                         th:errors="*{currentPassword}"></div>
                 </div>
-                <button type="submit" class="btn btn-wc" th:text="#{profile.save.username}">Opslaan</button>
+                <div class="mb-3">
+                    <label class="form-label small text-muted" th:text="#{profile.new.password}">Nieuw wachtwoord</label>
+                    <input type="password" th:field="*{newPassword}" class="form-control"
+                           th:classappend="${#fields.hasErrors('newPassword')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('newPassword')}"
+                         th:errors="*{newPassword}"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small text-muted" th:text="#{profile.confirm.password}">Bevestig nieuw wachtwoord</label>
+                    <input type="password" th:field="*{confirmPassword}" class="form-control"
+                           th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}"
+                         th:errors="*{confirmPassword}"></div>
+                </div>
+                <button type="submit" class="btn btn-wc btn-sm" th:text="#{profile.save.username}">Opslaan</button>
             </form>
         </div>
     </div>
@@ -129,6 +211,13 @@
 }
 </style>
 <script>
+function toggleEdit(field) {
+    var key = field.charAt(0).toUpperCase() + field.slice(1);
+    var panel = document.getElementById('edit' + key);
+    var btn   = document.getElementById('btn' + key);
+    if (panel) panel.classList.toggle('d-none');
+    if (btn)   btn.classList.toggle('bi-chevron-down'), btn.classList.toggle('bi-chevron-up');
+}
 (function () {
     var input       = document.getElementById('pictureInput');
     var cropImage   = document.getElementById('cropImage');

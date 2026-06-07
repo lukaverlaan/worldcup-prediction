@@ -63,6 +63,26 @@ public class UserService implements UserDetailsService {
         return userRepository.existsByEmail(email);
     }
 
+    public User changeEmail(String username, String newEmail) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        user.setEmail(newEmail);
+        return userRepository.save(user);
+    }
+
+    public boolean checkPassword(String username, String rawPassword) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public void changePassword(String username, String newRawPassword) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        user.setPassword(passwordEncoder.encode(newRawPassword));
+        userRepository.save(user);
+    }
+
     public User changeUsername(String currentUsername, String newUsername) {
         User user = userRepository.findByUsername(currentUsername)
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + currentUsername));
