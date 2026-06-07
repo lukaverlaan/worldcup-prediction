@@ -114,12 +114,12 @@
                     <div class="spinner-border text-secondary" role="status"></div>
                 </div>
                 <div id="modalContent" class="d-none">
-                    <table class="table mb-0 align-middle" style="color:#e0e0e0">
-                        <thead style="border-bottom:1px solid rgba(255,255,255,.1)">
-                            <tr>
-                                <th class="ps-3" style="width:50px;color:#aaa;font-weight:500">#</th>
-                                <th style="color:#aaa;font-weight:500"></th>
-                                <th class="text-end pe-3" style="color:#aaa;font-weight:500"></th>
+                    <table class="mb-0 w-100 align-middle" style="color:#e0e0e0;border-collapse:collapse">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,.1)">
+                                <th class="ps-3 py-2" style="width:50px;color:#aaa;font-weight:500">#</th>
+                                <th class="py-2" style="color:#aaa;font-weight:500"></th>
+                                <th class="text-end pe-3 py-2" style="color:#aaa;font-weight:500" th:text="#{pts}">Pts</th>
                             </tr>
                         </thead>
                         <tbody id="modalMemberList"></tbody>
@@ -153,18 +153,15 @@
                 members.forEach((m, i) => {
                     const picUrl = '/profile/picture/' + encodeURIComponent(m.username) + '?v=' + m.pictureVersion;
                     const tr = document.createElement('tr');
-                    tr.style.borderBottom = '1px solid rgba(255,255,255,.07)';
                     tr.innerHTML = `
-                        <td class="text-center ps-3 fw-semibold" style="color:#888">${i + 1}</td>
-                        <td>
+                        <td class="text-center ps-3 py-2 fw-semibold" style="color:#888;border-bottom:1px solid rgba(255,255,255,.07)">${i + 1}</td>
+                        <td class="py-2" style="border-bottom:1px solid rgba(255,255,255,.07)">
                             <img src="${picUrl}" alt="" width="32" height="32"
                                  style="border-radius:50%;object-fit:cover;margin-right:10px"
                                  onerror="this.style.display='none'">
                             <span class="fw-semibold" style="color:#e0e0e0">${escHtml(m.username)}</span>
                         </td>
-                        <td class="text-end pe-3">
-                            <span class="badge bg-wc">${m.points} ${ptsLabel}</span>
-                        </td>`;
+                        <td class="text-end pe-3 py-2" style="color:#e0e0e0;font-weight:600;border-bottom:1px solid rgba(255,255,255,.07)">${m.points}</td>`;
                     tbody.appendChild(tr);
                 });
                 document.getElementById('modalLoading').classList.add('d-none');

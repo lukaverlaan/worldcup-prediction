@@ -41,7 +41,7 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/login", "/scoreboard", "/groups", "/bracket", "/css/**", "/images/**", "/api/**", "/profile/picture/**").permitAll()
+                .requestMatchers("/", "/register", "/login", "/scoreboard", "/groups", "/bracket", "/css/**", "/images/**", "/api/**", "/profile/picture/**", "/teams/*/preview").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/vote/**", "/profile/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/teams/**", "/matches/**").hasAnyRole("USER", "ADMIN")
