@@ -181,6 +181,34 @@
 
     </aside>
 
+    <!-- Bottom navigation bar (mobile only, < lg) -->
+    <nav class="bottom-nav" id="bottomNav">
+        <a th:href="@{/}" class="bottom-nav-item" data-path="/">
+            <i class="bi bi-house"></i>
+            <span th:text="#{nav.home}">Home</span>
+        </a>
+        <a th:href="@{/groups}" class="bottom-nav-item" data-path="/groups">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            <span th:text="#{nav.groups}">Groepen</span>
+        </a>
+        <a th:href="@{/matches}" class="bottom-nav-item" data-path="/matches">
+            <i class="bi bi-calendar3"></i>
+            <span th:text="#{nav.matches}">Wedstrijden</span>
+        </a>
+        <a th:href="@{/scoreboard}" class="bottom-nav-item" data-path="/scoreboard">
+            <i class="bi bi-trophy"></i>
+            <span th:text="#{nav.scoreboard}">Scoreboard</span>
+        </a>
+        <a th:href="@{/my-predictions}" class="bottom-nav-item" data-path="/my-predictions" sec:authorize="isAuthenticated()">
+            <i class="bi bi-card-checklist"></i>
+            <span th:text="#{mypred.title}">Prognoses</span>
+        </a>
+        <a th:href="@{/login}" class="bottom-nav-item" data-path="/login" sec:authorize="isAnonymous()">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span th:text="#{nav.login}">Login</span>
+        </a>
+    </nav>
+
     <script>
         // Language switcher
         function switchLang(lang) {
@@ -205,11 +233,11 @@
             });
         })();
 
-        // Active nav link highlight
+        // Active nav link highlight (sidebar + bottom nav)
         (function () {
             var path = window.location.pathname;
-            document.querySelectorAll('.sidebar-link').forEach(function (link) {
-                var href = link.getAttribute('href');
+            document.querySelectorAll('.sidebar-link, .bottom-nav-item').forEach(function (link) {
+                var href = link.getAttribute('href') || link.dataset.path;
                 if (!href) return;
                 var active = href === '/'
                     ? path === '/'
