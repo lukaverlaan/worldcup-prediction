@@ -124,6 +124,8 @@ public class MatchSyncService {
     }
 
     private boolean sameDay(LocalDateTime a, LocalDateTime b) {
-        return a.toLocalDate().equals(b.toLocalDate());
+        // Allow ±1 day tolerance to handle UTC vs local time (e.g. CEST = UTC+2)
+        long diffDays = Math.abs(a.toLocalDate().toEpochDay() - b.toLocalDate().toEpochDay());
+        return diffDays <= 1;
     }
 }
