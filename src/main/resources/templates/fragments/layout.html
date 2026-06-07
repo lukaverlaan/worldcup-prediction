@@ -212,7 +212,155 @@
 </div>
 
 <!-- ── Footer fragment ──────────────────────────────────────── -->
+<!-- ── Winner vote popup (sitewide) ── -->
+<th:block th:fragment="votePopup">
+<div id="voteOverlay" class="vote-overlay" style="display:none">
+    <div class="vote-modal">
+        <div class="vote-modal-header">
+            <span class="vote-trophy">🏆</span>
+            <h3 th:text="#{vote.title}">Wie wint het WK?</h3>
+            <p th:text="#{vote.subtitle}">Kies het land dat volgens jou wereldkampioen wordt!</p>
+        </div>
+        <div class="vote-country-grid" id="voteGrid"></div>
+        <div class="vote-modal-footer">
+            <button class="vote-btn-cancel" onclick="dismissVote()" th:text="#{vote.later}">Misschien later</button>
+            <button class="vote-btn-submit" id="voteSubmit" onclick="submitVote()" disabled th:text="#{vote.submit}">Stem indienen</button>
+        </div>
+    </div>
+</div>
+
+<div id="voteThanks" class="vote-overlay" style="display:none">
+    <div class="vote-modal vote-modal--thanks">
+        <span class="vote-trophy">🏆</span>
+        <h3 th:text="#{vote.thanks.title}">Stem ontvangen!</h3>
+        <p id="voteThanksMsg"></p>
+        <button class="vote-btn-submit" onclick="closeThanks()" th:text="#{vote.thanks.close}">Sluiten</button>
+    </div>
+</div>
+
+<script th:inline="javascript">
+(function () {
+    var DELAY = 6000;
+    var thanksTemplate = /*[[#{vote.thanks.msg}]]*/ 'Je hebt gestemd op {country}.';
+
+    var countries = [
+        {name:'Algeria',               badge:'algeria',        label:/*[[#{country.Algeria}]]*/ 'Algeria'},
+        {name:'Argentina',             badge:'argentina',      label:/*[[#{country.Argentina}]]*/ 'Argentina'},
+        {name:'Australia',             badge:'australia',      label:/*[[#{country.Australia}]]*/ 'Australia'},
+        {name:'Austria',               badge:'austria',        label:/*[[#{country.Austria}]]*/ 'Austria'},
+        {name:'Belgium',               badge:'belgium',        label:/*[[#{country.Belgium}]]*/ 'Belgium'},
+        {name:'Bosnia and Herzegovina',badge:'bosnia',         label:/*[[#{country.Bosnia and Herzegovina}]]*/ 'Bosnia'},
+        {name:'Brazil',                badge:'brazil',         label:/*[[#{country.Brazil}]]*/ 'Brazil'},
+        {name:'Canada',                badge:'canada',         label:/*[[#{country.Canada}]]*/ 'Canada'},
+        {name:'Cape Verde',            badge:'cape-verde',     label:/*[[#{country.Cape Verde}]]*/ 'Cape Verde'},
+        {name:'Colombia',              badge:'colombia',       label:/*[[#{country.Colombia}]]*/ 'Colombia'},
+        {name:'Croatia',               badge:'croatia',        label:/*[[#{country.Croatia}]]*/ 'Croatia'},
+        {name:'Curaçao',               badge:'curacao',        label:/*[[#{country.Curaçao}]]*/ 'Curaçao'},
+        {name:'Czech Republic',        badge:'czech-republic', label:/*[[#{country.Czech Republic}]]*/ 'Czech Republic'},
+        {name:'DR Congo',              badge:'dr-congo',       label:/*[[#{country.DR Congo}]]*/ 'DR Congo'},
+        {name:'Ecuador',               badge:'ecuador',        label:/*[[#{country.Ecuador}]]*/ 'Ecuador'},
+        {name:'Egypt',                 badge:'egypt',          label:/*[[#{country.Egypt}]]*/ 'Egypt'},
+        {name:'England',               badge:'england',        label:/*[[#{country.England}]]*/ 'England'},
+        {name:'France',                badge:'france',         label:/*[[#{country.France}]]*/ 'France'},
+        {name:'Germany',               badge:'germany',        label:/*[[#{country.Germany}]]*/ 'Germany'},
+        {name:'Ghana',                 badge:'ghana',          label:/*[[#{country.Ghana}]]*/ 'Ghana'},
+        {name:'Haiti',                 badge:'haiti',          label:/*[[#{country.Haiti}]]*/ 'Haiti'},
+        {name:'Iran',                  badge:'iran',           label:/*[[#{country.Iran}]]*/ 'Iran'},
+        {name:'Iraq',                  badge:'iraq',           label:/*[[#{country.Iraq}]]*/ 'Iraq'},
+        {name:'Ivory Coast',           badge:'ivory-coast',    label:/*[[#{country.Ivory Coast}]]*/ 'Ivory Coast'},
+        {name:'Japan',                 badge:'japan',          label:/*[[#{country.Japan}]]*/ 'Japan'},
+        {name:'Jordan',                badge:'jordan',         label:/*[[#{country.Jordan}]]*/ 'Jordan'},
+        {name:'Mexico',                badge:'mexico',         label:/*[[#{country.Mexico}]]*/ 'Mexico'},
+        {name:'Morocco',               badge:'morocco',        label:/*[[#{country.Morocco}]]*/ 'Morocco'},
+        {name:'Netherlands',           badge:'netherlands',    label:/*[[#{country.Netherlands}]]*/ 'Netherlands'},
+        {name:'New Zealand',           badge:'new-zealand',    label:/*[[#{country.New Zealand}]]*/ 'New Zealand'},
+        {name:'Norway',                badge:'norway',         label:/*[[#{country.Norway}]]*/ 'Norway'},
+        {name:'Panama',                badge:'panama',         label:/*[[#{country.Panama}]]*/ 'Panama'},
+        {name:'Paraguay',              badge:'paraguay',       label:/*[[#{country.Paraguay}]]*/ 'Paraguay'},
+        {name:'Portugal',              badge:'portugal',       label:/*[[#{country.Portugal}]]*/ 'Portugal'},
+        {name:'Qatar',                 badge:'qatar',          label:/*[[#{country.Qatar}]]*/ 'Qatar'},
+        {name:'Saudi Arabia',          badge:'saudi-arabia',   label:/*[[#{country.Saudi Arabia}]]*/ 'Saudi Arabia'},
+        {name:'Scotland',              badge:'scotland',       label:/*[[#{country.Scotland}]]*/ 'Scotland'},
+        {name:'Senegal',               badge:'senegal',        label:/*[[#{country.Senegal}]]*/ 'Senegal'},
+        {name:'South Africa',          badge:'south-africa',   label:/*[[#{country.South Africa}]]*/ 'South Africa'},
+        {name:'South Korea',           badge:'south-korea',    label:/*[[#{country.South Korea}]]*/ 'South Korea'},
+        {name:'Spain',                 badge:'spain',          label:/*[[#{country.Spain}]]*/ 'Spain'},
+        {name:'Sweden',                badge:'sweden',         label:/*[[#{country.Sweden}]]*/ 'Sweden'},
+        {name:'Switzerland',           badge:'switzerland',    label:/*[[#{country.Switzerland}]]*/ 'Switzerland'},
+        {name:'Tunisia',               badge:'tunisia',        label:/*[[#{country.Tunisia}]]*/ 'Tunisia'},
+        {name:'Turkey',                badge:'turkey',         label:/*[[#{country.Turkey}]]*/ 'Turkey'},
+        {name:'Uruguay',               badge:'uruguay',        label:/*[[#{country.Uruguay}]]*/ 'Uruguay'},
+        {name:'USA',                   badge:'united-states',  label:/*[[#{country.USA}]]*/ 'USA'},
+        {name:'Uzbekistan',            badge:'uzbekistan',     label:/*[[#{country.Uzbekistan}]]*/ 'Uzbekistan'}
+    ];
+
+    var selected = null;
+    var gridBuilt = false;
+
+    function buildGrid() {
+        if (gridBuilt) return;
+        gridBuilt = true;
+        var grid = document.getElementById('voteGrid');
+        countries.forEach(function(c) {
+            var btn = document.createElement('button');
+            btn.className = 'vote-country-btn';
+            btn.dataset.country = c.name;
+            btn.innerHTML = '<img src="/images/badges/' + c.badge + '.png" alt=""><span>' + c.label + '</span>';
+            btn.onclick = function() {
+                document.querySelectorAll('.vote-country-btn').forEach(function(b){ b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                selected = c.name;
+                document.getElementById('voteSubmit').disabled = false;
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function showPopup() {
+        buildGrid();
+        document.getElementById('voteOverlay').style.display = 'flex';
+    }
+
+    window.dismissVote = function() {
+        document.getElementById('voteOverlay').style.display = 'none';
+        sessionStorage.setItem('voteDismissed', '1');
+    };
+
+    window.closeThanks = function() {
+        document.getElementById('voteThanks').style.display = 'none';
+    };
+
+    window.submitVote = function() {
+        if (!selected) return;
+        var token = document.querySelector('meta[name="_csrf"]');
+        var header = document.querySelector('meta[name="_csrf_header"]');
+        var headers = {'Content-Type': 'application/json'};
+        if (token && header) headers[header.content] = token.content;
+
+        fetch('/vote/winner', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({country: selected})
+        }).then(function(r) {
+            document.getElementById('voteOverlay').style.display = 'none';
+            if (r.ok) {
+                document.getElementById('voteThanksMsg').textContent = thanksTemplate.replace('{country}', selected);
+                document.getElementById('voteThanks').style.display = 'flex';
+            }
+        });
+    };
+
+    fetch('/vote/status').then(function(r){ return r.json(); }).then(function(data) {
+        if (!data.loggedIn || data.voted) return;
+        if (sessionStorage.getItem('voteDismissed')) return;
+        setTimeout(showPopup, DELAY);
+    });
+})();
+</script>
+</th:block>
+
 <footer th:fragment="footer" class="footer">
+    <div th:replace="~{fragments/layout :: votePopup}"></div>
     <div class="container text-center">
         <span>FIFA World Cup 2026 &copy; Team Prediction App</span>
     </div>
