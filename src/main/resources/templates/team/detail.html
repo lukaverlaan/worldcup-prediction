@@ -190,34 +190,57 @@
         <div th:unless="${#lists.isEmpty(matchDetails)}" class="accordion" id="matchDetailsAccordion">
             <div th:each="entry, iter : ${matchDetails}" class="accordion-item">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button"
-                            data-bs-toggle="collapse"
-                            th:attr="data-bs-target='#matchCollapse' + ${iter.index},
-                                     aria-controls='matchCollapse' + ${iter.index}"
-                            aria-expanded="false">
-                        <span class="flex-grow-1 d-flex flex-column gap-1 me-2"
-                              th:with="infoA=${@countryRegistry.get(entry.match.teamA)}, infoB=${@countryRegistry.get(entry.match.teamB)}">
-                            <span class="fw-semibold d-flex align-items-center gap-1 flex-wrap">
-                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
-                                     height="20" class="country-logo" alt="">
-                                <span th:text="${@countryRegistry.getDisplayName(entry.match.teamA, #locale)}">A</span>
-                                <span class="text-muted" th:text="#{match.vs}">vs</span>
-                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
-                                     height="20" class="country-logo" alt="">
-                                <span th:text="${@countryRegistry.getDisplayName(entry.match.teamB, #locale)}">B</span>
-                            </span>
-                            <span class="d-flex align-items-center gap-2">
-                                <small class="text-muted"
-                                       th:text="${#temporals.format(entry.match.dateTime, #messages.msg('date.format'))}">date</small>
-                                <span th:if="${entry.match.hasResult()}" class="badge bg-success">
-                                    <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
+                    <div class="d-flex align-items-center">
+                        <button class="accordion-button collapsed flex-grow-1 no-chevron" type="button"
+                                data-bs-toggle="collapse"
+                                th:attr="data-bs-target='#matchCollapse' + ${iter.index},
+                                         aria-controls='matchCollapse' + ${iter.index}"
+                                aria-expanded="false">
+                            <span class="flex-grow-1 d-flex flex-column gap-1 me-2"
+                                  th:with="infoA=${@countryRegistry.get(entry.match.teamA)}, infoB=${@countryRegistry.get(entry.match.teamB)}">
+                                <span class="fw-semibold d-flex align-items-center gap-1 flex-wrap">
+                                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
+                                         height="20" class="country-logo" alt="">
+                                    <span th:text="${@countryRegistry.getDisplayName(entry.match.teamA, #locale)}">A</span>
+                                    <span class="text-muted" th:text="#{match.vs}">vs</span>
+                                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
+                                         height="20" class="country-logo" alt="">
+                                    <span th:text="${@countryRegistry.getDisplayName(entry.match.teamB, #locale)}">B</span>
                                 </span>
-                                <span th:unless="${entry.match.hasResult()}"
-                                      class="badge bg-secondary"
-                                      th:text="#{admin.status.pending}">Pending</span>
+                                <span class="d-flex align-items-center gap-2 flex-wrap">
+                                    <small class="text-muted"
+                                           th:text="${#temporals.format(entry.match.dateTime, #messages.msg('date.format'))}">date</small>
+                                    <span th:if="${entry.match.hasResult()}" class="badge bg-success">
+                                        <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
+                                    </span>
+                                    <span th:unless="${entry.match.hasResult()}"
+                                          class="badge bg-secondary"
+                                          th:text="#{admin.status.pending}">Pending</span>
+                                    <span th:if="${entry.stats != null and !entry.stats.isEmpty()}"
+                                          class="d-flex align-items-center gap-1">
+                                        <span class="d-flex rounded overflow-hidden" style="width:80px;height:10px;transform:translateZ(0)">
+                                            <span class="bg-success" th:style="'width:' + ${entry.stats.winPctAInt()} + '%'"></span>
+                                            <span class="bg-secondary" th:style="'width:' + ${entry.stats.drawPctInt()} + '%'"></span>
+                                            <span class="bg-danger" th:style="'width:' + ${entry.stats.winPctBInt()} + '%'"></span>
+                                        </span>
+                                        <small class="text-muted fw-semibold" style="font-size:.68rem"
+                                               th:text="${entry.stats.avgScoreAFormatted()} + '–' + ${entry.stats.avgScoreBFormatted()}"></small>
+                                    </span>
+                                </span>
                             </span>
+                        </button>
+                        <a th:href="@{/matches/{id}(id=${entry.match.id},from='team')}"
+                           class="btn btn-outline-secondary btn-sm flex-shrink-0 me-2 ms-3"
+                           style="font-size:.75rem">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Matchdetail
+                        </a>
+                        <span class="px-3 py-2 flex-shrink-0"
+                              style="cursor:pointer"
+                              data-bs-toggle="collapse"
+                              th:attr="data-bs-target='#matchCollapse' + ${iter.index}">
+                            <i class="bi bi-chevron-down accordion-chevron-icon" style="transition:transform .2s"></i>
                         </span>
-                    </button>
+                    </div>
                 </h2>
                 <div th:id="'matchCollapse' + ${iter.index}"
                      class="accordion-collapse collapse"
@@ -234,7 +257,8 @@
                             <tbody>
                                 <tr th:each="row : ${entry.rows}">
                                     <td>
-                                        <i class="bi bi-person-circle me-1"></i>
+                                        <img th:src="@{/profile/picture/{u}(u=${row.user.username},v=${pictureVersions[row.user.username]})}"
+                                             alt="avatar" style="width:1.4rem;height:1.4rem;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:.35rem;">
                                         <span th:text="${row.user.username}">username</span>
                                         <span th:if="${row.user.id == currentUser.id}"
                                               class="badge bg-secondary ms-1"
@@ -289,6 +313,19 @@
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </div>
 
+<style>
+.no-chevron::after { display: none !important; }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.accordion-collapse').forEach(function (collapse) {
+        var chevron = collapse.closest('.accordion-item')
+                              .querySelector('.accordion-chevron-icon');
+        collapse.addEventListener('show.bs.collapse',  function () { if (chevron) chevron.style.transform = 'rotate(180deg)'; });
+        collapse.addEventListener('hide.bs.collapse',  function () { if (chevron) chevron.style.transform = 'rotate(0deg)'; });
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

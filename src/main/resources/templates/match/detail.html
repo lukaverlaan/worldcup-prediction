@@ -276,18 +276,19 @@
         <!-- Prev/next navigatie (alleen vanuit home) -->
         <th:block th:if="${fromHome}">
             <a th:if="${prevMatchId != null}"
-               th:href="@{/matches/{id}(id=${prevMatchId},from='home')}"
+               th:href="@{/matches/{id}(id=${prevMatchId},from=${fromParam})}"
                class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-chevron-left"></i>
             </a>
             <span th:if="${prevMatchId == null}" class="btn btn-outline-secondary btn-sm disabled">
                 <i class="bi bi-chevron-left"></i>
             </span>
-            <a th:href="@{/}" class="btn btn-outline-secondary btn-sm">
+            <a th:href="${fromParam == 'team'} ? 'javascript:history.back()' : '/'"
+               class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i><span th:text="#{match.back}">Back</span>
             </a>
             <a th:if="${nextMatchId != null}"
-               th:href="@{/matches/{id}(id=${nextMatchId},from='home')}"
+               th:href="@{/matches/{id}(id=${nextMatchId},from=${fromParam})}"
                class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-chevron-right"></i>
             </a>

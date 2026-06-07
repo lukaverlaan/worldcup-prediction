@@ -72,9 +72,10 @@ public class MatchController {
             }
         }
 
-        // Vorige / volgende match navigatie (alleen vanuit home)
-        if ("home".equals(from)) {
+        // Vorige / volgende match navigatie (vanuit home of team)
+        if ("home".equals(from) || "team".equals(from)) {
             model.addAttribute("fromHome", true);
+            model.addAttribute("fromParam", from);
             matchService.findPrevious(match.getDateTime())
                 .ifPresent(m -> model.addAttribute("prevMatchId", m.getId()));
             matchService.findNext(match.getDateTime())

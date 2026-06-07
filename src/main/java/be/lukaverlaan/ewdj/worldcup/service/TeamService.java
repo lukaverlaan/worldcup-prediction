@@ -4,6 +4,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Match;
 import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.Team;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
+import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.exception.TeamNotFoundException;
 import be.lukaverlaan.ewdj.worldcup.form.CreateTeamForm;
 import be.lukaverlaan.ewdj.worldcup.repository.MatchRepository;
@@ -166,12 +167,28 @@ public class TeamService {
                 rows.add(row);
             }
 
+            // Bereken stats enkel op basis van teamleden die een prognose hebben
+            List<Prediction> teamPreds = new ArrayList<>(predByUserId.values());
+            PredictionStats stats = computeStatsInline(teamPreds);
+
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("match", match);
             entry.put("rows", rows);
+            entry.put("stats", stats);
             result.add(entry);
         }
         return result;
+    }
+
+    private PredictionStats computeStatsInline(List<Prediction> predictions) {
+        if (predictions.isEmpty()) return new PredictionStats(0, 0, 0, 0, 0, 0);
+        int total = predictions.size();
+        long winA = predictions.stream().filter(p -> p.getPredictedScoreA() > p.getPredictedScoreB()).count();
+        long winB = predictions.stream().filter(p -> p.getPredictedScoreB() > p.getPredictedScoreA()).count();
+        long draw = predictions.stream().filter(p -> p.getPredictedScoreA().equals(p.getPredictedScoreB())).count();
+        double avgA = predictions.stream().mapToInt(Prediction::getPredictedScoreA).average().orElse(0);
+        double avgB = predictions.stream().mapToInt(Prediction::getPredictedScoreB).average().orElse(0);
+        return new PredictionStats(total, 100.0 * winA / total, 100.0 * draw / total, 100.0 * winB / total, avgA, avgB);
     }
 
     private String generateInviteCode() {
