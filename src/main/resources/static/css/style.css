@@ -253,6 +253,19 @@ body.app-body {
 
 .sidebar-toggle-btn:hover { background: rgba(255,255,255,.08); }
 
+.sidebar-avatar-btn { padding: .25rem; border-radius: 50%; }
+
+.mobile-avatar-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--glass-border);
+    display: block;
+}
+
+.footer-lang { display: flex; gap: .375rem; justify-content: center; }
+
 /* ── Bottom navigation bar (mobile only) ── */
 .bottom-nav {
     display: none;
