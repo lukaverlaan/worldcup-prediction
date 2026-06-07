@@ -90,6 +90,7 @@ public class MatchSyncService {
                 existing.setCity(f.city());
                 existing.setStadium(f.stadium());
                 existing.setDateTime(f.dateTime());
+                existing.setRound(f.round());
                 if (f.finished() && f.scoreHome() != null && f.scoreAway() != null
                         && !existing.hasResult()) {
                     existing.setOfficialScoreA(f.scoreHome());
@@ -106,6 +107,7 @@ public class MatchSyncService {
                 match.setDateTime(f.dateTime());
                 match.setCity(f.city());
                 match.setStadium(f.stadium());
+                match.setRound(f.round());
                 if (f.finished() && f.scoreHome() != null && f.scoreAway() != null) {
                     match.setOfficialScoreA(f.scoreHome());
                     match.setOfficialScoreB(f.scoreAway());

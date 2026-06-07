@@ -1631,3 +1631,204 @@ tr.clickable-row:hover > td {
     color: #fca5a5 !important;
 }
 
+/* ── Bracket ─────────────────── */
+.bracket-scroll {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+/* Outer container: groups + bracket */
+.bk-outer {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    min-width: 900px;
+}
+
+/* Group card columns */
+.bk-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    width: 72px;
+    justify-content: space-evenly;
+}
+
+.bk-group-card {
+    border: 2px solid #27ae60;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--glass-bg-deep);
+}
+
+.bk-group-letter {
+    font-size: .5rem;
+    font-weight: 800;
+    letter-spacing: .05em;
+    color: #fff;
+    text-align: center;
+    padding: 2px 2px;
+}
+
+.bk-group-teams {
+    padding: 2px 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.bk-group-team {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: .58rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Center bracket area */
+.bk-bracket {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    gap: 0;
+}
+
+/* A single round column */
+.bk-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.bk-col-mirror {
+    /* mirrored columns look identical */
+}
+
+.bk-col-label {
+    font-size: .58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--wc-gold);
+    text-align: center;
+    padding: 4px 0 6px;
+    white-space: nowrap;
+}
+
+/* Slots container — space-evenly distributes matches
+   so round N is centered between the two round N-1 matches it beats */
+.bk-slots {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    min-height: 540px;
+}
+
+/* Individual match card */
+.bk-slot {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    width: 88%;
+    max-width: 100px;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: border-color .2s;
+}
+
+.bk-slot-played {
+    border-color: rgba(255,255,255,.2);
+}
+
+.bk-slot-final {
+    max-width: 120px;
+    border-color: var(--wc-gold);
+    box-shadow: 0 0 16px rgba(243,156,18,.3);
+}
+
+.bk-team {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    font-size: .65rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.bk-team:last-child {
+    border-bottom: none;
+}
+
+.bk-team span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.bk-winner {
+    color: var(--text-primary);
+    font-weight: 700;
+    background: rgba(243,156,18,.1);
+}
+
+.bk-score {
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: .7rem;
+    color: var(--wc-gold);
+    min-width: 12px;
+    text-align: right;
+}
+
+/* Flag images */
+.bk-flag {
+    width: 16px;
+    height: 11px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* Center column: Final + Champion + 3rd */
+.bk-center {
+    flex: 0 0 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+}
+
+.bk-champion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0 6px;
+}
+
+.bk-trophy-icon {
+    font-size: 2.2rem;
+    color: var(--wc-gold);
+    filter: drop-shadow(0 0 8px rgba(243,156,18,.5));
+}
+
+.bk-champion-label {
+    font-size: .6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--wc-gold);
+    text-align: center;
+    margin-top: 4px;
+}
+

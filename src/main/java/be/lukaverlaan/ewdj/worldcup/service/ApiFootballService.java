@@ -103,7 +103,10 @@ public class ApiFootballService {
                     Integer scoreHome = goals != null && goals.get("home") instanceof Number n ? n.intValue() : null;
                     Integer scoreAway = goals != null && goals.get("away") instanceof Number n ? n.intValue() : null;
 
-                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway);
+                    Map<String, Object> league = (Map<String, Object>) entry.get("league");
+                    String round = league != null ? (String) league.get("round") : null;
+
+                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway, round);
                 } catch (Exception e) {
                     log.warn("Could not parse fixture entry: {}", e.getMessage());
                     return null;
@@ -126,6 +129,7 @@ public class ApiFootballService {
         String stadium,
         boolean finished,
         Integer scoreHome,
-        Integer scoreAway
+        Integer scoreAway,
+        String round
     ) {}
 }

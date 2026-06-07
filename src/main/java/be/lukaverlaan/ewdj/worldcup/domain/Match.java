@@ -34,6 +34,8 @@ public class Match {
     @Column(unique = true)
     private Long apiFootballFixtureId;
 
+    private String round;
+
     public Match() {}
 
     public Long getId() { return id; }
@@ -58,6 +60,8 @@ public class Match {
 
     public Long getApiFootballFixtureId() { return apiFootballFixtureId; }
     public void setApiFootballFixtureId(Long apiFootballFixtureId) { this.apiFootballFixtureId = apiFootballFixtureId; }
+    public String getRound() { return round; }
+    public void setRound(String round) { this.round = round; }
 
     public boolean hasResult() {
         return officialScoreA != null && officialScoreB != null;
