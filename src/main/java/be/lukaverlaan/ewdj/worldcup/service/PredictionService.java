@@ -4,6 +4,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Match;
 import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.Team;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
+import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import be.lukaverlaan.ewdj.worldcup.repository.TeamRepository;
@@ -89,6 +90,47 @@ public class PredictionService {
     @Transactional(readOnly = true)
     public List<Prediction> findByUser(User user) {
         return predictionRepository.findByUser(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Prediction> findByMatch(Match match) {
+        return predictionRepository.findByMatch(match);
+    }
+
+    @Transactional(readOnly = true)
+    public PredictionStats computeTeamStats(Match match, User user) {
+        List<Team> userTeams = teamRepository.findByMembersContains(user);
+        if (userTeams.isEmpty()) return null;
+        Team team = userTeams.get(0);
+        // Toegang tot members binnen transactie
+        java.util.Set<User> members = team.getMembers();
+        List<Prediction> teamPredictions = predictionRepository.findByMatch(match).stream()
+            .filter(p -> members.contains(p.getUser()))
+            .toList();
+        return computeStats(teamPredictions);
+    }
+
+    @Transactional(readOnly = true)
+    public String getFirstTeamName(User user) {
+        List<Team> teams = teamRepository.findByMembersContains(user);
+        return teams.isEmpty() ? null : teams.get(0).getName();
+    }
+
+    public PredictionStats computeStats(List<Prediction> predictions) {
+        if (predictions.isEmpty()) return new PredictionStats(0, 0, 0, 0, 0, 0);
+        int total = predictions.size();
+        long winA = predictions.stream().filter(p -> p.getPredictedScoreA() > p.getPredictedScoreB()).count();
+        long winB = predictions.stream().filter(p -> p.getPredictedScoreB() > p.getPredictedScoreA()).count();
+        long draw = predictions.stream().filter(p -> p.getPredictedScoreA().equals(p.getPredictedScoreB())).count();
+        double avgA = predictions.stream().mapToInt(Prediction::getPredictedScoreA).average().orElse(0);
+        double avgB = predictions.stream().mapToInt(Prediction::getPredictedScoreB).average().orElse(0);
+        return new PredictionStats(
+            total,
+            100.0 * winA / total,
+            100.0 * draw / total,
+            100.0 * winB / total,
+            avgA, avgB
+        );
     }
 
     @Transactional(readOnly = true)

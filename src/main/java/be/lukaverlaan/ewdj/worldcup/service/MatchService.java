@@ -71,6 +71,16 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
+    public java.util.Optional<Match> findPrevious(LocalDateTime dateTime) {
+        return matchRepository.findFirstByDateTimeBeforeOrderByDateTimeDesc(dateTime);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<Match> findNext(LocalDateTime dateTime) {
+        return matchRepository.findFirstByDateTimeAfterOrderByDateTimeAsc(dateTime);
+    }
+
+    @Transactional(readOnly = true)
     public Page<Match> findAllPaged(int page, int size) {
         return matchRepository.findAllByOrderByDateTimeAsc(PageRequest.of(page, size));
     }

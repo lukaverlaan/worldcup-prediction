@@ -17,5 +17,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     boolean existsByCityAndStadiumAndDateTime(String city, String stadium, LocalDateTime dateTime);
     boolean existsByCityAndStadiumAndDateTimeAndIdNot(String city, String stadium, LocalDateTime dateTime, Long id);
     Optional<Match> findByApiFootballFixtureId(Long fixtureId);
+    Optional<Match> findFirstByDateTimeBeforeOrderByDateTimeDesc(LocalDateTime dateTime);
+    Optional<Match> findFirstByDateTimeAfterOrderByDateTimeAsc(LocalDateTime dateTime);
     List<Match> findByOfficialScoreAIsNullAndDateTimeLessThan(LocalDateTime before);
 }

@@ -136,7 +136,7 @@
             <tbody>
                 <tr th:each="match : ${matches}"
                     class="clickable-row"
-                    th:data-href="@{/matches/{id}(id=${match.id})}">
+                    th:data-href="@{/matches/{id}(id=${match.id},from='home')}">
                     <td>
                         <div class="match-teams-cell">
                             <span class="match-team-row" th:with="infoA=${@countryRegistry.get(match.teamA)}">

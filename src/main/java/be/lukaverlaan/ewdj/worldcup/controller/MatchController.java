@@ -3,6 +3,7 @@ package be.lukaverlaan.ewdj.worldcup.controller;
 import be.lukaverlaan.ewdj.worldcup.domain.Match;
 import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
+import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
 import be.lukaverlaan.ewdj.worldcup.service.MatchService;
 import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,12 +39,19 @@ public class MatchController {
     }
 
     @GetMapping("/{id}")
-    public String matchDetail(@PathVariable Long id, Model model, Authentication auth) {
+    public String matchDetail(@PathVariable Long id,
+                              @RequestParam(required = false) String from,
+                              Model model, Authentication auth) {
         Match match = matchService.findById(id);
         model.addAttribute("match", match);
 
         boolean canPredict = match.getDateTime().minusHours(1).isAfter(LocalDateTime.now());
         model.addAttribute("canPredict", canPredict);
+
+        // Alle prognoses voor dit match
+        List<Prediction> allPredictions = predictionService.findByMatch(match);
+        PredictionStats globalStats = predictionService.computeStats(allPredictions);
+        model.addAttribute("globalStats", globalStats);
 
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
@@ -54,6 +63,22 @@ public class MatchController {
             });
             model.addAttribute("predictionForm", form);
             model.addAttribute("existingPrediction", existing.orElse(null));
+
+            // Team stats: alles binnen transactie in de service
+            PredictionStats teamStats = predictionService.computeTeamStats(match, user);
+            if (teamStats != null) {
+                model.addAttribute("teamStats", teamStats);
+                model.addAttribute("teamName", predictionService.getFirstTeamName(user));
+            }
+        }
+
+        // Vorige / volgende match navigatie (alleen vanuit home)
+        if ("home".equals(from)) {
+            model.addAttribute("fromHome", true);
+            matchService.findPrevious(match.getDateTime())
+                .ifPresent(m -> model.addAttribute("prevMatchId", m.getId()));
+            matchService.findNext(match.getDateTime())
+                .ifPresent(m -> model.addAttribute("nextMatchId", m.getId()));
         }
 
         if (match.getStadiumCode() != null && !match.getStadiumCode().isBlank()) {
