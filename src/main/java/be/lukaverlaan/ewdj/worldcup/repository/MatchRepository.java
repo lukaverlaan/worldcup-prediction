@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findAllByOrderByDateTimeAsc();
@@ -15,4 +16,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     List<Match> findByDateTimeBetweenOrderByDateTimeAsc(LocalDateTime start, LocalDateTime end);
     boolean existsByCityAndStadiumAndDateTime(String city, String stadium, LocalDateTime dateTime);
     boolean existsByCityAndStadiumAndDateTimeAndIdNot(String city, String stadium, LocalDateTime dateTime, Long id);
+    Optional<Match> findByApiFootballFixtureId(Long fixtureId);
+    List<Match> findByOfficialScoreAIsNullAndDateTimeLessThan(LocalDateTime before);
 }

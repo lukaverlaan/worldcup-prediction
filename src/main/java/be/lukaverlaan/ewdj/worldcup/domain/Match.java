@@ -31,6 +31,9 @@ public class Match {
     private Integer officialScoreA;
     private Integer officialScoreB;
 
+    @Column(unique = true)
+    private Long apiFootballFixtureId;
+
     public Match() {}
 
     public Long getId() { return id; }
@@ -52,6 +55,9 @@ public class Match {
     public void setOfficialScoreA(Integer officialScoreA) { this.officialScoreA = officialScoreA; }
     public Integer getOfficialScoreB() { return officialScoreB; }
     public void setOfficialScoreB(Integer officialScoreB) { this.officialScoreB = officialScoreB; }
+
+    public Long getApiFootballFixtureId() { return apiFootballFixtureId; }
+    public void setApiFootballFixtureId(Long apiFootballFixtureId) { this.apiFootballFixtureId = apiFootballFixtureId; }
 
     public boolean hasResult() {
         return officialScoreA != null && officialScoreB != null;
