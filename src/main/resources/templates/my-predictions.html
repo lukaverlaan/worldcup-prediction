@@ -36,16 +36,18 @@
                     <tr th:each="pred : ${pastPredictions}"
                         class="clickable-row"
                         th:data-href="@{/matches/{id}(id=${pred.match.id})}">
-                        <td class="match-teams-cell">
-                            <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
-                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
-                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
-                            </span>
-                            <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
-                            <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
-                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
-                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
-                            </span>
+                        <td>
+                            <div class="match-teams-cell">
+                                <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
+                                </span>
+                                <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
+                                <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
+                                </span>
+                            </div>
                         </td>
                         <td class="fw-semibold text-center"
                             th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</td>
@@ -82,16 +84,18 @@
                     <tr th:each="pred : ${upcomingPredictions}"
                         class="clickable-row"
                         th:data-href="@{/matches/{id}(id=${pred.match.id})}">
-                        <td class="match-teams-cell">
-                            <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
-                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
-                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
-                            </span>
-                            <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
-                            <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
-                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
-                                <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
-                            </span>
+                        <td>
+                            <div class="match-teams-cell">
+                                <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
+                                </span>
+                                <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
+                                <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
+                                </span>
+                            </div>
                         </td>
                         <td th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}">datum</td>
                         <td class="fw-semibold text-wc text-center"
