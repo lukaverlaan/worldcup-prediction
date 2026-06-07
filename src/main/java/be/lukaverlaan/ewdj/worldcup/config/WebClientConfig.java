@@ -11,10 +11,21 @@ public class WebClientConfig {
     @Value("${server.port:8080}")
     private int serverPort;
 
+    @Value("${apifootball.key:}")
+    private String apiFootballKey;
+
     @Bean
     public WebClient webClient() {
         return WebClient.builder()
                 .baseUrl("http://localhost:" + serverPort)
+                .build();
+    }
+
+    @Bean("apiFootballWebClient")
+    public WebClient apiFootballWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://v3.football.api-sports.io")
+                .defaultHeader("x-apisports-key", apiFootballKey)
                 .build();
     }
 }
