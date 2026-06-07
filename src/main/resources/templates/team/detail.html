@@ -79,7 +79,8 @@
                          th:class="${iter.index == 0 ? 'podium-slot podium-first order-2' : (iter.index == 1 ? 'podium-slot podium-second order-1' : 'podium-slot podium-third order-3')}">
                         <div class="podium-info">
                             <div class="podium-avatar">
-                                <i class="bi bi-trophy-fill"></i>
+                                <img th:src="@{/profile/picture/{u}(u=${entry.key.username},v=${pictureVersions[entry.key.username]})}"
+                                     alt="avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
                             </div>
                             <div class="podium-name" th:text="${entry.key.username}">user</div>
                             <small class="podium-pts">
@@ -122,7 +123,8 @@
                                     <span class="text-muted fw-semibold" th:text="${iter.index + 1}">4</span>
                                 </td>
                                 <td>
-                                    <i class="bi bi-person-circle me-1"></i>
+                                    <img th:src="@{/profile/picture/{u}(u=${entry.key.username},v=${pictureVersions[entry.key.username]})}"
+                                         alt="avatar" style="width:1.6rem;height:1.6rem;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:.4rem;">
                                     <span th:text="${entry.key.username}">username</span>
                                     <span th:if="${streaks[entry.key.id] > 0}" class="member-streak ms-1">
                                         🔥 <span th:text="${streaks[entry.key.id]}">0</span>

@@ -6,6 +6,10 @@ import be.lukaverlaan.ewdj.worldcup.form.RegistrationForm;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,10 +18,11 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 
 @Controller
 public class UserController {
@@ -32,6 +37,9 @@ public class UserController {
     public String profilePage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         User user = userService.findByUsername(userDetails.getUsername());
         model.addAttribute("user", user);
+        java.time.Instant updatedAt = userService.getProfilePictureUpdatedAt(userDetails.getUsername());
+        model.addAttribute("hasPicture", updatedAt != null);
+        model.addAttribute("pictureVersion", updatedAt != null ? updatedAt.toEpochMilli() : 0);
         model.addAttribute("changeUsernameForm", new ChangeUsernameForm());
         return "profile";
     }
@@ -74,6 +82,75 @@ public class UserController {
             SecurityContextHolder.getContext());
 
         ra.addFlashAttribute("successMessage", "profile.username.success");
+        return "redirect:/profile";
+    }
+
+    // Serveer profielfoto met ETag-caching (lichte check, BLOB alleen laden als nodig)
+    @GetMapping("/profile/picture/{username}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getProfilePicture(@PathVariable String username,
+                                                     HttpServletRequest request) {
+        java.time.Instant updatedAt = userService.getProfilePictureUpdatedAt(username);
+
+        if (updatedAt != null) {
+            String etag = "\"" + updatedAt.toEpochMilli() + "\"";
+            String ifNoneMatch = request.getHeader("If-None-Match");
+            if (etag.equals(ifNoneMatch)) {
+                // Browser heeft al de juiste versie — geen BLOB laden
+                return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            }
+            // BLOB laden en terugsturen met ETag
+            byte[] picture = userService.getProfilePictureBytes(username);
+            String type    = userService.getProfilePictureType(username);
+            if (picture != null && picture.length > 0 && type != null) {
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.ETAG, etag)
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache")
+                    .contentType(MediaType.parseMediaType(type))
+                    .body(picture);
+            }
+        }
+
+        // Fallback: SVG-initiaal-avatar (lichte cache)
+        String initial = (username != null && !username.isEmpty())
+            ? String.valueOf(Character.toUpperCase(username.charAt(0))) : "?";
+        String svg = "<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>" +
+            "<circle cx='40' cy='40' r='40' fill='#15803d'/>" +
+            "<text x='40' y='40' font-size='38' font-family='Arial,sans-serif' " +
+            "font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>" + initial + "</text></svg>";
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CACHE_CONTROL, "no-cache")
+            .contentType(MediaType.valueOf("image/svg+xml"))
+            .body(svg.getBytes());
+    }
+
+    @PostMapping("/profile/picture/reset")
+    public String resetProfilePicture(@AuthenticationPrincipal UserDetails userDetails,
+                                      RedirectAttributes ra) {
+        userService.resetProfilePicture(userDetails.getUsername());
+        ra.addFlashAttribute("successMessage", "profile.picture.reset.success");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/picture")
+    public String uploadProfilePicture(@AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestParam("picture") MultipartFile file,
+                                       RedirectAttributes ra) throws IOException {
+        if (file.isEmpty()) {
+            ra.addFlashAttribute("pictureError", "profile.picture.empty");
+            return "redirect:/profile";
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            ra.addFlashAttribute("pictureError", "profile.picture.invalid");
+            return "redirect:/profile";
+        }
+        if (file.getSize() > 2 * 1024 * 1024) {
+            ra.addFlashAttribute("pictureError", "profile.picture.toobig");
+            return "redirect:/profile";
+        }
+        userService.saveProfilePicture(userDetails.getUsername(), file.getBytes(), contentType);
+        ra.addFlashAttribute("successMessage", "profile.picture.success");
         return "redirect:/profile";
     }
 

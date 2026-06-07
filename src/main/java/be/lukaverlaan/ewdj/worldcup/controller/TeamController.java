@@ -17,7 +17,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Page;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +134,15 @@ public class TeamController {
         model.addAttribute("isOwner", team.getOwner().getId().equals(user.getId()));
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("currentUser", user);
+
+        // Versies voor profielfoto's van alle leden
+        Map<String, Long> pictureVersions = new HashMap<>();
+        for (User member : memberScores.keySet()) {
+            Instant updatedAt = userService.getProfilePictureUpdatedAt(member.getUsername());
+            pictureVersions.put(member.getUsername(), updatedAt != null ? updatedAt.toEpochMilli() : 0L);
+        }
+        model.addAttribute("pictureVersions", pictureVersions);
+
         return "team/detail";
     }
 

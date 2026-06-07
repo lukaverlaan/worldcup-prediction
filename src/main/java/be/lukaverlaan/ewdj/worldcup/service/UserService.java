@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,47 @@ public class UserService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("User not found: " + currentUsername));
         user.setUsername(newUsername);
         return userRepository.save(user);
+    }
+
+    public User saveProfilePicture(String username, byte[] data, String contentType) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        user.setProfilePicture(data);
+        user.setProfilePictureType(contentType);
+        user.setProfilePictureUpdatedAt(Instant.now());
+        return userRepository.save(user);
+    }
+
+    public void resetProfilePicture(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        user.setProfilePicture(null);
+        user.setProfilePictureType(null);
+        user.setProfilePictureUpdatedAt(null);
+        userRepository.save(user);
+    }
+
+    // Geeft alleen de timestamp terug (lichte query, geen BLOB)
+    @Transactional(readOnly = true)
+    public Instant getProfilePictureUpdatedAt(String username) {
+        return userRepository.findByUsername(username)
+            .map(User::getProfilePictureUpdatedAt)
+            .orElse(null);
+    }
+
+    // Geeft de foto-bytes terug binnen een transactie
+    @Transactional(readOnly = true)
+    public byte[] getProfilePictureBytes(String username) {
+        return userRepository.findByUsername(username)
+            .map(User::getProfilePicture)
+            .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public String getProfilePictureType(String username) {
+        return userRepository.findByUsername(username)
+            .map(User::getProfilePictureType)
+            .orElse(null);
     }
 
     public User createAdminUser(String username, String rawPassword, String email) {

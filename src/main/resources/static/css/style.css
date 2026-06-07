@@ -135,17 +135,11 @@ body.app-body {
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 50%;
-    color: #fff;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
+    object-fit: cover;
+    display: block;
 }
-
-.avatar-admin { background: #7c3aed; }
-.avatar-user  { background: #15803d; }
 
 .user-info {
     display: flex;

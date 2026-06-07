@@ -108,12 +108,8 @@
         <!-- Authenticated: user profile + logout -->
         <div class="sidebar-footer" sec:authorize="isAuthenticated()">
             <div class="sidebar-user">
-                <div class="user-avatar avatar-admin" sec:authorize="hasRole('ADMIN')">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-                <div class="user-avatar avatar-user" sec:authorize="!hasRole('ADMIN')">
-                    <i class="bi bi-person-fill"></i>
-                </div>
+                <img th:src="@{/profile/picture/{u}(u=${#authentication.name},v=${currentUserPictureVersion})}"
+                     class="user-avatar" alt="avatar">
                 <div class="user-info">
                     <a th:href="@{/profile}" class="user-name text-decoration-none"
                        th:text="${#authentication.name}" th:title="#{profile.title}">gebruiker</a>

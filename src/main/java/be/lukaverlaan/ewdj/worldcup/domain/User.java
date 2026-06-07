@@ -1,6 +1,7 @@
 package be.lukaverlaan.ewdj.worldcup.domain;
 
 import jakarta.persistence.*;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +30,16 @@ public class User {
     @ManyToMany(mappedBy = "members")
     private Set<Team> teams = new HashSet<>();
 
+    @Lob
+    @Column(name = "profile_picture", columnDefinition = "MEDIUMBLOB")
+    private byte[] profilePicture;
+
+    @Column(name = "profile_picture_type", length = 50)
+    private String profilePictureType;
+
+    @Column(name = "profile_picture_updated_at")
+    private Instant profilePictureUpdatedAt;
+
     public User() {}
 
     public User(String username, String password, String email, Set<String> roles) {
@@ -49,6 +60,13 @@ public class User {
     public void setRoles(Set<String> roles) { this.roles = roles; }
     public Set<Team> getTeams() { return teams; }
     public void setTeams(Set<Team> teams) { this.teams = teams; }
+    public byte[] getProfilePicture() { return profilePicture; }
+    public void setProfilePicture(byte[] profilePicture) { this.profilePicture = profilePicture; }
+    public String getProfilePictureType() { return profilePictureType; }
+    public void setProfilePictureType(String profilePictureType) { this.profilePictureType = profilePictureType; }
+    public Instant getProfilePictureUpdatedAt() { return profilePictureUpdatedAt; }
+    public void setProfilePictureUpdatedAt(Instant profilePictureUpdatedAt) { this.profilePictureUpdatedAt = profilePictureUpdatedAt; }
+    public boolean hasProfilePicture() { return profilePicture != null && profilePicture.length > 0; }
 
     @Override
     public boolean equals(Object o) {
