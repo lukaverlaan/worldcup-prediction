@@ -191,21 +191,17 @@
             <i class="bi bi-grid-3x3-gap-fill"></i>
             <span th:text="#{nav.groups}">Groepen</span>
         </a>
+        <a th:href="@{/bracket}" class="bottom-nav-item" data-path="/bracket">
+            <i class="bi bi-diagram-3"></i>
+            <span th:text="#{nav.bracket}">Bracket</span>
+        </a>
         <a th:href="@{/matches}" class="bottom-nav-item" data-path="/matches">
             <i class="bi bi-calendar3"></i>
             <span th:text="#{nav.matches}">Wedstrijden</span>
         </a>
         <a th:href="@{/scoreboard}" class="bottom-nav-item" data-path="/scoreboard">
             <i class="bi bi-trophy"></i>
-            <span th:text="#{nav.scoreboard}">Scoreboard</span>
-        </a>
-        <a th:href="@{/my-predictions}" class="bottom-nav-item" data-path="/my-predictions" sec:authorize="isAuthenticated()">
-            <i class="bi bi-card-checklist"></i>
-            <span th:text="#{mypred.title}">Prognoses</span>
-        </a>
-        <a th:href="@{/login}" class="bottom-nav-item" data-path="/login" sec:authorize="isAnonymous()">
-            <i class="bi bi-box-arrow-in-right"></i>
-            <span th:text="#{nav.login}">Login</span>
+            <span th:text="#{nav.scoreboard}">Top 10</span>
         </a>
     </nav>
 
