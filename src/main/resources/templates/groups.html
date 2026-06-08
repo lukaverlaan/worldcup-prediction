@@ -51,7 +51,7 @@
                         <span th:text="#{groups.matchday} + ' ' + ${matchday.number()}">Speeldag 1</span>
                     </div>
                     <div th:each="match : ${matchday.matches()}" class="group-match-row clickable-match"
-                         th:onclick="|window.location.href='@{/matches/{id}(id=${match.id})}'|">
+                         th:onclick="|window.location.href='@{/matches/{id}(id=${match.id},from=groups)}'|">
                         <div class="group-match-teams">
                             <span th:with="infoA=${@countryRegistry.get(match.teamA)}">
                                 <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"

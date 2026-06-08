@@ -9,7 +9,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=19)}">
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <!-- Google tag (gtag.js) -->
@@ -89,7 +89,7 @@
                     </a>
                 </li>
                 <li class="sidebar-bottom-nav-item">
-                    <a th:href="@{/scoreboard}" class="sidebar-link">
+                    <a th:href="@{/leaderboard}" class="sidebar-link">
                         <i class="bi bi-trophy"></i>
                         <span th:text="#{nav.scoreboard}">Scoreboard</span>
                     </a>
@@ -207,7 +207,7 @@
             <i class="bi bi-calendar3"></i>
             <span th:text="#{nav.matches}">Wedstrijden</span>
         </a>
-        <a th:href="@{/scoreboard}" class="bottom-nav-item" data-path="/scoreboard">
+        <a th:href="@{/leaderboard}" class="bottom-nav-item" data-path="/leaderboard">
             <i class="bi bi-trophy"></i>
             <span th:text="#{nav.scoreboard}">Top 10</span>
         </a>
@@ -391,17 +391,30 @@
         });
     };
 
-    fetch('/vote/status').then(function(r){ return r.json(); }).then(function(data) {
+    (function() {
+        var loggedIn = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+        if (!loggedIn) return;
+        fetch('/vote/status').then(function(r){ return r.json(); }).then(function(data) {
         if (!data.loggedIn || data.voted) return;
         if (sessionStorage.getItem('voteDismissed')) return;
         setTimeout(showPopup, DELAY);
     });
+    })();
 })();
 </script>
 </th:block>
 
+<!-- ── Ad column fragment ───────────────────────────────────── -->
+<aside th:fragment="adColumn" class="ad-column d-none d-xl-flex">
+    <a href="https://lukaverlaan.be/#contact" target="_blank" rel="noopener" class="ad-banner-link">
+        <img th:src="@{/images/ads/lv-studio.png}" alt="LV Studio" class="ad-banner-img">
+    </a>
+</aside>
+
 <footer th:fragment="footer" class="footer">
+    <div th:replace="~{fragments/layout :: adColumn}"></div>
     <div th:replace="~{fragments/layout :: votePopup}"></div>
+
     <div class="container text-center">
         <span>FIFA World Cup 2026 &copy; Team Prediction App</span>
         <div class="footer-lang d-lg-none mt-2">

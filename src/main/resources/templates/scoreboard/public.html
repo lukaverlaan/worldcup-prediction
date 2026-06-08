@@ -8,98 +8,177 @@
 <div class="page-wrapper">
 <main class="main-container">
     <div class="text-center mb-4">
-        <h2><i class="bi bi-trophy-fill text-warning me-2"></i><span th:text="#{scoreboard.title}">Top 10 Teams</span></h2>
+        <h2><i class="bi bi-trophy-fill text-warning me-2"></i><span th:text="#{scoreboard.title}">Leaderboard</span></h2>
         <p class="text-muted" th:text="#{scoreboard.subtitle}">Global ranking based on total prediction points</p>
     </div>
 
-    <div th:if="${#lists.isEmpty(top10)}" class="alert alert-info text-center" th:text="#{scoreboard.empty}">
-        No teams have scored any points yet.
+    <!-- Tabs -->
+    <div class="d-flex justify-content-center mb-4">
+        <ul class="nav nav-pills gap-2">
+            <li class="nav-item">
+                <a th:href="@{/scoreboard(tab='teams')}"
+                   th:class="${tab == 'teams'} ? 'nav-link active' : 'nav-link'">
+                    <i class="bi bi-people-fill me-1"></i><span th:text="#{scoreboard.tab.teams}">Teams</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:href="@{/scoreboard(tab='users')}"
+                   th:class="${tab == 'users'} ? 'nav-link active' : 'nav-link'">
+                    <i class="bi bi-person-fill me-1"></i><span th:text="#{scoreboard.tab.users}">Gebruikers</span>
+                </a>
+            </li>
+        </ul>
     </div>
 
-    <div th:unless="${#lists.isEmpty(top10)}" class="row justify-content-center">
-        <div class="col-lg-8">
-
-            <!-- Podium (top 3) -->
-            <div class="podium-wrapper">
-                <div th:each="entry, iter : ${top10}" th:if="${iter.index < 3}"
-                     th:class="${iter.index == 0 ? 'podium-slot podium-first order-2' : (iter.index == 1 ? 'podium-slot podium-second order-1' : 'podium-slot podium-third order-3')}">
-                    <div class="podium-info">
-                        <div class="podium-avatar">
-                            <i class="bi bi-people-fill"></i>
+    <!-- ── TEAMS TAB ── -->
+    <div th:if="${tab == 'teams'}">
+        <div th:if="${#lists.isEmpty(top10)}" class="alert alert-info text-center" th:text="#{scoreboard.empty}">
+            No teams have scored any points yet.
+        </div>
+        <div th:unless="${#lists.isEmpty(top10)}" class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="podium-wrapper">
+                    <div th:each="entry, iter : ${top10}" th:if="${iter.index < 3}"
+                         th:class="${iter.index == 0 ? 'podium-slot podium-first order-2' : (iter.index == 1 ? 'podium-slot podium-second order-1' : 'podium-slot podium-third order-3')}">
+                        <div class="podium-info">
+                            <div class="podium-avatar"><i class="bi bi-people-fill"></i></div>
+                            <div th:if="${userTeamIds.contains(entry.team.id)}" style="width:100%;min-width:0;overflow:hidden">
+                                <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="podium-name text-decoration-none"
+                                   th:text="${entry.team.name}" th:title="${entry.team.name}">Team</a>
+                            </div>
+                            <div th:unless="${userTeamIds.contains(entry.team.id)}" style="width:100%;min-width:0;overflow:hidden">
+                                <span class="podium-name team-preview-link" style="cursor:pointer;text-decoration:underline dotted"
+                                      th:data-team-id="${entry.team.id}" th:data-team-name="${entry.team.name}"
+                                      th:text="${entry.team.name}" th:title="${entry.team.name}">Team</span>
+                            </div>
+                            <small class="podium-pts">
+                                <span th:text="${entry.totalScore}">0</span>
+                                <span th:text="#{pts}">pts</span>
+                            </small>
+                            <small class="text-muted mt-1" style="font-size:.72rem">
+                                <i class="bi bi-person-fill me-1"></i><span th:text="${entry.memberCount}">0</span>
+                            </small>
                         </div>
-                        <!-- own team → link to detail, other team → modal -->
-                        <div th:if="${userTeamIds.contains(entry.team.id)}">
-                            <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="podium-name text-decoration-none"
-                               th:text="${entry.team.name}">Team</a>
-                        </div>
-                        <div th:unless="${userTeamIds.contains(entry.team.id)}">
-                            <span class="podium-name team-preview-link"
-                                  style="cursor:pointer;text-decoration:underline dotted"
-                                  th:data-team-id="${entry.team.id}"
-                                  th:data-team-name="${entry.team.name}"
-                                  th:text="${entry.team.name}">Team</span>
-                        </div>
-                        <small class="podium-pts">
-                            <span th:text="${entry.totalScore}">0</span>
-                            <span th:text="#{pts}">pts</span>
-                        </small>
-                        <small class="text-muted mt-1" style="font-size:.72rem">
-                            <i class="bi bi-person-fill me-1"></i><span th:text="${entry.memberCount}">0</span>
-                        </small>
+                        <div class="podium-bar"><span th:text="${iter.index + 1}">1</span></div>
                     </div>
-                    <div class="podium-bar">
-                        <span th:text="${iter.index + 1}">1</span>
+                </div>
+                <div th:if="${top10.size() > 3}" class="card mt-0">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <tbody>
+                                <tr th:each="entry, iter : ${top10}" th:if="${iter.index >= 3}"
+                                    th:classappend="${!userTeamIds.contains(entry.team.id)} ? 'team-preview-row' : ''"
+                                    th:data-team-id="${entry.team.id}" th:data-team-name="${entry.team.name}"
+                                    style="cursor:pointer">
+                                    <td class="text-center ps-3 fw-semibold text-muted" style="width:55px" th:text="${iter.index + 1}">4</td>
+                                    <td>
+                                        <i class="bi bi-people-fill me-2 text-wc"></i>
+                                        <th:block th:if="${userTeamIds.contains(entry.team.id)}">
+                                            <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="fw-semibold text-decoration-none"
+                                               th:text="${entry.team.name}" onclick="event.stopPropagation()">Team</a>
+                                        </th:block>
+                                        <th:block th:unless="${userTeamIds.contains(entry.team.id)}">
+                                            <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
+                                        </th:block>
+                                    </td>
+                                    <td class="text-center text-muted" style="white-space:nowrap;font-size:.85rem">
+                                        <i class="bi bi-person-fill me-1"></i><span th:text="${entry.memberCount}">0</span>
+                                    </td>
+                                    <td class="text-center pe-3">
+                                        <span class="badge bg-wc fs-6">
+                                            <span th:text="${entry.totalScore}">0</span>
+                                            <span th:text="#{pts}">pts</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-
-            <!-- Remaining teams (4th+) -->
-            <div th:if="${top10.size() > 3}" class="card mt-0">
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0 align-middle">
-                        <tbody>
-                            <tr th:each="entry, iter : ${top10}" th:if="${iter.index >= 3}"
-                                th:classappend="${!userTeamIds.contains(entry.team.id)} ? 'team-preview-row' : ''"
-                                th:data-team-id="${entry.team.id}"
-                                th:data-team-name="${entry.team.name}"
-                                style="cursor:pointer">
-                                <td class="text-center ps-3 fw-semibold text-muted" style="width:55px"
-                                    th:text="${iter.index + 1}">4</td>
-                                <td>
-                                    <i class="bi bi-people-fill me-2 text-wc"></i>
-                                    <th:block th:if="${userTeamIds.contains(entry.team.id)}">
-                                        <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="fw-semibold text-decoration-none"
-                                           th:text="${entry.team.name}" onclick="event.stopPropagation()">Team</a>
-                                    </th:block>
-                                    <th:block th:unless="${userTeamIds.contains(entry.team.id)}">
-                                        <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
-                                    </th:block>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary" th:text="${entry.memberCount}">0</span>
-                                </td>
-                                <td class="text-center pe-3">
-                                    <span class="badge bg-wc fs-6">
-                                        <span th:text="${entry.totalScore}">0</span>
-                                        <span th:text="#{pts}">pts</span>
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
     </div>
+
+    <!-- ── USERS TAB ── -->
+    <div th:if="${tab == 'users'}">
+        <div th:if="${#maps.isEmpty(topUsers)}" class="alert alert-info text-center" th:text="#{scoreboard.users.empty}">
+            No users have scored any points yet.
+        </div>
+        <div th:unless="${#maps.isEmpty(topUsers)}" class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Podium top 3 -->
+                <div class="podium-wrapper">
+                    <div th:each="entry, iter : ${topUsers}" th:if="${iter.index < 3}"
+                         th:class="${iter.index == 0 ? 'podium-slot podium-first order-2' : (iter.index == 1 ? 'podium-slot podium-second order-1' : 'podium-slot podium-third order-3')}">
+                        <div class="podium-info">
+                            <div class="podium-avatar">
+                                <img th:src="@{/profile/picture/{u}(u=${entry.key.username})}"
+                                     class="podium-avatar-img" alt=""
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <i class="bi bi-person-fill" style="display:none"></i>
+                            </div>
+                            <span class="podium-name"
+                                  th:classappend="${currentUser != null and entry.key.id == currentUser.id} ? ' text-warning' : ''"
+                                  th:text="${entry.key.username}">User</span>
+                            <small class="podium-pts">
+                                <span th:text="${entry.value}">0</span>
+                                <span th:text="#{pts}">pts</span>
+                            </small>
+                            <div th:if="${userStreaks[entry.key.id] > 0}" class="member-streak">
+                                🔥 <span th:text="${userStreaks[entry.key.id]}">0</span>
+                            </div>
+                        </div>
+                        <div class="podium-bar"><span th:text="${iter.index + 1}">1</span></div>
+                    </div>
+                </div>
+
+                <!-- 4e en lager -->
+                <div th:if="${topUsers.size() > 3}" class="card mt-0">
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0 align-middle">
+                            <tbody>
+                                <tr th:each="entry, iter : ${topUsers}" th:if="${iter.index >= 3}"
+                                    th:classappend="${currentUser != null and entry.key.id == currentUser.id} ? 'table-active' : ''">
+                                    <td class="text-center ps-3 fw-semibold text-muted" style="width:40px" th:text="${iter.index + 1}">4</td>
+                                    <td style="width:40px;padding-right:0">
+                                        <img th:src="@{/profile/picture/{u}(u=${entry.key.username})}"
+                                             width="32" height="32"
+                                             style="border-radius:50%;object-fit:cover;display:block"
+                                             alt="" onerror="this.style.display='none'">
+                                    </td>
+                                    <td style="min-width:0">
+                                        <div style="display:flex;align-items:center;gap:.35rem;min-width:0">
+                                            <span class="fw-semibold text-truncate" th:text="${entry.key.username}">User</span>
+                                            <span th:if="${userStreaks[entry.key.id] > 0}" class="member-streak flex-shrink-0" style="white-space:nowrap">
+                                                🔥<span th:text="${userStreaks[entry.key.id]}">0</span>
+                                            </span>
+                                            <span th:if="${currentUser != null and entry.key.id == currentUser.id}"
+                                                  class="badge bg-warning text-dark flex-shrink-0" th:text="#{scoreboard.you}">jij</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-end pe-3" style="width:80px;white-space:nowrap">
+                                        <span class="badge bg-wc" style="font-size:.8rem">
+                                            <span th:text="${entry.value}">0</span>
+                                            <span th:text="#{pts}">pts</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </div>
 
 <!-- Team Preview Modal -->
-<div class="modal fade" id="teamPreviewModal" tabindex="-1" aria-hidden="true"
-     th:data-pts="#{pts}">
+<div class="modal fade" id="teamPreviewModal" tabindex="-1" aria-hidden="true" th:data-pts="#{pts}">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background:#1e2330;border:1px solid rgba(255,255,255,.1);color:#e0e0e0">
             <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,.1)">
@@ -125,9 +204,7 @@
                         <tbody id="modalMemberList"></tbody>
                     </table>
                 </div>
-                <div id="modalError" class="d-none alert alert-danger m-3">
-                    Kon teamleden niet laden.
-                </div>
+                <div id="modalError" class="d-none alert alert-danger m-3">Kon teamleden niet laden.</div>
             </div>
         </div>
     </div>
@@ -136,7 +213,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const previewModal = new bootstrap.Modal(document.getElementById('teamPreviewModal'));
-    const ptsLabel = document.getElementById('teamPreviewModal').dataset.pts || 'pts';
 
     function openTeamPreview(teamId, teamName) {
         document.getElementById('modalTeamName').textContent = teamName;
@@ -144,7 +220,6 @@
         document.getElementById('modalContent').classList.add('d-none');
         document.getElementById('modalError').classList.add('d-none');
         previewModal.show();
-
         fetch('/teams/' + teamId + '/preview')
             .then(r => r.json())
             .then(members => {
@@ -177,18 +252,11 @@
         return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // Podium preview links
     document.querySelectorAll('.team-preview-link').forEach(el => {
-        el.addEventListener('click', () => {
-            openTeamPreview(el.dataset.teamId, el.dataset.teamName);
-        });
+        el.addEventListener('click', () => openTeamPreview(el.dataset.teamId, el.dataset.teamName));
     });
-
-    // Table rows for non-member teams
     document.querySelectorAll('.team-preview-row').forEach(row => {
-        row.addEventListener('click', () => {
-            openTeamPreview(row.dataset.teamId, row.dataset.teamName);
-        });
+        row.addEventListener('click', () => openTeamPreview(row.dataset.teamId, row.dataset.teamName));
     });
 </script>
 </body>

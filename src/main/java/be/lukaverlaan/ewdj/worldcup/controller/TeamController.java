@@ -168,4 +168,17 @@ public class TeamController {
         ra.addFlashAttribute("successMessage", "team.member.removed");
         return "redirect:/teams/" + id;
     }
+
+    @PostMapping("/{id}/leave")
+    public String leaveTeam(@PathVariable Long id, Authentication auth, RedirectAttributes ra) {
+        User user = userService.findByUsername(auth.getName());
+        Team team = teamService.findById(id);
+        if (team.getOwner().getId().equals(user.getId())) {
+            ra.addFlashAttribute("errorMessage", "team.leave.owner");
+            return "redirect:/teams/" + id;
+        }
+        teamService.removeMember(id, user.getId(), user);
+        ra.addFlashAttribute("successMessage", "team.left.success");
+        return "redirect:/teams";
+    }
 }

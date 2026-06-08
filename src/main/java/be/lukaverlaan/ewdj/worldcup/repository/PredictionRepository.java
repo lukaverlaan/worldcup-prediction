@@ -24,6 +24,9 @@ public interface PredictionRepository extends JpaRepository<Prediction, Long> {
     @Query("SELECT p.user.id, COALESCE(SUM(p.points), 0) FROM Prediction p WHERE p.user IN :users AND p.points IS NOT NULL GROUP BY p.user.id")
     List<Object[]> sumPointsByUsers(@Param("users") Collection<User> users);
 
+    @Query("SELECT p.user, COALESCE(SUM(p.points), 0) FROM Prediction p WHERE p.points IS NOT NULL GROUP BY p.user ORDER BY 2 DESC")
+    List<Object[]> findTopUsersByPoints();
+
     default Map<Long, Integer> getPointsMapForUsers(Collection<User> users) {
         return sumPointsByUsers(users).stream()
             .collect(Collectors.toMap(

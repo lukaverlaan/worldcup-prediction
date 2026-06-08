@@ -53,6 +53,14 @@ public class HomeController {
         List<Map<String, Object>> top10 = teamService.getTop10Teams();
         model.addAttribute("top3Teams", top10.size() > 3 ? top10.subList(0, 3) : top10);
 
+        // Top 3 gebruikers voor het leaderboard widget
+        List<Object[]> topUserRows = predictionRepository.findTopUsersByPoints();
+        Map<User, Integer> top3Users = new LinkedHashMap<>();
+        for (int i = 0; i < Math.min(topUserRows.size(), 3); i++) {
+            top3Users.put((User) topUserRows.get(i)[0], ((Number) topUserRows.get(i)[1]).intValue());
+        }
+        model.addAttribute("top3Users", top3Users);
+
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
 
