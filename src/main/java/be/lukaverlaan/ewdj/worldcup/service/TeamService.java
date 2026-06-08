@@ -71,7 +71,9 @@ public class TeamService {
     public void removeMember(Long teamId, Long memberId, User requestingUser) {
         Team team = findById(teamId);
         boolean isAdmin = requestingUser.getRoles().contains("ADMIN");
-        if (!isAdmin && !team.getOwner().getId().equals(requestingUser.getId())) {
+        boolean isSelf = requestingUser.getId().equals(memberId);
+        boolean isOwner = team.getOwner().getId().equals(requestingUser.getId());
+        if (!isAdmin && !isOwner && !isSelf) {
             throw new SecurityException("team.not.owner");
         }
         team.getMembers().removeIf(m -> m.getId().equals(memberId));

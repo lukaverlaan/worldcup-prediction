@@ -56,6 +56,7 @@ public class MatchController {
     @GetMapping("/{id}")
     public String matchDetail(@PathVariable Long id,
                               @RequestParam(required = false) String from,
+                              @RequestParam(required = false) Long teamId,
                               Model model, Authentication auth) {
         Match match = matchService.findById(id);
         model.addAttribute("match", match);
@@ -87,14 +88,23 @@ public class MatchController {
             }
         }
 
-        // Vorige / volgende match navigatie (vanuit home of team)
-        if ("home".equals(from) || "team".equals(from)) {
-            model.addAttribute("fromHome", true);
-            model.addAttribute("fromParam", from);
+        // Bepaal backUrl en prev/next navigatie op basis van from-param
+        String backUrl = switch (from != null ? from : "") {
+            case "home"    -> "/";
+            case "matches" -> "/matches";
+            case "groups"  -> "/groups";
+            case "team"    -> teamId != null ? "/teams/" + teamId : "/matches";
+            default        -> "/matches";
+        };
+        model.addAttribute("backUrl", backUrl);
+        model.addAttribute("fromParam", from);
+
+        if (from != null && !from.isBlank()) {
             matchService.findPrevious(match.getDateTime())
                 .ifPresent(m -> model.addAttribute("prevMatchId", m.getId()));
             matchService.findNext(match.getDateTime())
                 .ifPresent(m -> model.addAttribute("nextMatchId", m.getId()));
+            if (teamId != null) model.addAttribute("teamId", teamId);
         }
 
         if (match.getStadiumCode() != null && !match.getStadiumCode().isBlank()) {
@@ -110,6 +120,7 @@ public class MatchController {
                                    @Valid @ModelAttribute("predictionForm") PredictionForm form,
                                    BindingResult result, Authentication auth,
                                    @RequestParam(required = false) String from,
+                                   @RequestParam(required = false) Long teamId,
                                    RedirectAttributes ra, Model model) {
         Match match = matchService.findById(id);
         if (result.hasErrors()) {
@@ -127,6 +138,7 @@ public class MatchController {
         String redirect = "redirect:/matches/" + id;
         if (from != null && !from.isBlank()) {
             redirect += "?from=" + from;
+            if (teamId != null) redirect += "&teamId=" + teamId;
         }
         return redirect;
     }

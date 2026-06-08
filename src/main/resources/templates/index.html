@@ -36,7 +36,7 @@
                     <a th:href="@{/teams}" class="btn btn-wc btn-sm">
                         <i class="bi bi-people me-1"></i><span th:text="#{nav.myteams}">My Teams</span>
                     </a>
-                    <a th:href="@{/scoreboard}" class="btn btn-hero-outline btn-sm">
+                    <a th:href="@{/leaderboard}" class="btn btn-hero-outline btn-sm">
                         <i class="bi bi-trophy me-1"></i><span th:text="#{nav.scoreboard}">Top 10</span>
                     </a>
                 </div>
@@ -153,20 +153,51 @@
             </a>
         </div>
 
-        <!-- Top Teams widget -->
-        <div class="home-dash-card" th:if="${!#lists.isEmpty(top3Teams)}">
-            <div class="home-dash-card-label" th:text="#{nav.scoreboard}">Top Teams</div>
-            <div th:each="entry, iter : ${top3Teams}" class="home-dash-top-row">
-                <span th:class="${iter.index == 0 ? 'home-dash-top-rank rank-gold' : (iter.index == 1 ? 'home-dash-top-rank rank-silver' : 'home-dash-top-rank rank-bronze')}">
-                    <i th:class="${iter.index == 0 ? 'bi bi-trophy-fill' : (iter.index == 1 ? 'bi bi-award-fill' : 'bi bi-award')}"></i>
-                </span>
-                <span class="fw-semibold flex-grow-1 ms-2" th:text="${entry.team.name}">Team</span>
-                <span class="home-dash-top-pts">
-                    <span th:text="${entry.totalScore}">0</span>
-                    <small th:text="#{pts}">ptn</small>
-                </span>
+        <!-- Leaderboard widget (teams + gebruikers) -->
+        <div class="home-dash-card" th:if="${!#lists.isEmpty(top3Teams) or !#maps.isEmpty(top3Users)}">
+            <div class="home-dash-card-label" th:text="#{nav.scoreboard}">Leaderboard</div>
+            <div class="home-dash-lb-cols">
+                <!-- Teams kolom -->
+                <div class="home-dash-lb-col">
+                    <div class="home-dash-lb-header">
+                        <i class="bi bi-people-fill me-1"></i><span th:text="#{scoreboard.tab.teams}">Teams</span>
+                    </div>
+                    <div th:each="entry, iter : ${top3Teams}" class="home-dash-top-row">
+                        <span th:class="${iter.index == 0 ? 'home-dash-top-rank rank-gold' : (iter.index == 1 ? 'home-dash-top-rank rank-silver' : 'home-dash-top-rank rank-bronze')}">
+                            <i th:class="${iter.index == 0 ? 'bi bi-trophy-fill' : (iter.index == 1 ? 'bi bi-award-fill' : 'bi bi-award')}"></i>
+                        </span>
+                        <span class="fw-semibold flex-grow-1 ms-2 text-truncate" th:text="${entry.team.name}">Team</span>
+                        <span class="home-dash-top-pts">
+                            <span th:text="${entry.totalScore}">0</span>
+                            <small th:text="#{pts}">ptn</small>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="home-dash-lb-divider"></div>
+
+                <!-- Gebruikers kolom -->
+                <div class="home-dash-lb-col">
+                    <div class="home-dash-lb-header">
+                        <i class="bi bi-person-fill me-1"></i><span th:text="#{scoreboard.tab.users}">Gebruikers</span>
+                    </div>
+                    <div th:each="entry, iter : ${top3Users}" class="home-dash-top-row">
+                        <span th:class="${iter.index == 0 ? 'home-dash-top-rank rank-gold' : (iter.index == 1 ? 'home-dash-top-rank rank-silver' : 'home-dash-top-rank rank-bronze')}">
+                            <i th:class="${iter.index == 0 ? 'bi bi-trophy-fill' : (iter.index == 1 ? 'bi bi-award-fill' : 'bi bi-award')}"></i>
+                        </span>
+                        <img th:src="@{/profile/picture/{u}(u=${entry.key.username})}"
+                             width="22" height="22"
+                             style="border-radius:50%;object-fit:cover;margin-left:.4rem;flex-shrink:0"
+                             alt="" onerror="this.style.display='none'">
+                        <span class="fw-semibold flex-grow-1 ms-2 text-truncate" th:text="${entry.key.username}">User</span>
+                        <span class="home-dash-top-pts">
+                            <span th:text="${entry.value}">0</span>
+                            <small th:text="#{pts}">ptn</small>
+                        </span>
+                    </div>
+                </div>
             </div>
-            <a th:href="@{/scoreboard}" class="btn btn-outline-secondary btn-sm w-100 mt-auto pt-3 d-flex align-items-center justify-content-center">
+            <a th:href="@{/leaderboard}" class="btn btn-outline-secondary btn-sm w-100 mt-auto pt-3 d-flex align-items-center justify-content-center">
                 <i class="bi bi-trophy me-2"></i><span th:text="#{home.full.ranking}">Volledige ranking</span>
             </a>
         </div>

@@ -39,7 +39,7 @@
         <div class="match-list-table">
             <div th:each="match, iter : ${matches}"
                  class="match-list-row clickable-row"
-                 th:data-href="@{/matches/{id}(id=${match.id},from='home')}">
+                 th:data-href="@{/matches/{id}(id=${match.id},from='matches')}">
 
                 <!-- Rang -->
                 <div class="match-list-num text-muted" th:text="${iter.index + 1 + currentPage * 15}"></div>
