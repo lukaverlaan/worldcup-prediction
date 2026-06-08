@@ -99,9 +99,13 @@
                     <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" alt="" class="home-dash-flag">
                     <i th:unless="${infoA != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
                     <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamA, #locale)}">Team A</span>
+                    <span th:if="${nextMatchPrediction != null}" class="home-dash-pred-score"
+                          th:text="${nextMatchPrediction.predictedScoreA}"></span>
                 </div>
-                <div class="home-dash-vs">VS</div>
+                <div class="home-dash-vs" th:text="${nextMatchPrediction != null} ? '–' : 'VS'">VS</div>
                 <div class="home-dash-team" th:with="infoB=${@countryRegistry.get(nextMatch.teamB)}">
+                    <span th:if="${nextMatchPrediction != null}" class="home-dash-pred-score"
+                          th:text="${nextMatchPrediction.predictedScoreB}"></span>
                     <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" alt="" class="home-dash-flag">
                     <i th:unless="${infoB != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
                     <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamB, #locale)}">Team B</span>
@@ -116,7 +120,12 @@
                 <span th:text="${nextMatch.stadium}"></span>
             </div>
             <a th:href="@{/matches/{id}(id=${nextMatch.id},from='home')}" class="btn btn-wc btn-sm w-100 mt-3 d-flex align-items-center justify-content-center">
-                <i class="bi bi-pencil-square me-2"></i><span th:text="#{home.do.prediction}">Doe je voorspelling</span>
+                <span th:if="${nextMatchPrediction != null}">
+                    <i class="bi bi-eye me-2"></i><span th:text="#{home.view.match}">Bekijk wedstrijd</span>
+                </span>
+                <span th:unless="${nextMatchPrediction != null}">
+                    <i class="bi bi-pencil-square me-2"></i><span th:text="#{home.do.prediction}">Doe je voorspelling</span>
+                </span>
             </a>
         </div>
 

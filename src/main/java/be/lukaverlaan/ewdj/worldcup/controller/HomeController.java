@@ -55,6 +55,14 @@ public class HomeController {
 
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
+
+            // Bestaande prognose voor de volgende wedstrijd (voor de widget)
+            Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream().findFirst().orElse(null);
+            if (nextMatch != null) {
+                predictionService.findByUserAndMatch(user, nextMatch)
+                    .ifPresent(p -> model.addAttribute("nextMatchPrediction", p));
+            }
+
             int totalPoints = predictionRepository.sumPointsByUser(user);
             int predictionCount = predictionRepository.findByUser(user).size();
             int streak = predictionService.getStreakForUser(user);

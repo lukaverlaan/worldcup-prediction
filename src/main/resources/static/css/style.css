@@ -2154,6 +2154,12 @@ tr.clickable-row:hover > td {
 }
 .home-dash-flag { width: 48px; height: auto; border-radius: 4px; }
 .home-dash-flag-placeholder { font-size: 2rem; color: #555; }
+.home-dash-pred-score {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--wc-gold, #f0b429);
+    line-height: 1;
+}
 .home-dash-vs {
     font-size: .75rem;
     font-weight: 700;
