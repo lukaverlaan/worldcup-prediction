@@ -181,7 +181,7 @@
                     <div class="home-dash-lb-header">
                         <i class="bi bi-person-fill me-1"></i><span th:text="#{scoreboard.tab.users}">Gebruikers</span>
                     </div>
-                    <div th:if="${#lists.isEmpty(top3Users)}" class="text-muted text-center py-3" style="font-size:.8rem">
+                    <div th:if="${top3Users.isEmpty()}" class="text-muted text-center py-3" style="font-size:.8rem">
                         <i class="bi bi-hourglass-split me-1"></i><span th:text="#{home.no.scores}">Nog geen punten</span>
                     </div>
                     <div th:each="entry, iter : ${top3Users}" class="home-dash-top-row">
