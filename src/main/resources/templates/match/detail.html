@@ -298,7 +298,9 @@
         </th:block>
 
         <!-- Normale terug knop (niet vanuit home) -->
-        <a th:unless="${fromHome}" href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+        <a th:unless="${fromHome}"
+           th:href="${successMessage != null or errorMessage != null} ? 'javascript:history.go(-2)' : 'javascript:history.back()'"
+           class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i><span th:text="#{match.back}">Back</span>
         </a>
     </div>
