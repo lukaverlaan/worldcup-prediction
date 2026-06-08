@@ -109,6 +109,7 @@ public class MatchController {
     public String submitPrediction(@PathVariable Long id,
                                    @Valid @ModelAttribute("predictionForm") PredictionForm form,
                                    BindingResult result, Authentication auth,
+                                   @RequestParam(required = false) String from,
                                    RedirectAttributes ra, Model model) {
         Match match = matchService.findById(id);
         if (result.hasErrors()) {
@@ -123,6 +124,10 @@ public class MatchController {
         } catch (IllegalStateException e) {
             ra.addFlashAttribute("errorMessage", e.getMessage());
         }
-        return "redirect:/matches/" + id;
+        String redirect = "redirect:/matches/" + id;
+        if (from != null && !from.isBlank()) {
+            redirect += "?from=" + from;
+        }
+        return redirect;
     }
 }

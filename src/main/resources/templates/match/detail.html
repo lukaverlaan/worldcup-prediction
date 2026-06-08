@@ -199,6 +199,7 @@
 
                     <form th:if="${canPredict}" th:action="@{/matches/{id}/predict(id=${match.id})}"
                           method="post" th:object="${predictionForm}">
+                        <input type="hidden" name="from" th:value="${fromParam}">
                         <div class="row g-3 align-items-end mb-3">
                             <div class="col-5" th:with="infoA=${@countryRegistry.get(match.teamA)}">
                                 <label class="form-label fw-semibold d-flex align-items-center gap-1">
@@ -298,9 +299,7 @@
         </th:block>
 
         <!-- Normale terug knop (niet vanuit home) -->
-        <a th:unless="${fromHome}"
-           th:href="${successMessage != null or errorMessage != null} ? 'javascript:history.go(-2)' : 'javascript:history.back()'"
-           class="btn btn-outline-secondary btn-sm">
+        <a th:unless="${fromHome}" href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i><span th:text="#{match.back}">Back</span>
         </a>
     </div>
