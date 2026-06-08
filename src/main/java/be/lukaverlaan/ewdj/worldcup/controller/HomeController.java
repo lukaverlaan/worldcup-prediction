@@ -99,6 +99,12 @@ public class HomeController {
         return "index";
     }
 
+    @GetMapping("/privacy")
+    public String privacy() {
+        log.info("GET /privacy");
+        return "privacy";
+    }
+
     @GetMapping("/access-denied")
     public String accessDenied() {
         log.info("GET /access-denied");

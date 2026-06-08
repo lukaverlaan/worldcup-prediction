@@ -419,6 +419,9 @@
 
     <div class="container text-center">
         <span>FIFA World Cup 2026 &copy; Team Prediction App</span>
+        <div class="mt-1">
+            <a th:href="@{/privacy}" th:text="#{privacy.footer.link}" class="text-muted small">Privacy Policy</a>
+        </div>
         <div class="footer-lang d-lg-none mt-2">
             <button type="button"
                     th:class="${#locale.language == 'en'} ? 'lang-btn active' : 'lang-btn'"

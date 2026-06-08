@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(#{privacy.title})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<div class="page-wrapper">
+<main class="main-container" style="max-width:760px">
+
+    <h2 class="mb-4"><i class="bi bi-shield-lock me-2 text-wc"></i><span th:text="#{privacy.title}">Privacy Policy</span></h2>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <p class="text-muted small mb-4" th:text="#{privacy.updated}">Last updated: June 2026</p>
+
+            <h5 th:text="#{privacy.section.controller}">1. Data Controller</h5>
+            <p th:text="#{privacy.controller.text}"></p>
+
+            <h5 class="mt-4" th:text="#{privacy.section.data}">2. Data Collected</h5>
+            <p th:text="#{privacy.data.text}"></p>
+            <ul>
+                <li th:text="#{privacy.data.item1}"></li>
+                <li th:text="#{privacy.data.item2}"></li>
+                <li th:text="#{privacy.data.item3}"></li>
+            </ul>
+
+            <h5 class="mt-4" th:text="#{privacy.section.purpose}">3. Purpose</h5>
+            <p th:text="#{privacy.purpose.text}"></p>
+
+            <h5 class="mt-4" th:text="#{privacy.section.adsense}">4. Google AdSense &amp; Cookies</h5>
+            <p th:text="#{privacy.adsense.text}"></p>
+            <p><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></p>
+
+            <h5 class="mt-4" th:text="#{privacy.section.rights}">5. Your Rights (GDPR)</h5>
+            <p th:text="#{privacy.rights.intro}"></p>
+            <ul>
+                <li th:text="#{privacy.rights.access}"></li>
+                <li th:text="#{privacy.rights.deletion}"></li>
+                <li th:text="#{privacy.rights.objection}"></li>
+            </ul>
+
+            <h5 class="mt-4" th:text="#{privacy.section.contact}">6. Contact</h5>
+            <p>
+                <span th:text="#{privacy.contact.text}"></span>
+                <a href="mailto:privacy@lukaverlaan.be">privacy@lukaverlaan.be</a>
+            </p>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
