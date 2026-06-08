@@ -2154,11 +2154,38 @@ tr.clickable-row:hover > td {
 }
 .home-dash-flag { width: 48px; height: auto; border-radius: 4px; }
 .home-dash-flag-placeholder { font-size: 2rem; color: #555; }
+.home-dash-center-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .2rem;
+    padding: 0 .4rem;
+}
+.home-dash-pred-row {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+}
 .home-dash-pred-score {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     font-weight: 700;
-    color: var(--wc-gold, #f0b429);
+    color: rgba(255, 255, 255, 0.55);
     line-height: 1;
+    min-width: 1.4rem;
+    text-align: center;
+}
+.home-dash-pred-sep {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.3);
+}
+.home-dash-pred-label {
+    font-size: .62rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
 }
 .home-dash-vs {
     font-size: .75rem;

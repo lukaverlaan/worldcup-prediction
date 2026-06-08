@@ -99,13 +99,18 @@
                     <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" alt="" class="home-dash-flag">
                     <i th:unless="${infoA != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
                     <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamA, #locale)}">Team A</span>
-                    <span th:if="${nextMatchPrediction != null}" class="home-dash-pred-score"
-                          th:text="${nextMatchPrediction.predictedScoreA}"></span>
                 </div>
-                <div class="home-dash-vs" th:text="${nextMatchPrediction != null} ? '–' : 'VS'">VS</div>
+                <div class="home-dash-center-block">
+                    <div th:if="${nextMatchPrediction != null}" class="home-dash-pred-row">
+                        <span class="home-dash-pred-score" th:text="${nextMatchPrediction.predictedScoreA}"></span>
+                        <span class="home-dash-pred-sep">–</span>
+                        <span class="home-dash-pred-score" th:text="${nextMatchPrediction.predictedScoreB}"></span>
+                    </div>
+                    <div th:unless="${nextMatchPrediction != null}" class="home-dash-vs">VS</div>
+                    <span th:if="${nextMatchPrediction != null}" class="home-dash-pred-label"
+                          th:text="#{home.pred.yours}">jouw prognose</span>
+                </div>
                 <div class="home-dash-team" th:with="infoB=${@countryRegistry.get(nextMatch.teamB)}">
-                    <span th:if="${nextMatchPrediction != null}" class="home-dash-pred-score"
-                          th:text="${nextMatchPrediction.predictedScoreB}"></span>
                     <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" alt="" class="home-dash-flag">
                     <i th:unless="${infoB != null}" class="bi bi-flag home-dash-flag-placeholder"></i>
                     <span th:text="${@countryRegistry.getDisplayName(nextMatch.teamB, #locale)}">Team B</span>
