@@ -35,6 +35,22 @@ public class MatchRestController {
         return toDto(matchService.findById(id));
     }
 
+    @GetMapping("/{id}/live")
+    public Map<String, Object> getLiveData(@PathVariable Long id) {
+        Match m = matchService.findById(id);
+        Map<String, Object> dto = new java.util.LinkedHashMap<>();
+        dto.put("id", m.getId());
+        dto.put("hasResult", m.hasResult());
+        dto.put("officialScoreA", m.getOfficialScoreA());
+        dto.put("officialScoreB", m.getOfficialScoreB());
+        dto.put("isLive", m.isLive());
+        dto.put("liveScoreA", m.getLiveScoreA());
+        dto.put("liveScoreB", m.getLiveScoreB());
+        dto.put("liveMinute", m.getLiveMinute());
+        dto.put("liveStatus", m.getLiveStatus());
+        return dto;
+    }
+
     private Map<String, Object> toDto(Match m) {
         Map<String, Object> dto = new java.util.LinkedHashMap<>();
         dto.put("id", m.getId());

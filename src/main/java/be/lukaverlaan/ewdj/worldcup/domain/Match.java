@@ -31,6 +31,11 @@ public class Match {
     private Integer officialScoreA;
     private Integer officialScoreB;
 
+    private Integer liveScoreA;
+    private Integer liveScoreB;
+    private Integer liveMinute;
+    private String liveStatus;
+
     @Column(unique = true)
     private Long apiFootballFixtureId;
 
@@ -63,7 +68,22 @@ public class Match {
     public String getRound() { return round; }
     public void setRound(String round) { this.round = round; }
 
+    public Integer getLiveScoreA() { return liveScoreA; }
+    public void setLiveScoreA(Integer liveScoreA) { this.liveScoreA = liveScoreA; }
+    public Integer getLiveScoreB() { return liveScoreB; }
+    public void setLiveScoreB(Integer liveScoreB) { this.liveScoreB = liveScoreB; }
+    public Integer getLiveMinute() { return liveMinute; }
+    public void setLiveMinute(Integer liveMinute) { this.liveMinute = liveMinute; }
+    public String getLiveStatus() { return liveStatus; }
+    public void setLiveStatus(String liveStatus) { this.liveStatus = liveStatus; }
+
     public boolean hasResult() {
         return officialScoreA != null && officialScoreB != null;
+    }
+
+    public boolean isLive() {
+        return liveStatus != null && !liveStatus.isBlank()
+            && !liveStatus.equals("FT") && !liveStatus.equals("AET") && !liveStatus.equals("PEN")
+            && !liveStatus.equals("NS") && !liveStatus.equals("TBD");
     }
 }

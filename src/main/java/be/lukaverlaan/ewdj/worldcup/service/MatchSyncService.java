@@ -14,50 +14,57 @@ import java.util.List;
 @Service
 public class MatchSyncService {
 
+    private static final List<String> FINISHED_STATUSES = List.of("FT", "AET", "PEN");
+
     private final MatchRepository matchRepository;
     private final ApiFootballService apiFootballService;
+    private final PredictionService predictionService;
 
-    public MatchSyncService(MatchRepository matchRepository, ApiFootballService apiFootballService) {
+    public MatchSyncService(MatchRepository matchRepository, ApiFootballService apiFootballService,
+                            PredictionService predictionService) {
         this.matchRepository = matchRepository;
         this.apiFootballService = apiFootballService;
+        this.predictionService = predictionService;
     }
 
     /**
-     * Every 5 minutes, check matches that ended but don't have a score yet
-     * and pull the final result from api-football.
+     * Every minute: only polls when at least one match has started but has no official result yet.
      */
-    @Scheduled(fixedDelayString = "${apifootball.sync.interval-ms:300000}")
+    @Scheduled(fixedDelayString = "${apifootball.sync.interval-ms:60000}")
     @Transactional
-    public void syncFinishedMatchScores() {
-        List<Match> unscored = matchRepository.findByOfficialScoreAIsNullAndDateTimeLessThan(
-            LocalDateTime.now().minusMinutes(100) // safe buffer after a 90-min match
-        );
+    public void syncActiveMatches() {
+        List<Match> activeMatches = matchRepository
+            .findByOfficialScoreAIsNullAndApiFootballFixtureIdIsNotNullAndDateTimeLessThanEqual(LocalDateTime.now());
 
-        if (unscored.isEmpty()) return;
+        if (activeMatches.isEmpty()) return;
 
-        log.info("Syncing scores for {} unscored matches", unscored.size());
+        log.info("Polling live data for {} active match(es)", activeMatches.size());
 
-        for (Match match : unscored) {
-            if (match.getApiFootballFixtureId() == null) continue;
-
+        for (Match match : activeMatches) {
             ApiFootballService.FixtureData data = apiFootballService.fetchFixture(match.getApiFootballFixtureId());
-            if (data == null || !data.finished()) continue;
-            if (data.scoreHome() == null || data.scoreAway() == null) continue;
+            if (data == null) continue;
 
-            match.setOfficialScoreA(data.scoreHome());
-            match.setOfficialScoreB(data.scoreAway());
-            matchRepository.save(match);
-            log.info("Synced score for match {} ({} vs {}): {}-{}",
-                match.getId(), match.getTeamA(), match.getTeamB(),
-                data.scoreHome(), data.scoreAway());
+            match.setLiveStatus(data.statusShort());
+            match.setLiveMinute(data.elapsed());
+            match.setLiveScoreA(data.scoreHome());
+            match.setLiveScoreB(data.scoreAway());
+
+            if (FINISHED_STATUSES.contains(data.statusShort()) && data.scoreHome() != null && data.scoreAway() != null) {
+                match.setOfficialScoreA(data.scoreHome());
+                match.setOfficialScoreB(data.scoreAway());
+                matchRepository.save(match);
+                predictionService.calculatePointsForMatch(match);
+                log.info("Match {} ({} vs {}) finished: {}-{} ({})",
+                    match.getId(), match.getTeamA(), match.getTeamB(),
+                    data.scoreHome(), data.scoreAway(), data.statusShort());
+            } else {
+                matchRepository.save(match);
+            }
         }
     }
 
     /**
      * Called once at startup from DataLoader to import all fixtures.
-     *
-     * For existing matches (no apiFootballFixtureId yet), we reconcile by team names + date
-     * so that prediction foreign keys stay intact. New fixtures are inserted normally.
      */
     @Transactional
     public void importFixtures() {
@@ -76,10 +83,8 @@ public class MatchSyncService {
         int created = 0;
 
         for (ApiFootballService.FixtureData f : fixtures) {
-            // Already linked — skip
             if (matchRepository.findByApiFootballFixtureId(f.fixtureId()).isPresent()) continue;
 
-            // Try to find an existing match with the same teams and same day (preserves prediction FK)
             Match existing = existingUnlinked.stream()
                 .filter(m -> teamsMatch(m, f) && sameDay(m.getDateTime(), f.dateTime()))
                 .findFirst()
@@ -91,8 +96,7 @@ public class MatchSyncService {
                 existing.setStadium(f.stadium());
                 existing.setDateTime(f.dateTime());
                 existing.setRound(f.round());
-                if (f.finished() && f.scoreHome() != null && f.scoreAway() != null
-                        && !existing.hasResult()) {
+                if (f.finished() && f.scoreHome() != null && f.scoreAway() != null && !existing.hasResult()) {
                     existing.setOfficialScoreA(f.scoreHome());
                     existing.setOfficialScoreB(f.scoreAway());
                 }
@@ -125,8 +129,7 @@ public class MatchSyncService {
             || m.getTeamA().equalsIgnoreCase(f.awayTeam()) && m.getTeamB().equalsIgnoreCase(f.homeTeam());
     }
 
-    private boolean sameDay(LocalDateTime a, LocalDateTime b) {
-        // Allow ±1 day tolerance to handle UTC vs local time (e.g. CEST = UTC+2)
+    private boolean sameDay(java.time.LocalDateTime a, java.time.LocalDateTime b) {
         long diffDays = Math.abs(a.toLocalDate().toEpochDay() - b.toLocalDate().toEpochDay());
         return diffDays <= 1;
     }
