@@ -414,18 +414,18 @@ body.app-body {
     z-index: 900;
     overflow-y: auto;
 }
-.ad-banner-link {
+.sponsor-banner-link {
     display: block;
     width: 100%;
     flex-shrink: 0;
 }
-.ad-banner-img {
+.sponsor-banner-img {
     width: 100%;
     height: auto;
     display: block;
 }
 
-.ad-banner-img--round {
+.sponsor-banner-img--round {
     border-radius: 50%;
     aspect-ratio: 1;
     object-fit: cover;
