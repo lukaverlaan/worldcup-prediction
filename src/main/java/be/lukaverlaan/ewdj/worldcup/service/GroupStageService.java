@@ -79,6 +79,13 @@ public class GroupStageService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<Match> getAllMatchesInGroupOrder() {
+        return getAllGroups().stream()
+            .flatMap(g -> g.matches().stream())
+            .toList();
+    }
+
     public record Matchday(int number, List<Match> matches) {}
     public record GroupData(String letter, List<String> teams, List<Match> matches, Map<String, Integer> points, List<Matchday> matchdays) {}
 }

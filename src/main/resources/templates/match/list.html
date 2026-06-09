@@ -36,10 +36,12 @@
     </div>
 
     <div th:unless="${#lists.isEmpty(matches)}" class="home-dash-card p-0">
-        <div class="match-list-table">
+        <div class="match-list-table match-list-table--rounded">
             <div th:each="match, iter : ${matches}"
                  class="match-list-row clickable-row"
-                 th:data-href="@{/matches/{id}(id=${match.id},from='matches')}">
+                 th:data-href="@{/matches/{id}(id=${match.id},from='matches')}"
+                 th:data-kickoff="${#temporals.format(match.dateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                 th:data-match-id="${match.live} ? ${match.id} : null">
 
                 <!-- Rang -->
                 <div class="match-list-num text-muted" th:text="${iter.index + 1 + currentPage * 15}"></div>
@@ -56,7 +58,10 @@
                             <span style="color:#555">–</span>
                             <span th:text="${match.officialScoreB}">0</span>
                         </div>
-                        <div class="match-list-vs" th:unless="${match.hasResult()}">vs</div>
+                        <div class="match-list-vs fw-bold text-danger" th:if="${match.live and !match.hasResult()}"
+                             th:text="${match.liveScoreA != null} ? (${match.liveScoreA} + ' – ' + ${match.liveScoreB}) : '0 – 0'">0–0</div>
+                        <div class="match-list-vs text-muted" th:if="${match.pendingStart}" th:text="'0 – 0'">0–0</div>
+                        <div class="match-list-vs" th:unless="${match.hasResult() or match.live or match.pendingStart}">vs</div>
                         <div class="match-list-team" th:with="infoB=${@countryRegistry.get(match.teamB)}">
                             <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
                             <span th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">Team B</span>
@@ -64,15 +69,32 @@
                     </div>
                     <div class="match-list-info">
                         <span style="color:#ccc" th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}"></span>
+                        <span th:unless="${match.live or match.hasResult()}" class="starts-in-label badge bg-warning text-dark ms-1" style="display:none"></span>
                         <span th:if="${match.stadium != null}" class="match-list-stadium">
                             <i class="bi bi-geo-alt me-1"></i><span th:text="${match.stadium}"></span>
                         </span>
                     </div>
                 </div>
 
-                <!-- Ronde badge -->
-                <div class="match-list-round" th:if="${match.round != null}">
-                    <span class="badge bg-secondary" th:text="${match.round}"></span>
+                <!-- Ronde badge / LIVE badge / prognose-indicator -->
+                <div class="match-list-round">
+                    <span th:if="${match.live}" class="badge bg-danger me-1">
+                        <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
+                    </span>
+                    <span th:if="${match.pendingStart}" class="badge bg-secondary me-1" th:text="#{match.pending.start}"></span>
+                    <span th:if="${match.round != null}" class="badge bg-secondary badge-round" th:text="${match.round}"></span>
+                    <span th:if="${userPredictions != null}"
+                          th:with="pred=${userPredictions[match.id]}, closed=${match.dateTime.minusHours(1).isBefore(T(java.time.LocalDateTime).now())}">
+                        <span th:if="${pred != null}" class="pred-indicator text-success" title="Prognose ingediend">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </span>
+                        <span th:if="${pred == null and !closed and !match.hasResult()}" class="pred-indicator text-warning" title="Nog geen prognose">
+                            <i class="bi bi-pencil-fill"></i>
+                        </span>
+                        <span th:if="${pred == null and closed and !match.hasResult()}" class="pred-indicator text-secondary" title="Gesloten zonder prognose">
+                            <i class="bi bi-lock-fill"></i>
+                        </span>
+                    </span>
                 </div>
 
                 <!-- Chevron -->
@@ -108,13 +130,74 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script th:inline="javascript">
+    var startsInTpl = [[#{match.starts.in}]];
+    var startsImminent = [[#{match.imminent}]];
+
+    function updateKickoffLabels() {
+        var now = new Date();
+        document.querySelectorAll('.match-list-row[data-kickoff]').forEach(function(row) {
+            var label = row.querySelector('.starts-in-label');
+            if (!label) return;
+            var kickoff = new Date(row.dataset.kickoff);
+            var diffMs = kickoff - now;
+            var diffMin = Math.floor(diffMs / 60000);
+            if (diffMin >= 1 && diffMin < 60) {
+                label.textContent = startsInTpl.replace('{0}', diffMin);
+                label.style.display = '';
+            } else if (diffMin === 0) {
+                label.textContent = startsImminent;
+                label.style.display = '';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+    }
+
     document.querySelectorAll('.clickable-row').forEach(function(row) {
         row.addEventListener('click', function() {
             var href = this.dataset.href;
             if (href) window.location.href = href;
         });
     });
+
+    updateKickoffLabels();
+    setInterval(updateKickoffLabels, 60000);
+
+    // Live rijen auto-refresh + detectie van nieuwe live matches
+    function refreshLiveRows() {
+        var now = new Date();
+        document.querySelectorAll('.match-list-row[data-kickoff]').forEach(function(row) {
+            var matchId = row.dataset.matchId;
+            var kickoff = new Date(row.dataset.kickoff);
+            // Alleen checken als aftrap voorbij is en nog geen officieel resultaat
+            if (kickoff > now) return;
+            if (!matchId || matchId === 'null') {
+                // Was nog niet live — check of dat veranderd is
+                var id = row.dataset.href && row.dataset.href.match(/\/matches\/(\d+)/);
+                if (!id) return;
+                fetch('/api/matches/' + id[1] + '/live')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.isLive || data.hasResult) window.location.reload();
+                    }).catch(function() {});
+                return;
+            }
+            fetch('/api/matches/' + matchId + '/live')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.hasResult) { window.location.reload(); return; }
+                    if (data.isLive) {
+                        var vsEl = row.querySelector('.match-list-vs');
+                        var badge = row.querySelector('.badge.bg-danger');
+                        if (vsEl && data.liveScoreA !== null && data.liveScoreB !== null)
+                            vsEl.textContent = data.liveScoreA + ' – ' + data.liveScoreB;
+                    }
+                }).catch(function() {});
+        });
+    }
+
+    setInterval(refreshLiveRows, 60000);
 </script>
 </body>
 </html>

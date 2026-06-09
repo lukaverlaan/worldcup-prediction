@@ -67,8 +67,17 @@
                                 <span th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">B</span>
                             </span>
                         </div>
-                        <div class="group-match-date"
-                             th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}">datum</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="group-match-date"
+                                 th:text="${#temporals.format(match.dateTime, #messages.msg('date.format'))}">datum</div>
+                            <span th:if="${userPredictions != null}"
+                                  th:with="pred=${userPredictions[match.id]}, closed=${match.dateTime.minusHours(1).isBefore(T(java.time.LocalDateTime).now())}"
+                                  class="pred-indicator">
+                                <span th:if="${pred != null}" class="text-success"><i class="bi bi-check-circle-fill"></i></span>
+                                <span th:if="${pred == null and !closed and !match.hasResult()}" class="text-warning"><i class="bi bi-pencil-fill"></i></span>
+                                <span th:if="${pred == null and closed and !match.hasResult()}" class="text-secondary"><i class="bi bi-lock-fill"></i></span>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

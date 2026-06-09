@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -90,6 +91,16 @@ public class PredictionService {
     @Transactional(readOnly = true)
     public List<Prediction> findByUser(User user) {
         return predictionRepository.findByUser(user);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, Prediction> getPredictionMapForUser(User user, List<Match> matches) {
+        Map<Long, Prediction> map = new java.util.HashMap<>();
+        for (Match m : matches) {
+            predictionRepository.findByUserAndMatch(user, m)
+                .ifPresent(p -> map.put(m.getId(), p));
+        }
+        return map;
     }
 
     @Transactional(readOnly = true)

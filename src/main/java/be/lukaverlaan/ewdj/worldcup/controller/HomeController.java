@@ -41,13 +41,21 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model, Authentication auth) {
         log.info("GET /");
+        // Live matches
+        List<Match> liveMatches = matchService.findLiveMatches();
+        model.addAttribute("liveMatches", liveMatches);
+
         // Homepage toont enkel 5 komende wedstrijden
         List<Match> upcomingMatches = matchService.findUpcoming(0, 5).getContent();
         model.addAttribute("matches", upcomingMatches);
 
-        // Volgende wedstrijd (voor iedereen zichtbaar)
-        matchService.findUpcoming(0, 1).getContent().stream().findFirst()
-            .ifPresent(m -> model.addAttribute("nextMatch", m));
+        // Volgende wedstrijd (voor iedereen zichtbaar, alleen als er geen live matches zijn)
+        if (liveMatches.isEmpty()) {
+            matchService.findUpcoming(0, 1).getContent().stream()
+                .filter(m -> !m.isLive())
+                .findFirst()
+                .ifPresent(m -> model.addAttribute("nextMatch", m));
+        }
 
         // Top 3 teams voor het scoreboard widget
         List<Map<String, Object>> top10 = teamService.getTop10Teams();
@@ -64,11 +72,17 @@ public class HomeController {
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
 
+            // Prognose-indicatoren voor de wedstrijdenlijst op het dashboard
+            model.addAttribute("userPredictions", predictionService.getPredictionMapForUser(user, upcomingMatches));
+
             // Bestaande prognose voor de volgende wedstrijd (voor de widget)
-            Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream().findFirst().orElse(null);
-            if (nextMatch != null) {
-                predictionService.findByUserAndMatch(user, nextMatch)
-                    .ifPresent(p -> model.addAttribute("nextMatchPrediction", p));
+            if (liveMatches.isEmpty()) {
+                Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream()
+                    .filter(m -> !m.isLive()).findFirst().orElse(null);
+                if (nextMatch != null) {
+                    predictionService.findByUserAndMatch(user, nextMatch)
+                        .ifPresent(p -> model.addAttribute("nextMatchPrediction", p));
+                }
             }
 
             int totalPoints = predictionRepository.sumPointsByUser(user);

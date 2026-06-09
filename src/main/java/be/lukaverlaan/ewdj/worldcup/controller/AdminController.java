@@ -147,7 +147,7 @@ public class AdminController {
         return "admin/result-form";
     }
 
-    @PostMapping("/matches/{id}/result")
+@PostMapping("/matches/{id}/result")
     public String saveResult(@PathVariable Long id,
                              @Valid @ModelAttribute("resultForm") ResultForm form,
                              BindingResult result, Model model, RedirectAttributes ra) {

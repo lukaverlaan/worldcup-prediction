@@ -28,7 +28,7 @@
                 <div class="card-body">
                     <div class="text-center py-4 match-score-display">
                         <div class="row align-items-center">
-                            <div class="col-5" th:with="infoA=${@countryRegistry.get(match.teamA)}">
+                            <div class="col-4 col-sm-5" th:with="infoA=${@countryRegistry.get(match.teamA)}">
                                 <div class="d-flex flex-column align-items-center gap-1">
                                     <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}"
                                          height="64" class="country-logo" alt="">
@@ -38,12 +38,17 @@
                                           th:text="'FIFA #' + ${infoA.rank()}"></span>
                                 </div>
                             </div>
-                            <div class="col-2 text-center">
-                                <span th:if="${match.hasResult()}" class="h2 fw-bold text-wc"
+                            <div class="col-4 col-sm-2 text-center" id="live-score-block">
+                                <span th:if="${match.hasResult()}" class="h2 fw-bold text-wc score-display-text"
+                                      id="score-display"
                                       th:text="${match.officialScoreA} + ' – ' + ${match.officialScoreB}">0–0</span>
-                                <span th:unless="${match.hasResult()}" class="h3 text-muted" th:text="#{match.vs}">vs</span>
+                                <span th:if="${match.live and !match.hasResult()}" class="h2 fw-bold text-danger score-display-text"
+                                      id="score-display"
+                                      th:text="${match.liveScoreA != null and match.liveScoreB != null} ? (${match.liveScoreA} + ' – ' + ${match.liveScoreB}) : '– –'">–</span>
+                                <span th:if="${match.pendingStart}" class="h3 text-muted score-display-text">0 – 0</span>
+                                <span th:unless="${match.hasResult() or match.live or match.pendingStart}" class="h3 text-muted score-display-text" th:text="#{match.vs}">vs</span>
                             </div>
-                            <div class="col-5" th:with="infoB=${@countryRegistry.get(match.teamB)}">
+                            <div class="col-4 col-sm-5" th:with="infoB=${@countryRegistry.get(match.teamB)}">
                                 <div class="d-flex flex-column align-items-center gap-1">
                                     <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}"
                                          height="64" class="country-logo" alt="">
@@ -55,7 +60,17 @@
                             </div>
                         </div>
                         <span th:if="${match.hasResult()}" class="badge bg-success mt-2" th:text="#{match.status.final}">Final Result</span>
-                        <span th:unless="${match.hasResult()}" class="badge bg-secondary mt-2" th:text="#{match.status.pending}">Not Played</span>
+                        <span th:if="${match.live and !match.hasResult()}" class="badge bg-danger mt-2" id="live-minute-badge">
+                            <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>
+                            <span id="live-status-label" th:text="${match.liveStatus != null} ? #{|match.status.${match.liveStatus}|} : 'LIVE'">LIVE</span>
+                            <span id="live-minute-label" th:text="${match.liveMinute != null} ? |– ${match.liveMinute}'| : ''"></span>
+                        </span>
+                        <span th:if="${match.pendingStart}" class="badge bg-secondary mt-2" th:text="#{match.pending.start}"></span>
+                        <span th:unless="${match.hasResult() or match.live or match.pendingStart}"
+                              class="badge bg-secondary mt-2"
+                              id="pending-badge"
+                              th:data-kickoff="${#temporals.format(match.dateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                              th:text="#{match.status.pending}">Not Played</span>
                     </div>
 
                     <hr>
@@ -312,6 +327,55 @@ function switchTab(tab) {
     if (tabTeam)     tabTeam.classList.toggle('active',   tab === 'team');
     if (tabGlobal)   tabGlobal.classList.toggle('active', tab === 'global');
 }
+</script>
+<script th:if="${match.live and !match.hasResult()}" th:inline="javascript">
+(function() {
+    var matchId = [[${match.id}]];
+    function refreshLive() {
+        fetch('/api/matches/' + matchId + '/live')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var scoreEl = document.getElementById('score-display');
+                var minuteEl = document.getElementById('live-minute-badge');
+                if (data.hasResult) {
+                    window.location.reload();
+                    return;
+                }
+                if (data.isLive) {
+                    if (scoreEl && data.liveScoreA !== null && data.liveScoreB !== null) {
+                        scoreEl.textContent = data.liveScoreA + ' – ' + data.liveScoreB;
+                    }
+                    var statusLabel = document.getElementById('live-status-label');
+                    var minuteLabel = document.getElementById('live-minute-label');
+                    if (statusLabel && data.liveStatusLabel) statusLabel.textContent = data.liveStatusLabel;
+                    if (minuteLabel && data.liveMinute !== null) minuteLabel.textContent = '– ' + data.liveMinute + "'";
+                }
+            })
+            .catch(function() {});
+    }
+    refreshLive();
+    setInterval(refreshLive, 30000);
+})();
+</script>
+<script th:inline="javascript">
+(function() {
+    var badge = document.getElementById('pending-badge');
+    if (!badge) return;
+    var tpl = [[#{match.starts.in}]];
+    function update() {
+        var diff = Math.floor((new Date(badge.dataset.kickoff) - new Date()) / 60000);
+        if (diff >= 0 && diff < 60) {
+            badge.textContent = tpl.replace('{0}', diff);
+            badge.classList.replace('bg-secondary', 'bg-warning');
+            badge.classList.add('text-dark');
+        } else {
+            badge.classList.replace('bg-warning', 'bg-secondary');
+            badge.classList.remove('text-dark');
+        }
+    }
+    update();
+    setInterval(update, 30000);
+})();
 </script>
 </body>
 </html>

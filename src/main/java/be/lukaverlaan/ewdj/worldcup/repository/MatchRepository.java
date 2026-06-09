@@ -13,6 +13,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     Page<Match> findAllByOrderByDateTimeAsc(Pageable pageable);
     Page<Match> findByDateTimeGreaterThanEqualOrderByDateTimeAsc(LocalDateTime from, Pageable pageable);
     Page<Match> findByDateTimeLessThanOrderByDateTimeDesc(LocalDateTime before, Pageable pageable);
+    Page<Match> findByDateTimeLessThanAndOfficialScoreAIsNotNullOrderByDateTimeDesc(LocalDateTime before, Pageable pageable);
     List<Match> findByDateTimeBetweenOrderByDateTimeAsc(LocalDateTime start, LocalDateTime end);
     boolean existsByCityAndStadiumAndDateTime(String city, String stadium, LocalDateTime dateTime);
     boolean existsByCityAndStadiumAndDateTimeAndIdNot(String city, String stadium, LocalDateTime dateTime, Long id);
@@ -20,4 +21,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     Optional<Match> findFirstByDateTimeBeforeOrderByDateTimeDesc(LocalDateTime dateTime);
     Optional<Match> findFirstByDateTimeAfterOrderByDateTimeAsc(LocalDateTime dateTime);
     List<Match> findByOfficialScoreAIsNullAndDateTimeLessThan(LocalDateTime before);
+    List<Match> findByOfficialScoreAIsNullAndApiFootballFixtureIdIsNotNullAndDateTimeLessThanEqual(LocalDateTime before);
+    List<Match> findByLiveStatusNotNullAndOfficialScoreAIsNull();
+    List<Match> findByDateTimeLessThanEqualAndOfficialScoreAIsNullAndLiveStatusIsNull(LocalDateTime before);
 }

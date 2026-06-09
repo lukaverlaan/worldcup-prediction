@@ -6,11 +6,13 @@ import be.lukaverlaan.ewdj.worldcup.form.MatchForm;
 import be.lukaverlaan.ewdj.worldcup.repository.MatchRepository;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -87,13 +89,38 @@ public class MatchService {
 
     @Transactional(readOnly = true)
     public Page<Match> findUpcoming(int page, int size) {
-        return matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(
-                LocalDateTime.now(), PageRequest.of(page, size));
+        LocalDateTime now = LocalDateTime.now();
+        List<Match> liveMatches = matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull();
+        List<Match> pendingMatches = matchRepository.findByDateTimeLessThanEqualAndOfficialScoreAIsNullAndLiveStatusIsNull(now);
+        Page<Match> upcomingPage = matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(
+                now, PageRequest.of(page, size));
+
+        if (liveMatches.isEmpty() && pendingMatches.isEmpty() || page > 0) return upcomingPage;
+
+        // Live bovenaan, daarna pending, daarna de rest (zonder duplicaten)
+        List<Match> combined = new ArrayList<>(liveMatches);
+        pendingMatches.stream()
+                .filter(m -> liveMatches.stream().noneMatch(l -> l.getId().equals(m.getId())))
+                .forEach(combined::add);
+        upcomingPage.getContent().stream()
+                .filter(m -> combined.stream().noneMatch(l -> l.getId().equals(m.getId())))
+                .forEach(combined::add);
+
+        long total = upcomingPage.getTotalElements() + liveMatches.size() + pendingMatches.size();
+        return new PageImpl<>(combined, PageRequest.of(0, size), total);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> findLiveMatches() {
+        return matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull()
+                .stream()
+                .filter(m -> m.isLive())
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public Page<Match> findPast(int page, int size) {
-        return matchRepository.findByDateTimeLessThanOrderByDateTimeDesc(
+        return matchRepository.findByDateTimeLessThanAndOfficialScoreAIsNotNullOrderByDateTimeDesc(
                 LocalDateTime.now(), PageRequest.of(page, size));
     }
 

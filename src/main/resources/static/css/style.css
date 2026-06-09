@@ -864,6 +864,7 @@ body.app-body {
     /* Match detail score row: shrink font */
     .match-score-display .h2 { font-size: 1.4rem; }
     .match-score-display .h4 { font-size: 1rem; }
+    .score-display-text { white-space: nowrap; font-size: 1.2rem !important; }
 
     /* Podium: grid layout on mobile voor gegarandeerde 3-kolommen */
     .podium-wrapper {
@@ -2113,6 +2114,40 @@ tr.clickable-row:hover > td {
     justify-content: flex-end;
 }
 
+@media (max-width: 600px) {
+    .vote-overlay {
+        padding: 60px 0 70px; /* ruimte voor top bar en bottom navbar */
+    }
+    .vote-modal {
+        width: 92%;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        max-height: 100%;
+        overflow: hidden;
+    }
+    .vote-trophy { font-size: 1.5rem; margin-bottom: .2rem; }
+    .vote-modal-header { margin-bottom: .6rem; }
+    .vote-modal-header h3 { font-size: 1.1rem; margin-bottom: .1rem; }
+    .vote-modal-header p { font-size: .78rem; }
+    .vote-country-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        margin-bottom: .75rem;
+        flex: 1;
+        min-height: 0;
+        max-height: none;
+    }
+    .vote-country-btn {
+        min-height: 64px;
+        padding: 5px 4px;
+        font-size: .62rem;
+        gap: 5px;
+    }
+    .vote-country-btn img { width: 30px; height: 30px; }
+    .vote-modal-footer { gap: 8px; }
+}
+
 .vote-btn-cancel {
     background: transparent;
     border: 1px solid var(--glass-border, rgba(255,255,255,.12));
@@ -2314,7 +2349,7 @@ tr.clickable-row:hover > td {
     background: rgba(255,255,255,.04);
     border-left-color: var(--wc-red);
 }
-.match-list-row:first-child:hover {
+.match-list-table--rounded .match-list-row:first-child:hover {
     border-top-left-radius: 9px;
 }
 
@@ -2370,7 +2405,7 @@ tr.clickable-row:hover > td {
 
 @media (max-width: 600px) {
     .match-list-num { display: none; }
-    .match-list-round { display: none; }
+    .match-list-round .badge-round { display: none; }
     .match-list-body { flex-wrap: wrap; gap: .3rem; }
     .match-list-teams { flex: 1 1 100%; }
     .match-list-info { text-align: left; flex: 1 1 100%; font-size: .72rem; }
@@ -2384,3 +2419,10 @@ tr.clickable-row:hover > td {
 
 .match-list-num { font-size: .8rem; color: #666; min-width: 28px; text-align: right; flex-shrink: 0; }
 .match-list-chevron { font-size: .75rem; flex-shrink: 0; margin-left: .5rem; }
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.pred-indicator { font-size: .85rem; flex-shrink: 0; }
