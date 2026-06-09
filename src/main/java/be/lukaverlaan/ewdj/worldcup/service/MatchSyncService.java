@@ -30,7 +30,7 @@ public class MatchSyncService {
     /**
      * Every minute: only polls when at least one match has started but has no official result yet.
      */
-    @Scheduled(fixedDelayString = "${apifootball.sync.interval-ms:60000}")
+    @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void syncActiveMatches() {
         List<Match> activeMatches = matchRepository

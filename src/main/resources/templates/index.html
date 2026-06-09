@@ -100,7 +100,8 @@
             <div class="match-list-table">
                 <div th:each="lm : ${liveMatches}"
                      class="match-list-row clickable-row"
-                     th:data-href="@{/matches/{id}(id=${lm.id},from='home')}">
+                     th:data-href="@{/matches/{id}(id=${lm.id},from='home')}"
+                     th:data-match-id="${lm.id}">
                     <div class="match-list-body">
                         <div class="match-list-teams">
                             <div class="match-list-team" th:with="infoA=${@countryRegistry.get(lm.teamA)}">
@@ -108,17 +109,15 @@
                                 <span th:text="${@countryRegistry.getDisplayName(lm.teamA, #locale)}">Team A</span>
                             </div>
                             <div class="match-list-vs fw-bold text-danger"
-                                 th:text="${lm.liveScoreA} + ' – ' + ${lm.liveScoreB}">0–0</div>
+                                 th:text="${lm.liveScoreA != null and lm.liveScoreB != null} ? (${lm.liveScoreA} + ' – ' + ${lm.liveScoreB}) : '0 – 0'">0–0</div>
                             <div class="match-list-team" th:with="infoB=${@countryRegistry.get(lm.teamB)}">
                                 <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
                                 <span th:text="${@countryRegistry.getDisplayName(lm.teamB, #locale)}">Team B</span>
                             </div>
-                        </div>
-                        <div class="match-list-info">
-                            <span class="badge bg-danger" style="font-size:.7rem">
-                                <i class="bi bi-circle-fill me-1" style="font-size:.4rem;vertical-align:middle"></i>
-                                <span th:text="#{|match.status.${lm.liveStatus}|}"></span>
-                                <span th:if="${lm.liveMinute != null}" th:text="|– ${lm.liveMinute}'|"></span>
+                            <span class="badge bg-danger ms-1" style="font-size:.65rem;white-space:nowrap">
+                                <i class="bi bi-circle-fill me-1" style="font-size:.35rem;vertical-align:middle"></i>
+                                <span th:if="${lm.liveStatus != null}" th:text="#{|match.status.${lm.liveStatus}|}"></span>
+                                <span th:if="${lm.liveMinute != null}" th:text="|${lm.liveMinute}'|"></span>
                             </span>
                         </div>
                     </div>
@@ -252,7 +251,8 @@
             <div th:each="match : ${matches}"
                  class="match-list-row clickable-row"
                  th:data-href="@{/matches/{id}(id=${match.id},from='home')}"
-                 th:data-kickoff="${#temporals.format(match.dateTime, 'yyyy-MM-dd''T''HH:mm')}">
+                 th:data-kickoff="${#temporals.format(match.dateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                 th:data-match-id="${match.live} ? ${match.id} : null">
 
                 <div class="match-list-body">
                     <div class="match-list-teams">
@@ -265,7 +265,10 @@
                             <span style="color:#555">–</span>
                             <span th:text="${match.officialScoreB}">0</span>
                         </div>
-                        <div class="match-list-vs" th:unless="${match.hasResult()}">vs</div>
+                        <div class="match-list-vs fw-bold text-danger" th:if="${match.live and !match.hasResult()}"
+                             th:text="${match.liveScoreA != null} ? (${match.liveScoreA} + ' – ' + ${match.liveScoreB}) : '0 – 0'">0–0</div>
+                        <div class="match-list-vs text-muted" th:if="${match.pendingStart}" th:text="'0 – 0'">0–0</div>
+                        <div class="match-list-vs" th:unless="${match.hasResult() or match.live or match.pendingStart}">vs</div>
                         <div class="match-list-team" th:with="infoB=${@countryRegistry.get(match.teamB)}">
                             <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
                             <span th:text="${@countryRegistry.getDisplayName(match.teamB, #locale)}">Team B</span>
@@ -279,6 +282,17 @@
                         </span>
                     </div>
                 </div>
+                <span th:if="${match.live}" class="badge bg-danger me-1 flex-shrink-0">
+                    <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
+                </span>
+                <span th:if="${match.pendingStart}" class="badge bg-secondary me-1 flex-shrink-0" th:text="#{match.pending.start}"></span>
+                <span th:if="${userPredictions != null}"
+                      th:with="pred=${userPredictions[match.id]}, closed=${match.dateTime.minusHours(1).isBefore(T(java.time.LocalDateTime).now())}"
+                      class="ms-2 flex-shrink-0">
+                    <span th:if="${pred != null}" class="pred-indicator text-success"><i class="bi bi-check-circle-fill"></i></span>
+                    <span th:if="${pred == null and !closed and !match.hasResult()}" class="pred-indicator text-warning"><i class="bi bi-pencil-fill"></i></span>
+                    <span th:if="${pred == null and closed and !match.hasResult()}" class="pred-indicator text-secondary"><i class="bi bi-lock-fill"></i></span>
+                </span>
             </div>
         </div>
         <div class="px-3 pb-3 pt-1">
@@ -296,6 +310,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
     var startsInTpl = [[#{match.starts.in}]];
+    var startsImminent = [[#{match.imminent}]];
 
     function updateNextMatchCountdown() {
         var now = new Date();
@@ -305,8 +320,11 @@
         var label = document.getElementById('next-match-starts-in');
         if (card && label) {
             var diffMin = Math.floor((new Date(card.dataset.kickoff) - now) / 60000);
-            if (diffMin >= 0 && diffMin < 60) {
+            if (diffMin >= 1 && diffMin < 60) {
                 label.textContent = startsInTpl.replace('{0}', diffMin);
+                label.style.display = '';
+            } else if (diffMin === 0) {
+                label.textContent = startsImminent;
                 label.style.display = '';
             } else {
                 label.style.display = 'none';
@@ -318,8 +336,11 @@
             var rowLabel = row.querySelector('.starts-in-label');
             if (!rowLabel) return;
             var diffMin = Math.floor((new Date(row.dataset.kickoff) - now) / 60000);
-            if (diffMin >= 0 && diffMin < 60) {
+            if (diffMin >= 1 && diffMin < 60) {
                 rowLabel.textContent = startsInTpl.replace('{0}', diffMin);
+                rowLabel.style.display = '';
+            } else if (diffMin === 0) {
+                rowLabel.textContent = startsImminent;
                 rowLabel.style.display = '';
             } else {
                 rowLabel.style.display = 'none';
@@ -335,7 +356,44 @@
     });
 
     updateNextMatchCountdown();
-    setInterval(updateNextMatchCountdown, 30000);
+    setInterval(updateNextMatchCountdown, 60000);
+
+    // Live widget + komende wedstrijden auto-refresh
+    function refreshLiveWidget() {
+        var now = new Date();
+        // Bestaande live rijen updaten
+        document.querySelectorAll('.match-list-row[data-match-id]').forEach(function(row) {
+            var matchId = row.dataset.matchId;
+            fetch('/api/matches/' + matchId + '/live')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.hasResult) { window.location.reload(); return; }
+                    if (data.isLive) {
+                        var scoreEl = row.querySelector('.match-list-vs');
+                        var statusSpans = row.querySelectorAll('.badge.bg-danger span');
+                        if (scoreEl && data.liveScoreA !== null && data.liveScoreB !== null)
+                            scoreEl.textContent = data.liveScoreA + ' – ' + data.liveScoreB;
+                        if (statusSpans[0] && data.liveStatusLabel) statusSpans[0].textContent = data.liveStatusLabel;
+                        if (statusSpans[1] && data.liveMinute !== null) statusSpans[1].textContent = '– ' + data.liveMinute + "'";
+                    }
+                }).catch(function() {});
+        });
+        // Niet-live rijen checken waarvan aftrap voorbij is
+        document.querySelectorAll('.match-list-row[data-kickoff]:not([data-match-id])').forEach(function(row) {
+            var kickoff = new Date(row.dataset.kickoff);
+            if (kickoff > now) return;
+            var id = row.dataset.href && row.dataset.href.match(/\/matches\/(\d+)/);
+            if (!id) return;
+            fetch('/api/matches/' + id[1] + '/live')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.isLive || data.hasResult) window.location.reload();
+                }).catch(function() {});
+        });
+    }
+
+    refreshLiveWidget();
+    setInterval(refreshLiveWidget, 30000);
 </script>
 </body>
 </html>

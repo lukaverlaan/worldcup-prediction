@@ -89,29 +89,38 @@ public class MatchService {
 
     @Transactional(readOnly = true)
     public Page<Match> findUpcoming(int page, int size) {
+        LocalDateTime now = LocalDateTime.now();
         List<Match> liveMatches = matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull();
+        List<Match> pendingMatches = matchRepository.findByDateTimeLessThanEqualAndOfficialScoreAIsNullAndLiveStatusIsNull(now);
         Page<Match> upcomingPage = matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(
-                LocalDateTime.now(), PageRequest.of(page, size));
+                now, PageRequest.of(page, size));
 
-        if (liveMatches.isEmpty() || page > 0) return upcomingPage;
+        if (liveMatches.isEmpty() && pendingMatches.isEmpty() || page > 0) return upcomingPage;
 
-        // Live matches bovenaan, daarna de rest (zonder duplicaten)
+        // Live bovenaan, daarna pending, daarna de rest (zonder duplicaten)
         List<Match> combined = new ArrayList<>(liveMatches);
-        upcomingPage.getContent().stream()
+        pendingMatches.stream()
                 .filter(m -> liveMatches.stream().noneMatch(l -> l.getId().equals(m.getId())))
                 .forEach(combined::add);
+        upcomingPage.getContent().stream()
+                .filter(m -> combined.stream().noneMatch(l -> l.getId().equals(m.getId())))
+                .forEach(combined::add);
 
-        return new PageImpl<>(combined, PageRequest.of(0, size), upcomingPage.getTotalElements() + liveMatches.size());
+        long total = upcomingPage.getTotalElements() + liveMatches.size() + pendingMatches.size();
+        return new PageImpl<>(combined, PageRequest.of(0, size), total);
     }
 
     @Transactional(readOnly = true)
     public List<Match> findLiveMatches() {
-        return matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull();
+        return matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull()
+                .stream()
+                .filter(m -> m.isLive())
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public Page<Match> findPast(int page, int size) {
-        return matchRepository.findByDateTimeLessThanOrderByDateTimeDesc(
+        return matchRepository.findByDateTimeLessThanAndOfficialScoreAIsNotNullOrderByDateTimeDesc(
                 LocalDateTime.now(), PageRequest.of(page, size));
     }
 

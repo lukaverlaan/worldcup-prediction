@@ -5,6 +5,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
+import be.lukaverlaan.ewdj.worldcup.service.GroupStageService;
 import be.lukaverlaan.ewdj.worldcup.service.MatchService;
 import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
@@ -30,26 +31,34 @@ public class MatchController {
     private final PredictionService predictionService;
     private final UserService userService;
     private final WebClientService webClientService;
+    private final GroupStageService groupStageService;
 
     public MatchController(MatchService matchService, PredictionService predictionService,
-                           UserService userService, WebClientService webClientService) {
+                           UserService userService, WebClientService webClientService,
+                           GroupStageService groupStageService) {
         this.matchService = matchService;
         this.predictionService = predictionService;
         this.userService = userService;
         this.webClientService = webClientService;
+        this.groupStageService = groupStageService;
     }
 
     @GetMapping
     public String matchList(@RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "upcoming") String tab,
-                            Model model) {
+                            Model model, Authentication auth) {
         Page<Match> matchPage = "past".equals(tab)
                 ? matchService.findPast(page, 15)
                 : matchService.findUpcoming(page, 15);
-        model.addAttribute("matches", matchPage.getContent());
+        List<Match> matches = matchPage.getContent();
+        model.addAttribute("matches", matches);
         model.addAttribute("currentPage", matchPage.getNumber());
         model.addAttribute("totalPages", matchPage.getTotalPages());
         model.addAttribute("tab", tab);
+        if (auth != null && auth.isAuthenticated()) {
+            User user = userService.findByUsername(auth.getName());
+            model.addAttribute("userPredictions", predictionService.getPredictionMapForUser(user, matches));
+        }
         return "match/list";
     }
 
@@ -100,10 +109,20 @@ public class MatchController {
         model.addAttribute("fromParam", from);
 
         if (from != null && !from.isBlank()) {
-            matchService.findPrevious(match.getDateTime())
-                .ifPresent(m -> model.addAttribute("prevMatchId", m.getId()));
-            matchService.findNext(match.getDateTime())
-                .ifPresent(m -> model.addAttribute("nextMatchId", m.getId()));
+            if ("groups".equals(from)) {
+                List<Match> ordered = groupStageService.getAllMatchesInGroupOrder();
+                int idx = -1;
+                for (int i = 0; i < ordered.size(); i++) {
+                    if (ordered.get(i).getId().equals(match.getId())) { idx = i; break; }
+                }
+                if (idx > 0) model.addAttribute("prevMatchId", ordered.get(idx - 1).getId());
+                if (idx >= 0 && idx < ordered.size() - 1) model.addAttribute("nextMatchId", ordered.get(idx + 1).getId());
+            } else {
+                matchService.findPrevious(match.getDateTime())
+                    .ifPresent(m -> model.addAttribute("prevMatchId", m.getId()));
+                matchService.findNext(match.getDateTime())
+                    .ifPresent(m -> model.addAttribute("nextMatchId", m.getId()));
+            }
             if (teamId != null) model.addAttribute("teamId", teamId);
         }
 

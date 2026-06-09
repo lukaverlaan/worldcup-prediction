@@ -15,9 +15,11 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="bi bi-gear me-2"></i><span th:text="#{admin.matches.title}">Match Management</span></h2>
-        <a th:href="@{/admin/matches/new}" class="btn btn-wc">
-            <i class="bi bi-plus-circle me-1"></i><span th:text="#{admin.match.add}">Add Match</span>
-        </a>
+        <div class="d-flex gap-2">
+<a th:href="@{/admin/matches/new}" class="btn btn-wc">
+                <i class="bi bi-plus-circle me-1"></i><span th:text="#{admin.match.add}">Add Match</span>
+            </a>
+        </div>
     </div>
 
     <div th:if="${#lists.isEmpty(matches)}" class="alert alert-info" th:text="#{admin.matches.empty}">

@@ -86,4 +86,9 @@ public class Match {
             && !liveStatus.equals("FT") && !liveStatus.equals("AET") && !liveStatus.equals("PEN")
             && !liveStatus.equals("NS") && !liveStatus.equals("TBD");
     }
+
+    public boolean isPendingStart() {
+        return !hasResult() && !isLive()
+            && dateTime != null && dateTime.isBefore(java.time.LocalDateTime.now());
+    }
 }

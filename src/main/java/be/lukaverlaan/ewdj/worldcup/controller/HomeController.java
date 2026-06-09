@@ -72,6 +72,9 @@ public class HomeController {
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
 
+            // Prognose-indicatoren voor de wedstrijdenlijst op het dashboard
+            model.addAttribute("userPredictions", predictionService.getPredictionMapForUser(user, upcomingMatches));
+
             // Bestaande prognose voor de volgende wedstrijd (voor de widget)
             if (liveMatches.isEmpty()) {
                 Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream()
