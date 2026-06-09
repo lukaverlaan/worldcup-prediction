@@ -6,11 +6,13 @@ import be.lukaverlaan.ewdj.worldcup.form.MatchForm;
 import be.lukaverlaan.ewdj.worldcup.repository.MatchRepository;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -87,8 +89,24 @@ public class MatchService {
 
     @Transactional(readOnly = true)
     public Page<Match> findUpcoming(int page, int size) {
-        return matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(
+        List<Match> liveMatches = matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull();
+        Page<Match> upcomingPage = matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(
                 LocalDateTime.now(), PageRequest.of(page, size));
+
+        if (liveMatches.isEmpty() || page > 0) return upcomingPage;
+
+        // Live matches bovenaan, daarna de rest (zonder duplicaten)
+        List<Match> combined = new ArrayList<>(liveMatches);
+        upcomingPage.getContent().stream()
+                .filter(m -> liveMatches.stream().noneMatch(l -> l.getId().equals(m.getId())))
+                .forEach(combined::add);
+
+        return new PageImpl<>(combined, PageRequest.of(0, size), upcomingPage.getTotalElements() + liveMatches.size());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> findLiveMatches() {
+        return matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull();
     }
 
     @Transactional(readOnly = true)

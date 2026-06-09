@@ -21,4 +21,5 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     Optional<Match> findFirstByDateTimeAfterOrderByDateTimeAsc(LocalDateTime dateTime);
     List<Match> findByOfficialScoreAIsNullAndDateTimeLessThan(LocalDateTime before);
     List<Match> findByOfficialScoreAIsNullAndApiFootballFixtureIdIsNotNullAndDateTimeLessThanEqual(LocalDateTime before);
+    List<Match> findByLiveStatusNotNullAndOfficialScoreAIsNull();
 }

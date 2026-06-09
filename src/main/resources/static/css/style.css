@@ -2384,3 +2384,8 @@ tr.clickable-row:hover > td {
 
 .match-list-num { font-size: .8rem; color: #666; min-width: 28px; text-align: right; flex-shrink: 0; }
 .match-list-chevron { font-size: .75rem; flex-shrink: 0; margin-left: .5rem; }
+
+@keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}

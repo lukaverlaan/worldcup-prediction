@@ -61,9 +61,14 @@
                         <span th:if="${match.hasResult()}" class="badge bg-success mt-2" th:text="#{match.status.final}">Final Result</span>
                         <span th:if="${match.live and !match.hasResult()}" class="badge bg-danger mt-2" id="live-minute-badge">
                             <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>
-                            <span th:text="${match.liveMinute != null} ? ${match.liveMinute} + &quot;'&quot; : 'LIVE'"></span>
+                            <span th:text="#{|match.status.${match.liveStatus}|}"></span>
+                            <span th:if="${match.liveMinute != null}" th:text="|– ${match.liveMinute}'|"></span>
                         </span>
-                        <span th:unless="${match.hasResult() or match.live}" class="badge bg-secondary mt-2" th:text="#{match.status.pending}">Not Played</span>
+                        <span th:unless="${match.hasResult() or match.live}"
+                              class="badge bg-secondary mt-2"
+                              id="pending-badge"
+                              th:data-kickoff="${#temporals.format(match.dateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                              th:text="#{match.status.pending}">Not Played</span>
                     </div>
 
                     <hr>
@@ -326,14 +331,36 @@
                     if (scoreEl && data.liveScoreA !== null && data.liveScoreB !== null) {
                         scoreEl.textContent = data.liveScoreA + ' – ' + data.liveScoreB;
                     }
-                    if (minuteEl && data.liveMinute !== null) {
-                        minuteEl.querySelector('span').textContent = data.liveMinute + "'";
+                    if (minuteEl) {
+                        var spans = minuteEl.querySelectorAll('span');
+                        if (spans[0] && data.liveStatusLabel) spans[0].textContent = data.liveStatusLabel;
+                        if (spans[1] && data.liveMinute !== null) spans[1].textContent = '– ' + data.liveMinute + "'";
                     }
                 }
             })
             .catch(function() {});
     }
     setInterval(refreshLive, 30000);
+})();
+</script>
+<script th:inline="javascript">
+(function() {
+    var badge = document.getElementById('pending-badge');
+    if (!badge) return;
+    var tpl = [[#{match.starts.in}]];
+    function update() {
+        var diff = Math.floor((new Date(badge.dataset.kickoff) - new Date()) / 60000);
+        if (diff >= 0 && diff < 60) {
+            badge.textContent = tpl.replace('{0}', diff);
+            badge.classList.replace('bg-secondary', 'bg-warning');
+            badge.classList.add('text-dark');
+        } else {
+            badge.classList.replace('bg-warning', 'bg-secondary');
+            badge.classList.remove('text-dark');
+        }
+    }
+    update();
+    setInterval(update, 30000);
 })();
 </script>
 <script>
