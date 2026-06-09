@@ -44,6 +44,7 @@
                             <div class="podium-avatar"><i class="bi bi-people-fill"></i></div>
                             <div th:if="${userTeamIds.contains(entry.team.id)}" style="width:100%;min-width:0;overflow:hidden">
                                 <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="podium-name text-decoration-none"
+                                   style="color:#FFD700"
                                    th:text="${entry.team.name}" th:title="${entry.team.name}">Team</a>
                             </div>
                             <div th:unless="${userTeamIds.contains(entry.team.id)}" style="width:100%;min-width:0;overflow:hidden">
@@ -91,6 +92,32 @@
                                         </span>
                                     </td>
                                 </tr>
+                                <!-- Jouw teams buiten top 10 -->
+                                <th:block th:if="${not #lists.isEmpty(myTeamsOutside)}">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-1" style="font-size:.8rem;border-top:2px dashed rgba(255,255,255,.15);letter-spacing:.05em">• • •</td>
+                                    </tr>
+                                    <tr th:each="entry : ${myTeamsOutside}"
+                                        class="table-warning"
+                                        style="cursor:pointer"
+                                        th:data-team-id="${entry.team.id}" th:data-team-name="${entry.team.name}">
+                                        <td class="text-center ps-3 fw-semibold text-muted" style="width:55px" th:text="${entry.rank}">11</td>
+                                        <td>
+                                            <i class="bi bi-people-fill me-2 text-wc"></i>
+                                            <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="fw-semibold text-decoration-none text-reset"
+                                               th:text="${entry.team.name}" onclick="event.stopPropagation()">Team</a>
+                                        </td>
+                                        <td class="text-center text-muted" style="white-space:nowrap;font-size:.85rem">
+                                            <i class="bi bi-person-fill me-1"></i><span th:text="${entry.memberCount}">0</span>
+                                        </td>
+                                        <td class="text-center pe-3">
+                                            <span class="badge bg-wc fs-6">
+                                                <span th:text="${entry.totalScore}">0</span>
+                                                <span th:text="#{pts}">pts</span>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </th:block>
                             </tbody>
                         </table>
                     </div>
@@ -164,6 +191,36 @@
                                         </span>
                                     </td>
                                 </tr>
+                                <!-- Huidige gebruiker buiten top 10 -->
+                                <th:block th:if="${currentUserRankOutside != null}">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-1" style="font-size:.8rem;border-top:2px dashed rgba(255,255,255,.15);letter-spacing:.05em">• • •</td>
+                                    </tr>
+                                    <tr class="table-active">
+                                        <td class="text-center ps-3 fw-semibold text-muted" style="width:40px" th:text="${currentUserRankOutside}">11</td>
+                                        <td style="width:40px;padding-right:0">
+                                            <img th:src="@{/profile/picture/{u}(u=${currentUser.username})}"
+                                                 width="32" height="32"
+                                                 style="border-radius:50%;object-fit:cover;display:block"
+                                                 alt="" onerror="this.style.display='none'">
+                                        </td>
+                                        <td style="min-width:0">
+                                            <div style="display:flex;align-items:center;gap:.35rem;min-width:0">
+                                                <span class="fw-semibold text-truncate" th:text="${currentUser.username}">User</span>
+                                                <span th:if="${currentUserStreakOutside > 0}" class="member-streak flex-shrink-0" style="white-space:nowrap">
+                                                    🔥<span th:text="${currentUserStreakOutside}">0</span>
+                                                </span>
+                                                <span class="badge bg-warning text-dark flex-shrink-0" th:text="#{scoreboard.you}">jij</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-3" style="width:80px;white-space:nowrap">
+                                            <span class="badge bg-wc" style="font-size:.8rem">
+                                                <span th:text="${currentUserScoreOutside}">0</span>
+                                                <span th:text="#{pts}">pts</span>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </th:block>
                             </tbody>
                         </table>
                     </div>

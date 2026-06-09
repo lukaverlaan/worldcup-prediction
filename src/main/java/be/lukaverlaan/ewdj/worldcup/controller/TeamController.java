@@ -6,6 +6,8 @@ import be.lukaverlaan.ewdj.worldcup.exception.TeamNotFoundException;
 import be.lukaverlaan.ewdj.worldcup.form.CreateTeamForm;
 import be.lukaverlaan.ewdj.worldcup.form.JoinTeamForm;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
+import be.lukaverlaan.ewdj.worldcup.service.CountryEntry;
+import be.lukaverlaan.ewdj.worldcup.service.CountryRegistry;
 import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.TeamService;
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
@@ -32,13 +34,21 @@ public class TeamController {
     private final UserService userService;
     private final PredictionRepository predictionRepository;
     private final PredictionService predictionService;
+    private final CountryRegistry countryRegistry;
 
     public TeamController(TeamService teamService, UserService userService,
-                          PredictionRepository predictionRepository, PredictionService predictionService) {
+                          PredictionRepository predictionRepository, PredictionService predictionService,
+                          CountryRegistry countryRegistry) {
         this.teamService = teamService;
         this.userService = userService;
         this.predictionRepository = predictionRepository;
         this.predictionService = predictionService;
+        this.countryRegistry = countryRegistry;
+    }
+
+    @ModelAttribute("countries")
+    public List<CountryEntry> countries() {
+        return countryRegistry.getAllSorted();
     }
 
     @GetMapping
@@ -98,6 +108,7 @@ public class TeamController {
     public String teamDetail(@PathVariable Long id,
                              @RequestParam(defaultValue = "0") int detailPage,
                              @RequestParam(defaultValue = "upcoming") String detailTab,
+                             @RequestParam(required = false) String country,
                              Model model, Authentication auth) {
         User user = userService.findByUsername(auth.getName());
         Team team = teamService.findById(id);
@@ -120,16 +131,29 @@ public class TeamController {
         }
 
         int teamTotal = memberScores.values().stream().mapToInt(Integer::intValue).sum();
-        Page<Map<String, Object>> matchDetailsPage =
-            teamService.getMatchDetailsForTeamPaged(team, new ArrayList<>(memberScores.keySet()), detailPage, 10, detailTab);
+
+        List<Map<String, Object>> matchDetails;
+        int detailCurrentPage, detailTotalPages;
+        if (country != null && !country.isBlank()) {
+            matchDetails = teamService.getMatchDetailsForTeamByCountry(new ArrayList<>(memberScores.keySet()), country, detailTab);
+            detailCurrentPage = 0;
+            detailTotalPages = 1;
+        } else {
+            Page<Map<String, Object>> matchDetailsPage =
+                teamService.getMatchDetailsForTeamPaged(team, new ArrayList<>(memberScores.keySet()), detailPage, 10, detailTab);
+            matchDetails = matchDetailsPage.getContent();
+            detailCurrentPage = matchDetailsPage.getNumber();
+            detailTotalPages = matchDetailsPage.getTotalPages();
+        }
 
         model.addAttribute("team", team);
         model.addAttribute("memberScores", memberScores);
         model.addAttribute("teamTotal", teamTotal);
-        model.addAttribute("matchDetails", matchDetailsPage.getContent());
-        model.addAttribute("detailCurrentPage", matchDetailsPage.getNumber());
-        model.addAttribute("detailTotalPages", matchDetailsPage.getTotalPages());
+        model.addAttribute("matchDetails", matchDetails);
+        model.addAttribute("detailCurrentPage", detailCurrentPage);
+        model.addAttribute("detailTotalPages", detailTotalPages);
         model.addAttribute("detailTab", detailTab);
+        model.addAttribute("selectedCountry", country);
         model.addAttribute("streaks", streaks);
         model.addAttribute("isOwner", team.getOwner().getId().equals(user.getId()));
         model.addAttribute("isAdmin", isAdmin);

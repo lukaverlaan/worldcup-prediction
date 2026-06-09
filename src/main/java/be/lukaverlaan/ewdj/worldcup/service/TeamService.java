@@ -153,6 +153,15 @@ public class TeamService {
         return new PageImpl<>(entries, pr, matchPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getMatchDetailsForTeamByCountry(List<User> sortedMembers, String country, String tab) {
+        LocalDateTime now = LocalDateTime.now();
+        List<Match> matches = "past".equals(tab)
+                ? matchRepository.findPastByCountry(country, now)
+                : matchRepository.findUpcomingByCountry(country, now);
+        return buildMatchDetailEntries(matches, sortedMembers);
+    }
+
     private List<Map<String, Object>> buildMatchDetailEntries(List<Match> matches, List<User> sortedMembers) {
         Set<Long> memberIds = sortedMembers.stream().map(User::getId).collect(Collectors.toSet());
         List<Map<String, Object>> result = new ArrayList<>();

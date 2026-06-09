@@ -124,6 +124,16 @@ public class MatchService {
                 LocalDateTime.now(), PageRequest.of(page, size));
     }
 
+    @Transactional(readOnly = true)
+    public List<Match> findUpcomingByCountry(String country) {
+        return matchRepository.findUpcomingByCountry(country, LocalDateTime.now());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> findPastByCountry(String country) {
+        return matchRepository.findPastByCountry(country, LocalDateTime.now());
+    }
+
     public void deleteMatch(Long id) {
         Match match = findById(id);
         predictionRepository.deleteByMatch(match);

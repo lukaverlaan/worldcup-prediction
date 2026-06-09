@@ -5,6 +5,8 @@ import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
+import be.lukaverlaan.ewdj.worldcup.service.CountryEntry;
+import be.lukaverlaan.ewdj.worldcup.service.CountryRegistry;
 import be.lukaverlaan.ewdj.worldcup.service.GroupStageService;
 import be.lukaverlaan.ewdj.worldcup.service.MatchService;
 import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
@@ -32,29 +34,51 @@ public class MatchController {
     private final UserService userService;
     private final WebClientService webClientService;
     private final GroupStageService groupStageService;
+    private final CountryRegistry countryRegistry;
 
     public MatchController(MatchService matchService, PredictionService predictionService,
                            UserService userService, WebClientService webClientService,
-                           GroupStageService groupStageService) {
+                           GroupStageService groupStageService, CountryRegistry countryRegistry) {
         this.matchService = matchService;
         this.predictionService = predictionService;
         this.userService = userService;
         this.webClientService = webClientService;
         this.groupStageService = groupStageService;
+        this.countryRegistry = countryRegistry;
+    }
+
+    @ModelAttribute("countries")
+    public List<CountryEntry> countries() {
+        return countryRegistry.getAllSorted();
     }
 
     @GetMapping
     public String matchList(@RequestParam(defaultValue = "0") int page,
                             @RequestParam(defaultValue = "upcoming") String tab,
+                            @RequestParam(required = false) String country,
                             Model model, Authentication auth) {
-        Page<Match> matchPage = "past".equals(tab)
-                ? matchService.findPast(page, 15)
-                : matchService.findUpcoming(page, 15);
-        List<Match> matches = matchPage.getContent();
+        List<Match> matches;
+        int currentPage = 0;
+        int totalPages = 1;
+
+        if (country != null && !country.isBlank()) {
+            matches = "past".equals(tab)
+                    ? matchService.findPastByCountry(country)
+                    : matchService.findUpcomingByCountry(country);
+        } else {
+            Page<Match> matchPage = "past".equals(tab)
+                    ? matchService.findPast(page, 15)
+                    : matchService.findUpcoming(page, 15);
+            matches = matchPage.getContent();
+            currentPage = matchPage.getNumber();
+            totalPages = matchPage.getTotalPages();
+        }
+
         model.addAttribute("matches", matches);
-        model.addAttribute("currentPage", matchPage.getNumber());
-        model.addAttribute("totalPages", matchPage.getTotalPages());
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("tab", tab);
+        model.addAttribute("selectedCountry", country);
         if (auth != null && auth.isAuthenticated()) {
             User user = userService.findByUsername(auth.getName());
             model.addAttribute("userPredictions", predictionService.getPredictionMapForUser(user, matches));
