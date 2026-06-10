@@ -98,19 +98,25 @@
                             <span class="small fw-semibold text-muted">
                                 <i class="bi bi-bar-chart me-1"></i><span th:text="#{stats.title}"></span>
                             </span>
-                            <ul th:if="${allTeamStats != null}" class="nav nav-pills gap-1 mb-0" style="font-size:.75rem">
-                                <li class="nav-item" th:each="entry, iter : ${allTeamStats}">
-                                    <button class="nav-link py-0 px-2"
-                                            th:classappend="${iter.first} ? ' active'"
-                                            style="font-size:.75rem"
-                                            th:id="'tab-team-' + ${iter.index}"
-                                            th:attr="onclick='switchTab(' + ${iter.index} + ')'"
-                                            th:text="${entry.key}"></button>
-                                </li>
-                                <li class="nav-item">
-                                    <button class="nav-link py-0 px-2" style="font-size:.75rem" id="tab-global" th:attr="onclick='switchTab(-1)'" th:text="#{stats.global}"></button>
-                                </li>
-                            </ul>
+                            <div th:if="${allTeamStats != null}" class="d-flex align-items-center gap-1">
+                                <div class="dropdown">
+                                    <button class="btn btn-wc py-0 px-2 dropdown-toggle" style="font-size:.75rem"
+                                            type="button" id="teamStatsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span id="activeTeamLabel" th:text="${allTeamStats.entrySet().iterator().next().key}">Team</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="teamStatsDropdown">
+                                        <li th:each="entry, iter : ${allTeamStats}">
+                                            <a class="dropdown-item" style="font-size:.8rem"
+                                               th:id="'tab-team-' + ${iter.index}"
+                                               th:attr="onclick='switchTab(' + ${iter.index} + ', this)'"
+                                               th:text="${entry.key}" href="#"></a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-outline-secondary py-0 px-2" style="font-size:.75rem"
+                                        id="tab-global" th:attr="onclick='switchTab(-1, this)'"
+                                        th:text="#{stats.global}"></button>
+                            </div>
                         </div>
 
                         <!-- Team panels (één per team) -->
@@ -323,29 +329,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function switchTab(index) {
-    // Verberg alle teampanels en deactiveer alle teamtabs
+function switchTab(index, el) {
     var i = 0;
     while (document.getElementById('panel-team-' + i)) {
         document.getElementById('panel-team-' + i).style.display = 'none';
-        document.getElementById('tab-team-' + i).classList.remove('active');
         i++;
     }
-    var globalPanel = document.getElementById('panel-global');
-    var tabGlobal   = document.getElementById('tab-global');
+    var globalPanel  = document.getElementById('panel-global');
+    var tabGlobal    = document.getElementById('tab-global');
+    var activeLabel  = document.getElementById('activeTeamLabel');
+    var dropBtn      = document.getElementById('teamStatsDropdown');
 
     if (index === -1) {
-        // Globaal
         if (globalPanel) globalPanel.style.display = '';
         if (tabGlobal)   tabGlobal.classList.add('active');
+        if (dropBtn)     dropBtn.classList.remove('btn-wc');
+        if (dropBtn)     dropBtn.classList.add('btn-outline-secondary');
     } else {
-        // Specifiek team
         var panel = document.getElementById('panel-team-' + index);
-        var tab   = document.getElementById('tab-team-' + index);
         if (panel) panel.style.display = '';
-        if (tab)   tab.classList.add('active');
         if (globalPanel) globalPanel.style.display = 'none';
         if (tabGlobal)   tabGlobal.classList.remove('active');
+        if (activeLabel && el) activeLabel.textContent = el.textContent.trim();
+        if (dropBtn)     dropBtn.classList.add('btn-wc');
+        if (dropBtn)     dropBtn.classList.remove('btn-outline-secondary');
     }
 }
 </script>
