@@ -98,13 +98,13 @@
                             <span class="small fw-semibold text-muted">
                                 <i class="bi bi-bar-chart me-1"></i><span th:text="#{stats.title}"></span>
                             </span>
-                            <div th:if="${allTeamStats != null}" class="d-flex align-items-center gap-1">
+                            <div th:if="${allTeamStats != null}" class="btn-group btn-group-sm">
                                 <div class="dropdown">
-                                    <button class="btn btn-wc py-0 px-2 dropdown-toggle" style="font-size:.75rem"
+                                    <button class="btn btn-wc dropdown-toggle" style="font-size:.75rem;border-radius:6px 0 0 6px"
                                             type="button" id="teamStatsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                         <span id="activeTeamLabel" th:text="${allTeamStats.entrySet().iterator().next().key}">Team</span>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="teamStatsDropdown">
+                                    <ul class="dropdown-menu" aria-labelledby="teamStatsDropdown">
                                         <li th:each="entry, iter : ${allTeamStats}">
                                             <a class="dropdown-item" style="font-size:.8rem"
                                                th:id="'tab-team-' + ${iter.index}"
@@ -113,7 +113,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <button class="btn btn-outline-secondary py-0 px-2" style="font-size:.75rem"
+                                <button class="btn btn-outline-secondary" style="font-size:.75rem;border-radius:0 6px 6px 0"
                                         id="tab-global" th:attr="onclick='switchTab(-1, this)'"
                                         th:text="#{stats.global}"></button>
                             </div>
@@ -342,17 +342,15 @@ function switchTab(index, el) {
 
     if (index === -1) {
         if (globalPanel) globalPanel.style.display = '';
-        if (tabGlobal)   tabGlobal.classList.add('active');
-        if (dropBtn)     dropBtn.classList.remove('btn-wc');
-        if (dropBtn)     dropBtn.classList.add('btn-outline-secondary');
+        if (tabGlobal)   { tabGlobal.classList.add('btn-wc'); tabGlobal.classList.remove('btn-outline-secondary'); }
+        if (dropBtn)     { dropBtn.classList.remove('btn-wc'); dropBtn.classList.add('btn-outline-secondary'); }
     } else {
         var panel = document.getElementById('panel-team-' + index);
         if (panel) panel.style.display = '';
         if (globalPanel) globalPanel.style.display = 'none';
-        if (tabGlobal)   tabGlobal.classList.remove('active');
+        if (tabGlobal)   { tabGlobal.classList.remove('btn-wc'); tabGlobal.classList.add('btn-outline-secondary'); }
         if (activeLabel && el) activeLabel.textContent = el.textContent.trim();
-        if (dropBtn)     dropBtn.classList.add('btn-wc');
-        if (dropBtn)     dropBtn.classList.remove('btn-outline-secondary');
+        if (dropBtn)     { dropBtn.classList.add('btn-wc'); dropBtn.classList.remove('btn-outline-secondary'); }
     }
 }
 </script>
