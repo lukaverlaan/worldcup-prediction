@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,22 +110,19 @@ public class PredictionService {
     }
 
     @Transactional(readOnly = true)
-    public PredictionStats computeTeamStats(Match match, User user) {
+    public Map<String, PredictionStats> computeAllTeamStats(Match match, User user) {
         List<Team> userTeams = teamRepository.findByMembersContains(user);
-        if (userTeams.isEmpty()) return null;
-        Team team = userTeams.get(0);
-        // Toegang tot members binnen transactie
-        java.util.Set<User> members = team.getMembers();
-        List<Prediction> teamPredictions = predictionRepository.findByMatch(match).stream()
-            .filter(p -> members.contains(p.getUser()))
-            .toList();
-        return computeStats(teamPredictions);
-    }
-
-    @Transactional(readOnly = true)
-    public String getFirstTeamName(User user) {
-        List<Team> teams = teamRepository.findByMembersContains(user);
-        return teams.isEmpty() ? null : teams.get(0).getName();
+        if (userTeams.isEmpty()) return Map.of();
+        List<Prediction> allMatchPredictions = predictionRepository.findByMatch(match);
+        Map<String, PredictionStats> result = new LinkedHashMap<>();
+        for (Team team : userTeams) {
+            java.util.Set<User> members = team.getMembers();
+            List<Prediction> teamPredictions = allMatchPredictions.stream()
+                .filter(p -> members.contains(p.getUser()))
+                .toList();
+            result.put(team.getName(), computeStats(teamPredictions));
+        }
+        return result;
     }
 
     public PredictionStats computeStats(List<Prediction> predictions) {

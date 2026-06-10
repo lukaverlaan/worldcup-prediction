@@ -5,6 +5,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Prediction;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
+import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.service.CountryEntry;
 import be.lukaverlaan.ewdj.worldcup.service.CountryRegistry;
 import be.lukaverlaan.ewdj.worldcup.service.GroupStageService;
@@ -113,11 +114,12 @@ public class MatchController {
             model.addAttribute("predictionForm", form);
             model.addAttribute("existingPrediction", existing.orElse(null));
 
-            // Team stats: alles binnen transactie in de service
-            PredictionStats teamStats = predictionService.computeTeamStats(match, user);
-            if (teamStats != null) {
-                model.addAttribute("teamStats", teamStats);
-                model.addAttribute("teamName", predictionService.getFirstTeamName(user));
+            // Team stats per team
+            Map<String, PredictionStats> allTeamStats = predictionService.computeAllTeamStats(match, user);
+            if (!allTeamStats.isEmpty()) {
+                model.addAttribute("allTeamStats", allTeamStats);
+                // Achterwaartse compatibiliteit voor bestaande template-checks
+                model.addAttribute("teamStats", allTeamStats.values().iterator().next());
             }
         }
 
