@@ -111,6 +111,12 @@
                         <span th:if="${userHasNoTeam}" class="badge bg-danger ms-auto" style="font-size:.65rem">!</span>
                     </a>
                 </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/vote/tournament}" class="sidebar-link">
+                        <i class="bi bi-star-fill"></i>
+                        <span th:text="#{nav.myvote}">Mijn keuzes</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-section-label" sec:authorize="hasRole('ADMIN')" th:text="#{nav.section.admin}">Beheer</li>
                 <li sec:authorize="hasRole('ADMIN')">
@@ -439,5 +445,16 @@
         </div>
     </div>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.alert-dismissible').forEach(function (alert) {
+        setTimeout(function () {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+            bsAlert.close();
+        }, 4000);
+    });
+});
+</script>
 
 </html>

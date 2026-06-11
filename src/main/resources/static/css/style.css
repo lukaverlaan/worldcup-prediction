@@ -29,8 +29,15 @@ html, body.app-body {
 }
 
 body.app-body {
-    background: #060b18;
+    background-color: #060b18;
+    background-image: linear-gradient(to bottom, rgba(6,11,24,.55) 0%, rgba(6,11,24,.55) 100%), url("/images/background.jpg");
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
     color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* ── Sidebar ─────────────────── */
@@ -340,7 +347,7 @@ body.app-body {
 .page-wrapper {
     margin-left: var(--sidebar-w);
     margin-right: var(--ad-col-w);
-    min-height: 100vh;
+    flex: 1;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
@@ -442,10 +449,12 @@ body.app-body {
 .footer {
     background: transparent !important;
     border-top: none;
-    color: var(--text-dim) !important;
+    color: #fff !important;
     padding: .5rem 1rem 1rem;
     font-size: .75rem;
+    text-align: center;
 }
+.footer a { color: var(--text-secondary) !important; }
 
 /* ── Responsive ──────────────── */
 @media (max-width: 991.98px) {

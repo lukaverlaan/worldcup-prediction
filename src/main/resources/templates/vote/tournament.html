@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(#{vote.page.title})}"></head>
+<body class="app-body">
+
+<div th:replace="~{fragments/layout :: sidebar}"></div>
+
+<div class="page-wrapper">
+<main class="main-container">
+
+    <div class="text-center mb-4">
+        <h2><i class="bi bi-trophy-fill text-warning me-2"></i><span th:text="#{vote.page.title}">Mijn WK-keuzes</span></h2>
+        <p class="text-muted" th:text="#{vote.page.subtitle}">Kies eenmalig de WK-winnaar en jouw top 5 topscorers</p>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible text-center mx-auto mb-4" style="max-width:680px">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <span th:text="#{vote.saved}">Keuzes opgeslagen!</span>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible text-center mx-auto mb-4" style="max-width:680px">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <span th:text="#{${error}}">Fout</span>
+    </div>
+
+    <!-- Not logged in -->
+    <div sec:authorize="isAnonymous()" class="text-center mt-5">
+        <i class="bi bi-lock-fill fs-1 text-muted mb-3 d-block"></i>
+        <p class="text-muted">
+            <a th:href="@{/login}" th:text="#{prediction.login.link}">Login</a>
+            <span th:text="#{vote.login.prompt}"> om je keuzes in te dienen.</span>
+        </p>
+    </div>
+
+    <!-- Logged in -->
+
+    <div class="row justify-content-center g-4">
+
+        <!-- ── WK WINNAAR ── -->
+        <div class="col-12 col-lg-6">
+            <div class="card vote-side-card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-trophy-fill text-warning me-2"></i>
+                        <span th:text="#{vote.winner.title}">WK-winnaar</span>
+                        <span th:if="${vote != null}" class="badge bg-success ms-2" style="font-size:.7rem"
+                              th:text="#{vote.locked}">Vergrendeld</span>
+                    </h5>
+
+                    <!-- Al gestemd: toon keuze -->
+                    <div th:if="${vote != null}" class="d-flex align-items-center gap-3 p-3 rounded" style="background:rgba(255,255,255,.06)">
+                        <img th:src="${@countryRegistry.get(vote.country)?.logoUrl()}" width="48" height="48"
+                             style="object-fit:contain" alt="">
+                        <div>
+                            <div class="fw-semibold fs-5" th:text="${@countryRegistry.getDisplayName(vote.country, #locale)}">Land</div>
+                            <small class="text-muted">
+                                <span th:text="#{vote.voted.on}">Gestemd op</span>
+                                <span th:text="${#temporals.format(vote.votedAt, 'dd/MM/yyyy')}"></span>
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Nog niet gestemd: picker + eigen formulier -->
+                    <div th:if="${vote == null}" class="d-flex flex-column flex-grow-1" style="min-height:0">
+                        <input type="text" id="countrySearch" class="form-control mb-2"
+                               th:placeholder="#{vote.search.country}" autocomplete="off">
+                        <div id="countryList" class="tvote-country-grid">
+                            <button type="button" th:each="c : ${countries}"
+                                 class="tvote-country-btn"
+                                 th:data-code="${c.name}"
+                                 th:data-name="${@countryRegistry.getDisplayName(c.name, #locale)}">
+                                <img th:src="${c.logoUrl}" width="40" height="40" style="object-fit:contain" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(c.name, #locale)}">Land</span>
+                            </button>
+                        </div>
+                        <form th:action="@{/vote/tournament/country}" method="post" class="mt-3 flex-shrink-0">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="country" id="countryInput">
+                            <button type="submit" class="btn btn-wc w-100" id="submitCountryBtn" disabled>
+                                <i class="bi bi-check2-circle me-2"></i>
+                                <span th:text="#{vote.submit.country}">Land bevestigen</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TOP 5 TOPSCORERS ── -->
+        <div class="col-12 col-lg-6">
+            <div class="card vote-side-card">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-lightning-fill text-warning me-2"></i>
+                        <span th:text="#{vote.scorers.title}">Top 5 Topscorers</span>
+                        <span th:if="${vote != null and vote.hasScorers()}" class="badge bg-success ms-2"
+                              style="font-size:.7rem" th:text="#{vote.locked}">Vergrendeld</span>
+                    </h5>
+
+                    <!-- Al gestemd met scorers: toon lijst -->
+                    <div th:if="${vote != null and vote.hasScorers()}" class="scorer-locked-list">
+                        <div class="scorer-locked-item" th:each="s,iter : ${ {vote.scorer1, vote.scorer2, vote.scorer3, vote.scorer4, vote.scorer5} }">
+                            <span class="scorer-locked-num" th:text="${iter.index + 1}">1</span>
+                            <i class="bi bi-person-fill text-muted flex-shrink-0"></i>
+                            <span th:text="${s}">Speler</span>
+                        </div>
+                    </div>
+
+                    <!-- Nog geen scorers: card picker -->
+                    <div th:if="${vote == null or !vote.hasScorers()}" class="d-flex flex-column flex-grow-1" style="min-height:0">
+                        <!-- Gekozen slots -->
+                        <div class="scorer-picks-header">
+                            <span class="scorer-picks-label" th:text="#{vote.scorers.picks}">Jouw keuzes</span>
+                            <span class="scorer-counter" id="scorerCounter">0 / 5</span>
+                        </div>
+                        <div id="scorerSlots" class="scorer-slots">
+                            <div class="scorer-slot empty" data-slot="0"><span class="slot-num">1</span><span class="slot-label" th:text="#{vote.scorer.placeholder} + ' 1'">-- Speler 1 --</span></div>
+                            <div class="scorer-slot empty" data-slot="1"><span class="slot-num">2</span><span class="slot-label" th:text="#{vote.scorer.placeholder} + ' 2'">-- Speler 2 --</span></div>
+                            <div class="scorer-slot empty" data-slot="2"><span class="slot-num">3</span><span class="slot-label" th:text="#{vote.scorer.placeholder} + ' 3'">-- Speler 3 --</span></div>
+                            <div class="scorer-slot empty" data-slot="3"><span class="slot-num">4</span><span class="slot-label" th:text="#{vote.scorer.placeholder} + ' 4'">-- Speler 4 --</span></div>
+                            <div class="scorer-slot empty" data-slot="4"><span class="slot-num">5</span><span class="slot-label" th:text="#{vote.scorer.placeholder} + ' 5'">-- Speler 5 --</span></div>
+                        </div>
+
+                        <!-- Zoek -->
+                        <input type="text" id="scorerSearch" class="form-control mb-2"
+                               th:placeholder="#{vote.search.scorer}" autocomplete="off">
+
+                        <!-- Spelerslijst -->
+                        <div id="scorerList" class="scorer-player-list">
+                            <div th:each="s,iter : ${scorers}"
+                                 class="scorer-player-option"
+                                 th:data-name="${s}"
+                                 th:data-rank="${iter.index + 1}">
+                                <span class="scorer-rank" th:text="'#' + (${iter.index + 1})">#1</span>
+                                <span class="scorer-name" th:text="${s}">Speler</span>
+                                <i class="bi bi-check-circle-fill scorer-check ms-auto"></i>
+                            </div>
+                        </div>
+
+                        <!-- Scorer formulier -->
+                        <form th:action="@{/vote/tournament/scorers}" method="post" class="mt-3 flex-shrink-0">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="scorer1" id="s1Input">
+                            <input type="hidden" name="scorer2" id="s2Input">
+                            <input type="hidden" name="scorer3" id="s3Input">
+                            <input type="hidden" name="scorer4" id="s4Input">
+                            <input type="hidden" name="scorer5" id="s5Input">
+                            <button type="submit" class="btn btn-wc w-100" id="submitScorersBtn" disabled>
+                                <i class="bi bi-check2-circle me-2"></i>
+                                <span th:text="#{vote.submit.scorers}">Topscorers bevestigen</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <div class="col-12 text-center mt-1"
+         th:if="${vote == null or vote.country == null or !vote.hasScorers()}">
+        <p class="text-muted small mb-0">
+            <i class="bi bi-lock-fill me-1"></i>
+            <span th:text="#{vote.once.warning}">Na het indienen kunnen je keuzes niet meer gewijzigd worden.</span>
+        </p>
+    </div>
+
+    </div>
+    </sec:authorize>
+
+</main>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+<style>
+/* ── Gelijke hoogte, past binnen scherm ─────────────────────── */
+.vote-side-card {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 220px);
+}
+.vote-side-card .card-body {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ── Country grid picker ─────────────────────────────────────── */
+.tvote-country-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-content: start;
+    gap: 7px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 2px 2px 4px;
+}
+.tvote-country-btn {
+    background: var(--glass-bg, rgba(255,255,255,.05));
+    border: 1px solid var(--glass-border, rgba(255,255,255,.12));
+    border-radius: 10px;
+    padding: 10px 4px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+    color: var(--text-secondary, #aaa);
+    font-size: .68rem;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+    hyphens: auto;
+}
+.tvote-country-btn:hover {
+    border-color: rgba(243,156,18,.5);
+    background: rgba(243,156,18,.07);
+    transform: translateY(-1px);
+}
+.tvote-country-btn.selected {
+    border-color: var(--wc-gold, #f39c12);
+    background: rgba(243,156,18,.18);
+    color: var(--wc-gold, #f39c12);
+}
+@media (max-width: 576px) {
+    .tvote-country-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Scorer picker ───────────────────────────────────────────── */
+.scorer-picks-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.scorer-picks-label {
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted, #888);
+}
+.scorer-counter {
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--text-muted, #888);
+    transition: color .2s;
+}
+.scorer-counter.full { color: #22c55e; }
+
+.scorer-slots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.scorer-slot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255,255,255,.15);
+    background: rgba(255,255,255,.03);
+    cursor: default;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+    font-size: .82rem;
+    min-width: 0;
+}
+.scorer-slot:not(.empty) {
+    border-style: solid;
+    border-color: var(--wc-gold, #f39c12);
+    background: rgba(243,156,18,.1);
+    cursor: pointer;
+}
+.scorer-slot:not(.empty):hover {
+    border-color: #e74c3c;
+    background: rgba(231,76,60,.1);
+    box-shadow: 0 0 0 3px rgba(231,76,60,.1);
+}
+.scorer-slot:not(.empty):hover .slot-label::after {
+    content: ' ×';
+    color: #e74c3c;
+    font-weight: 700;
+}
+.slot-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.12);
+    color: var(--text-muted, #888);
+    font-size: .68rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.scorer-slot:not(.empty) .slot-num {
+    background: var(--wc-gold, #f39c12);
+    color: #000;
+}
+.slot-label {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    color: var(--text-muted, #888);
+    font-size: .8rem;
+}
+.scorer-slot:not(.empty) .slot-label { color: var(--wc-gold, #f39c12); }
+
+.scorer-player-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border: 1px solid var(--glass-border, rgba(255,255,255,.12));
+    border-radius: .5rem;
+    background: rgba(255,255,255,.02);
+}
+.scorer-player-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: .45rem .8rem;
+    cursor: pointer;
+    transition: background .1s;
+    font-size: .85rem;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.scorer-player-option:last-child { border-bottom: none; }
+.scorer-player-option:hover:not(.selected) { background: rgba(255,255,255,.06); }
+.scorer-player-option.selected {
+    background: rgba(243,156,18,.12);
+}
+.scorer-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 22px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.07);
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--text-muted, #888);
+    flex-shrink: 0;
+    letter-spacing: -.01em;
+}
+.scorer-player-option.selected .scorer-rank {
+    background: var(--wc-gold, #f39c12);
+    color: #000;
+}
+.scorer-name {
+    flex: 1;
+    font-weight: 500;
+}
+.scorer-player-option.selected .scorer-name { color: var(--wc-gold, #f39c12); font-weight: 600; }
+.scorer-check {
+    color: var(--wc-gold, #f39c12);
+    font-size: .85rem;
+    display: none;
+    flex-shrink: 0;
+}
+.scorer-player-option.selected .scorer-check { display: block; }
+
+/* ── Locked scorer list ──────────────────────────────────────── */
+.scorer-locked-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.scorer-locked-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--glass-border, rgba(255,255,255,.08));
+    font-size: .88rem;
+    font-weight: 500;
+}
+.scorer-locked-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--wc-gold, #f39c12);
+    color: #000;
+    font-size: .7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+</style>
+
+<script th:inline="javascript">
+(function () {
+    const voteExists   = /*[[${vote != null}]]*/ false;
+    const hasScorers   = /*[[${vote != null and vote.hasScorers()}]]*/ false;
+    const countryInput = document.getElementById('countryInput');
+
+    // ── Country picker ──────────────────────────────────────────
+    if (!voteExists) {
+        const search = document.getElementById('countrySearch');
+        const list   = document.getElementById('countryList');
+
+        search?.addEventListener('input', () => {
+            const q = search.value.toLowerCase();
+            list.querySelectorAll('.tvote-country-btn').forEach(el => {
+                el.style.display = el.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+
+        list?.addEventListener('click', e => {
+            const btn = e.target.closest('.tvote-country-btn');
+            if (!btn) return;
+            list.querySelectorAll('.tvote-country-btn').forEach(el => el.classList.remove('selected'));
+            btn.classList.add('selected');
+            countryInput.value = btn.dataset.code;
+            checkCountryReady();
+        });
+    }
+
+    // ── Scorer card picker ──────────────────────────────────────
+    if (!hasScorers) {
+        const hiddenIds = ['s1Input','s2Input','s3Input','s4Input','s5Input'];
+        const picks     = [null, null, null, null, null]; // 5 slots
+
+        const slotsEl   = document.getElementById('scorerSlots');
+        const listEl    = document.getElementById('scorerList');
+        const searchEl  = document.getElementById('scorerSearch');
+
+        function syncHidden() {
+            hiddenIds.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) el.value = picks[i] || '';
+            });
+        }
+
+        function renderSlots() {
+            const filled = picks.filter(p => p !== null).length;
+            const counter = document.getElementById('scorerCounter');
+            if (counter) {
+                counter.textContent = filled + ' / 5';
+                counter.classList.toggle('full', filled === 5);
+            }
+            slotsEl?.querySelectorAll('.scorer-slot').forEach((slot, i) => {
+                const val = picks[i];
+                if (val) {
+                    slot.classList.remove('empty');
+                    slot.querySelector('.slot-label').textContent = val;
+                } else {
+                    slot.classList.add('empty');
+                    slot.querySelector('.slot-label').textContent = slot.dataset.default || ('-- Speler ' + (i+1));
+                }
+            });
+        }
+
+        function renderList() {
+            listEl?.querySelectorAll('.scorer-player-option').forEach(opt => {
+                const name = opt.dataset.name;
+                if (picks.includes(name)) {
+                    opt.classList.add('selected');
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+        }
+
+        // Store default slot labels
+        slotsEl?.querySelectorAll('.scorer-slot').forEach(s => {
+            s.dataset.default = s.querySelector('.slot-label').textContent;
+        });
+
+        // Click on a player card
+        listEl?.addEventListener('click', e => {
+            const opt = e.target.closest('.scorer-player-option');
+            if (!opt) return;
+            const name = opt.dataset.name;
+            const idx  = picks.indexOf(name);
+            if (idx !== -1) {
+                // Deselect
+                picks[idx] = null;
+            } else {
+                // Select into first empty slot
+                const empty = picks.indexOf(null);
+                if (empty === -1) return; // all 5 full
+                picks[empty] = name;
+            }
+            syncHidden();
+            renderSlots();
+            renderList();
+            checkScorersReady();
+        });
+
+        // Click on a slot to remove
+        slotsEl?.addEventListener('click', e => {
+            const slot = e.target.closest('.scorer-slot');
+            if (!slot || slot.classList.contains('empty')) return;
+            const i = parseInt(slot.dataset.slot);
+            picks[i] = null;
+            // Compact: shift non-null values left
+            const filled = picks.filter(p => p !== null);
+            for (let j = 0; j < 5; j++) picks[j] = filled[j] || null;
+            syncHidden();
+            renderSlots();
+            renderList();
+            checkScorersReady();
+        });
+
+        // Search filter
+        searchEl?.addEventListener('input', () => {
+            const q = searchEl.value.toLowerCase();
+            listEl?.querySelectorAll('.scorer-player-option').forEach(opt => {
+                opt.style.display = opt.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    }
+
+    function checkCountryReady() {
+        const btn = document.getElementById('submitCountryBtn');
+        if (btn) btn.disabled = !(countryInput?.value || '').length;
+    }
+
+    function checkScorersReady() {
+        const btn = document.getElementById('submitScorersBtn');
+        if (btn) btn.disabled = document.querySelectorAll('#scorerSlots .scorer-slot:not(.empty)').length !== 5;
+    }
+
+    checkScorersReady();
+})();
+</script>
+
+</body>
+</html>
