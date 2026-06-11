@@ -2382,9 +2382,13 @@ tr.clickable-row:hover > td {
     font-size: .85rem;
     font-weight: 600;
     color: #e0e0e0;
+    min-width: 0;
+}
+.match-list-team span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
 }
 .match-list-vs {
     font-size: .7rem;
