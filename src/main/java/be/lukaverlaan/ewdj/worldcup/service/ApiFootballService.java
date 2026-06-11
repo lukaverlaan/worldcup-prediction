@@ -102,6 +102,7 @@ public class ApiFootballService {
 
                     String statusShort = status != null ? (String) status.get("short") : "";
                     Integer elapsed = (status != null && status.get("elapsed") instanceof Number n) ? n.intValue() : null;
+                    Integer extra = (status != null && status.get("extra") instanceof Number n) ? n.intValue() : null;
                     boolean finished = "FT".equals(statusShort) || "AET".equals(statusShort) || "PEN".equals(statusShort);
 
                     Integer scoreHome = goals != null && goals.get("home") instanceof Number n ? n.intValue() : null;
@@ -110,7 +111,7 @@ public class ApiFootballService {
                     Map<String, Object> league = (Map<String, Object>) entry.get("league");
                     String round = league != null ? (String) league.get("round") : null;
 
-                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway, round, statusShort, elapsed);
+                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway, round, statusShort, elapsed, extra);
                 } catch (Exception e) {
                     log.warn("Could not parse fixture entry: {}", e.getMessage());
                     return null;
@@ -136,6 +137,7 @@ public class ApiFootballService {
         Integer scoreAway,
         String round,
         String statusShort,
-        Integer elapsed
+        Integer elapsed,
+        Integer extra
     ) {}
 }

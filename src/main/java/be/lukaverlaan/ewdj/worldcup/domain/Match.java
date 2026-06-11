@@ -34,6 +34,7 @@ public class Match {
     private Integer liveScoreA;
     private Integer liveScoreB;
     private Integer liveMinute;
+    private Integer liveExtra;
     private String liveStatus;
 
     @Column(unique = true)
@@ -74,6 +75,8 @@ public class Match {
     public void setLiveScoreB(Integer liveScoreB) { this.liveScoreB = liveScoreB; }
     public Integer getLiveMinute() { return liveMinute; }
     public void setLiveMinute(Integer liveMinute) { this.liveMinute = liveMinute; }
+    public Integer getLiveExtra() { return liveExtra; }
+    public void setLiveExtra(Integer liveExtra) { this.liveExtra = liveExtra; }
     public String getLiveStatus() { return liveStatus; }
     public void setLiveStatus(String liveStatus) { this.liveStatus = liveStatus; }
 

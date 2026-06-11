@@ -254,7 +254,7 @@
             if (!label) return;
             var kickoff = new Date(row.dataset.kickoff);
             var diffMs = kickoff - now;
-            var diffMin = Math.floor(diffMs / 60000);
+            var diffMin = Math.ceil(diffMs / 60000);
             if (diffMin >= 1 && diffMin < 60) {
                 label.textContent = startsInTpl.replace('{0}', diffMin);
                 label.style.display = '';
@@ -310,7 +310,7 @@
         });
     }
 
-    setInterval(refreshLiveRows, 60000);
+    setInterval(refreshLiveRows, 30000);
 </script>
 </body>
 </html>

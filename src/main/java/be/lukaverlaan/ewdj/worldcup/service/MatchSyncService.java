@@ -30,7 +30,7 @@ public class MatchSyncService {
     /**
      * Every minute: only polls when at least one match has started but has no official result yet.
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0/15 * * * * *")
     @Transactional
     public void syncActiveMatches() {
         List<Match> activeMatches = matchRepository
@@ -46,6 +46,7 @@ public class MatchSyncService {
 
             match.setLiveStatus(data.statusShort());
             match.setLiveMinute(data.elapsed());
+            match.setLiveExtra(data.extra());
             match.setLiveScoreA(data.scoreHome());
             match.setLiveScoreB(data.scoreAway());
 

@@ -63,7 +63,7 @@
                         <span th:if="${match.live and !match.hasResult()}" class="badge bg-danger mt-2" id="live-minute-badge">
                             <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>
                             <span id="live-status-label" th:text="${match.liveStatus != null} ? #{|match.status.${match.liveStatus}|} : 'LIVE'">LIVE</span>
-                            <span id="live-minute-label" th:text="${match.liveMinute != null} ? |– ${match.liveMinute}'| : ''"></span>
+                            <span id="live-minute-label" th:text="${match.liveMinute != null} ? (${match.liveExtra != null} ? |– ${match.liveMinute}+${match.liveExtra}'| : |– ${match.liveMinute}'|) : ''"></span>
                         </span>
                         <span th:if="${match.pendingStart}" class="badge bg-secondary mt-2" th:text="#{match.pending.start}"></span>
                         <span th:unless="${match.hasResult() or match.live or match.pendingStart}"
@@ -374,7 +374,7 @@ function switchTab(index, el) {
                     var statusLabel = document.getElementById('live-status-label');
                     var minuteLabel = document.getElementById('live-minute-label');
                     if (statusLabel && data.liveStatusLabel) statusLabel.textContent = data.liveStatusLabel;
-                    if (minuteLabel && data.liveMinute !== null) minuteLabel.textContent = '– ' + data.liveMinute + "'";
+                    if (minuteLabel && data.liveMinute !== null) minuteLabel.textContent = '– ' + (data.liveExtra != null ? data.liveMinute + '+' + data.liveExtra : data.liveMinute) + "'";
                 }
             })
             .catch(function() {});

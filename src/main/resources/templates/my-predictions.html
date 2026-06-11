@@ -121,7 +121,7 @@
                                 <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
                             </span>
                             <span th:if="${pred.points != null}"
-                                  th:class="${pred.points > 0} ? 'badge bg-wc' : 'badge bg-secondary'"
+                                  th:class="${pred.points > 0} ? 'badge bg-success text-white' : 'badge bg-secondary'"
                                   th:text="${pred.points} + ' ptn'">0 ptn</span>
                             <span th:unless="${pred.points != null}" class="badge bg-secondary">–</span>
                         </div>
@@ -156,7 +156,7 @@
             var label = row.querySelector('.starts-in-label');
             if (!label) return;
             var kickoff = new Date(row.dataset.kickoff);
-            var diffMin = Math.floor((kickoff - now) / 60000);
+            var diffMin = Math.ceil((kickoff - now) / 60000);
             if (diffMin >= 1 && diffMin < 60) {
                 label.textContent = startsInTpl.replace('{0}', diffMin);
                 label.style.display = '';
@@ -189,7 +189,7 @@
         });
     }
 
-    setInterval(refreshLiveRows, 60000);
+    setInterval(refreshLiveRows, 30000);
 </script>
 </body>
 </html>

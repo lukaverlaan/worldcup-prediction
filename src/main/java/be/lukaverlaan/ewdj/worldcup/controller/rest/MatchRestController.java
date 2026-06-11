@@ -51,6 +51,7 @@ public class MatchRestController {
         dto.put("liveScoreA", m.getLiveScoreA());
         dto.put("liveScoreB", m.getLiveScoreB());
         dto.put("liveMinute", m.getLiveMinute());
+        dto.put("liveExtra", m.getLiveExtra());
         dto.put("liveStatus", m.getLiveStatus());
         if (m.getLiveStatus() != null) {
             String key = "match.status." + m.getLiveStatus();
