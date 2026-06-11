@@ -83,10 +83,6 @@ public class MatchSyncService {
         int created = 0;
 
         for (ApiFootballService.FixtureData f : fixtures) {
-            matchRepository.findByApiFootballFixtureId(f.fixtureId()).ifPresent(m -> {
-                m.setDateTime(f.dateTime());
-                matchRepository.save(m);
-            });
             if (matchRepository.findByApiFootballFixtureId(f.fixtureId()).isPresent()) continue;
 
             Match existing = existingUnlinked.stream()
@@ -126,6 +122,21 @@ public class MatchSyncService {
         }
 
         log.info("Fixture import done: {} linked to existing matches, {} newly created", linked, created);
+    }
+
+    public int resyncAllTimes() {
+        List<ApiFootballService.FixtureData> fixtures = apiFootballService.fetchAllFixtures();
+        int updated = 0;
+        for (ApiFootballService.FixtureData f : fixtures) {
+            var opt = matchRepository.findByApiFootballFixtureId(f.fixtureId());
+            if (opt.isPresent()) {
+                opt.get().setDateTime(f.dateTime());
+                matchRepository.save(opt.get());
+                updated++;
+            }
+        }
+        log.info("Resynced times for {} matches", updated);
+        return updated;
     }
 
     private boolean teamsMatch(Match m, ApiFootballService.FixtureData f) {

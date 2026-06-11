@@ -6,6 +6,7 @@ import be.lukaverlaan.ewdj.worldcup.form.ResultForm;
 import be.lukaverlaan.ewdj.worldcup.service.CountryEntry;
 import be.lukaverlaan.ewdj.worldcup.service.CountryRegistry;
 import be.lukaverlaan.ewdj.worldcup.service.MatchService;
+import be.lukaverlaan.ewdj.worldcup.service.MatchSyncService;
 import be.lukaverlaan.ewdj.worldcup.service.PredictionService;
 import be.lukaverlaan.ewdj.worldcup.service.TeamService;
 import java.util.List;
@@ -29,13 +30,23 @@ public class AdminController {
     private final PredictionService predictionService;
     private final CountryRegistry countryRegistry;
     private final TeamService teamService;
+    private final MatchSyncService matchSyncService;
 
     public AdminController(MatchService matchService, PredictionService predictionService,
-                           CountryRegistry countryRegistry, TeamService teamService) {
+                           CountryRegistry countryRegistry, TeamService teamService,
+                           MatchSyncService matchSyncService) {
         this.matchService = matchService;
         this.predictionService = predictionService;
         this.countryRegistry = countryRegistry;
         this.teamService = teamService;
+        this.matchSyncService = matchSyncService;
+    }
+
+    @PostMapping("/resync-times")
+    public String resyncTimes(RedirectAttributes ra) {
+        int updated = matchSyncService.resyncAllTimes();
+        ra.addFlashAttribute("successMessage", "Tijden bijgewerkt voor " + updated + " wedstrijden.");
+        return "redirect:/admin/matches";
     }
 
     @ModelAttribute("countries")
