@@ -83,6 +83,10 @@ public class MatchSyncService {
         int created = 0;
 
         for (ApiFootballService.FixtureData f : fixtures) {
+            matchRepository.findByApiFootballFixtureId(f.fixtureId()).ifPresent(m -> {
+                m.setDateTime(f.dateTime());
+                matchRepository.save(m);
+            });
             if (matchRepository.findByApiFootballFixtureId(f.fixtureId()).isPresent()) continue;
 
             Match existing = existingUnlinked.stream()
