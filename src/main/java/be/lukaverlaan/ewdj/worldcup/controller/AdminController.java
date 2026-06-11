@@ -49,6 +49,14 @@ public class AdminController {
         return "redirect:/admin/matches";
     }
 
+    @PostMapping("/recalculate-all")
+    public String recalculateAll(RedirectAttributes ra) {
+        java.util.List<Match> matches = matchService.findAllWithResult();
+        predictionService.recalculateAllPoints(matches);
+        ra.addFlashAttribute("successMessage", "Scores herberekend voor " + matches.size() + " wedstrijden.");
+        return "redirect:/admin/matches";
+    }
+
     @ModelAttribute("countries")
     public List<CountryEntry> countries() {
         return countryRegistry.getAllSorted();

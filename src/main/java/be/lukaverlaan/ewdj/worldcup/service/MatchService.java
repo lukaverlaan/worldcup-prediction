@@ -73,6 +73,12 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
+    public List<Match> findAllWithResult() {
+        return matchRepository.findByOfficialScoreAIsNotNullOrderByDateTimeDesc(
+            org.springframework.data.domain.Pageable.unpaged()).getContent();
+    }
+
+    @Transactional(readOnly = true)
     public java.util.Optional<Match> findPrevious(LocalDateTime dateTime) {
         return matchRepository.findFirstByDateTimeBeforeOrderByDateTimeDesc(dateTime);
     }

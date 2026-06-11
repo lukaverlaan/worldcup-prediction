@@ -30,12 +30,6 @@ public class PredictionService {
     @Value("${score.winner:1}")
     private int scoreWinner;
 
-    @Value("${score.bonus.exact:2}")
-    private int scoreBonusExact;
-
-    @Value("${score.bonus.winner:1}")
-    private int scoreBonusWinner;
-
     public PredictionService(PredictionRepository predictionRepository, TeamRepository teamRepository) {
         this.predictionRepository = predictionRepository;
         this.teamRepository = teamRepository;
@@ -66,18 +60,11 @@ public class PredictionService {
 
             if (exactCorrect) {
                 points += scoreExact;
-                if (isUniqueExactInAnyTeam(p, predictions)) {
-                    points += scoreBonusExact;
-                }
-                // Extra +1 for correctly predicting a draw (no winner)
                 if ("DRAW".equals(officialWinner)) {
                     points += scoreWinner;
                 }
             } else if (winnerCorrect) {
                 points += scoreWinner;
-                if (isUniqueWinnerInAnyTeam(p, predictions, officialWinner)) {
-                    points += scoreBonusWinner;
-                }
             }
             p.setPoints(points);
             predictionRepository.save(p);
@@ -159,30 +146,10 @@ public class PredictionService {
         return streak;
     }
 
-    private boolean isUniqueExactInAnyTeam(Prediction target, List<Prediction> all) {
-        List<Team> userTeams = teamRepository.findByMembersContains(target.getUser());
-        int officialA = target.getMatch().getOfficialScoreA();
-        int officialB = target.getMatch().getOfficialScoreB();
-        for (Team team : userTeams) {
-            long count = all.stream()
-                .filter(p -> team.getMembers().contains(p.getUser()))
-                .filter(p -> p.getPredictedScoreA() == officialA && p.getPredictedScoreB() == officialB)
-                .count();
-            if (count == 1) return true;
+    public void recalculateAllPoints(List<Match> matchesWithResult) {
+        for (Match match : matchesWithResult) {
+            calculatePointsForMatch(match);
         }
-        return false;
-    }
-
-    private boolean isUniqueWinnerInAnyTeam(Prediction target, List<Prediction> all, String officialWinner) {
-        List<Team> userTeams = teamRepository.findByMembersContains(target.getUser());
-        for (Team team : userTeams) {
-            long count = all.stream()
-                .filter(p -> team.getMembers().contains(p.getUser()))
-                .filter(p -> getWinner(p.getPredictedScoreA(), p.getPredictedScoreB()).equals(officialWinner))
-                .count();
-            if (count == 1) return true;
-        }
-        return false;
     }
 
     private String getWinner(int scoreA, int scoreB) {
