@@ -144,21 +144,19 @@ public class TeamService {
 
     @Transactional(readOnly = true)
     public Page<Map<String, Object>> getMatchDetailsForTeamPaged(Team team, List<User> sortedMembers, int page, int size, String tab) {
-        LocalDateTime now = LocalDateTime.now();
         PageRequest pr = PageRequest.of(page, size);
         Page<Match> matchPage = "past".equals(tab)
-                ? matchRepository.findByDateTimeLessThanOrderByDateTimeDesc(now, pr)
-                : matchRepository.findByDateTimeGreaterThanEqualOrderByDateTimeAsc(now, pr);
+                ? matchRepository.findByOfficialScoreAIsNotNullOrderByDateTimeDesc(pr)
+                : matchRepository.findByOfficialScoreAIsNullOrderByDateTimeAsc(pr);
         List<Map<String, Object>> entries = buildMatchDetailEntries(matchPage.getContent(), sortedMembers);
         return new PageImpl<>(entries, pr, matchPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getMatchDetailsForTeamByCountry(List<User> sortedMembers, String country, String tab) {
-        LocalDateTime now = LocalDateTime.now();
         List<Match> matches = "past".equals(tab)
-                ? matchRepository.findPastByCountry(country, now)
-                : matchRepository.findUpcomingByCountry(country, now);
+                ? matchRepository.findPastByCountry(country, LocalDateTime.now())
+                : matchRepository.findUpcomingByCountryNoResult(country);
         return buildMatchDetailEntries(matches, sortedMembers);
     }
 

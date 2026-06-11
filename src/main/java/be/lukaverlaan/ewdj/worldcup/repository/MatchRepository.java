@@ -16,6 +16,8 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     Page<Match> findByDateTimeGreaterThanEqualOrderByDateTimeAsc(LocalDateTime from, Pageable pageable);
     Page<Match> findByDateTimeLessThanOrderByDateTimeDesc(LocalDateTime before, Pageable pageable);
     Page<Match> findByDateTimeLessThanAndOfficialScoreAIsNotNullOrderByDateTimeDesc(LocalDateTime before, Pageable pageable);
+    Page<Match> findByOfficialScoreAIsNotNullOrderByDateTimeDesc(Pageable pageable);
+    Page<Match> findByOfficialScoreAIsNullOrderByDateTimeAsc(Pageable pageable);
     List<Match> findByDateTimeBetweenOrderByDateTimeAsc(LocalDateTime start, LocalDateTime end);
     boolean existsByCityAndStadiumAndDateTime(String city, String stadium, LocalDateTime dateTime);
     boolean existsByCityAndStadiumAndDateTimeAndIdNot(String city, String stadium, LocalDateTime dateTime, Long id);
@@ -26,6 +28,9 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Query("SELECT m FROM Match m WHERE (m.teamA = :country OR m.teamB = :country) AND m.dateTime >= :from ORDER BY m.dateTime ASC")
     List<Match> findUpcomingByCountry(@Param("country") String country, @Param("from") LocalDateTime from);
+
+    @Query("SELECT m FROM Match m WHERE (m.teamA = :country OR m.teamB = :country) AND m.officialScoreA IS NULL ORDER BY m.dateTime ASC")
+    List<Match> findUpcomingByCountryNoResult(@Param("country") String country);
 
     @Query("SELECT m FROM Match m WHERE (m.teamA = :country OR m.teamB = :country) AND m.dateTime < :before AND m.officialScoreA IS NOT NULL ORDER BY m.dateTime DESC")
     List<Match> findPastByCountry(@Param("country") String country, @Param("before") LocalDateTime before);

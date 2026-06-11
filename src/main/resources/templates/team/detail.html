@@ -246,7 +246,10 @@
                                     <span th:if="${entry.match.hasResult()}" class="badge bg-success">
                                         <span th:text="${entry.match.officialScoreA + ' - ' + entry.match.officialScoreB}">0-0</span>
                                     </span>
-                                    <span th:unless="${entry.match.hasResult()}"
+                                    <span th:if="${entry.match.live and !entry.match.hasResult()}"
+                                          class="badge bg-danger"
+                                          th:text="${'LIVE ' + (entry.match.liveScoreA != null ? entry.match.liveScoreA + ' – ' + entry.match.liveScoreB : '0 – 0')}">LIVE</span>
+                                    <span th:if="${!entry.match.live and !entry.match.hasResult()}"
                                           class="badge bg-secondary"
                                           th:text="#{admin.status.pending}">Pending</span>
                                     <span th:if="${entry.stats != null and !entry.stats.isEmpty()}"
