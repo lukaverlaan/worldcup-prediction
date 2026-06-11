@@ -47,7 +47,7 @@
                     <td class="text-center" th:text="${entry.memberCount}">0</td>
                     <td class="text-center fw-bold">
                         <span class="badge bg-wc">
-                            <span th:text="${entry.totalScore}">0</span>
+                            <span th:text="${#numbers.formatDecimal(entry.avgScore, 1, 0)}">0</span>
                             <span th:text="#{pts}">pts</span>
                         </span>
                     </td>

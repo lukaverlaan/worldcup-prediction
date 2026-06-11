@@ -214,7 +214,7 @@
                         </span>
                         <span class="fw-semibold flex-grow-1 ms-2 text-truncate" th:text="${entry.team.name}">Team</span>
                         <span class="home-dash-top-pts">
-                            <span th:text="${entry.totalScore}">0</span>
+                            <span th:text="${#numbers.formatDecimal(entry.avgScore, 1, 0)}">0</span>
                             <small th:text="#{pts}">ptn</small>
                         </span>
                     </div>

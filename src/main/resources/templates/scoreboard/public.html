@@ -9,7 +9,7 @@
 <main class="main-container">
     <div class="text-center mb-4">
         <h2><i class="bi bi-trophy-fill text-warning me-2"></i><span th:text="#{scoreboard.title}">Leaderboard</span></h2>
-        <p class="text-muted" th:text="#{scoreboard.subtitle}">Global ranking based on total prediction points</p>
+        <p class="text-muted" th:text="${tab == 'teams'} ? #{scoreboard.subtitle.teams} : #{scoreboard.subtitle.users}">Global ranking</p>
     </div>
 
     <!-- Tabs -->
@@ -53,7 +53,7 @@
                                       th:text="${entry.team.name}" th:title="${entry.team.name}">Team</span>
                             </div>
                             <small class="podium-pts">
-                                <span th:text="${entry.totalScore}">0</span>
+                                <span th:text="${#numbers.formatDecimal(entry.avgScore, 1, 0)}">0</span>
                                 <span th:text="#{pts}">pts</span>
                             </small>
                             <small class="text-muted mt-1" style="font-size:.72rem">
@@ -87,7 +87,7 @@
                                     </td>
                                     <td class="text-center pe-3">
                                         <span class="badge bg-wc fs-6">
-                                            <span th:text="${entry.totalScore}">0</span>
+                                            <span th:text="${#numbers.formatDecimal(entry.avgScore, 1, 0)}">0</span>
                                             <span th:text="#{pts}">pts</span>
                                         </span>
                                     </td>

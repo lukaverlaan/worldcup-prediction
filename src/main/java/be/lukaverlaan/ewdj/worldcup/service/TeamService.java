@@ -93,16 +93,19 @@ public class TeamService {
         java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(allMembers);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Team team : teams) {
+            int memberCount = team.getMembers().size();
             int total = team.getMembers().stream()
                 .mapToInt(m -> pointsMap.getOrDefault(m.getId(), 0))
                 .sum();
+            double avg = memberCount > 0 ? (double) total / memberCount : 0.0;
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("team", team);
             entry.put("totalScore", total);
-            entry.put("memberCount", team.getMembers().size());
+            entry.put("avgScore", avg);
+            entry.put("memberCount", memberCount);
             result.add(entry);
         }
-        result.sort((a, b) -> (int) b.get("totalScore") - (int) a.get("totalScore"));
+        result.sort((a, b) -> Double.compare((double) b.get("avgScore"), (double) a.get("avgScore")));
         return result;
     }
 
@@ -124,16 +127,19 @@ public class TeamService {
         java.util.Map<Long, Integer> pointsMap = predictionRepository.getPointsMapForUsers(allMembers);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Team team : teams) {
+            int memberCount = team.getMembers().size();
             int total = team.getMembers().stream()
                 .mapToInt(m -> pointsMap.getOrDefault(m.getId(), 0))
                 .sum();
+            double avg = memberCount > 0 ? (double) total / memberCount : 0.0;
             Map<String, Object> entry = new LinkedHashMap<>();
             entry.put("team", team);
             entry.put("totalScore", total);
-            entry.put("memberCount", team.getMembers().size());
+            entry.put("avgScore", avg);
+            entry.put("memberCount", memberCount);
             result.add(entry);
         }
-        result.sort((a, b) -> (int) b.get("totalScore") - (int) a.get("totalScore"));
+        result.sort((a, b) -> Double.compare((double) b.get("avgScore"), (double) a.get("avgScore")));
         return result.size() > 10 ? result.subList(0, 10) : result;
     }
 
