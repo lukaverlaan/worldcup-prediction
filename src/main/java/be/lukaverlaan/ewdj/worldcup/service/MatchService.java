@@ -117,6 +117,16 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
+    public java.util.Optional<Match> findPendingWithoutResult() {
+        LocalDateTime now = LocalDateTime.now();
+        return matchRepository.findByOfficialScoreAIsNullAndDateTimeLessThan(now)
+            .stream()
+            .filter(m -> m.getLiveStatus() == null)
+            .filter(m -> m.getDateTime().isAfter(now.minusMinutes(20)))
+            .min(java.util.Comparator.comparing(Match::getDateTime));
+    }
+
+    @Transactional(readOnly = true)
     public List<Match> findLiveMatches() {
         return matchRepository.findByLiveStatusNotNullAndOfficialScoreAIsNull()
                 .stream()

@@ -51,10 +51,11 @@ public class HomeController {
 
         // Volgende wedstrijd (voor iedereen zichtbaar, alleen als er geen live matches zijn)
         if (liveMatches.isEmpty()) {
-            matchService.findUpcoming(0, 1).getContent().stream()
+            Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream()
                 .filter(m -> !m.isLive())
                 .findFirst()
-                .ifPresent(m -> model.addAttribute("nextMatch", m));
+                .orElseGet(() -> matchService.findPendingWithoutResult().orElse(null));
+            if (nextMatch != null) model.addAttribute("nextMatch", nextMatch);
         }
 
         // Top 3 teams voor het scoreboard widget
@@ -78,7 +79,8 @@ public class HomeController {
             // Bestaande prognose voor de volgende wedstrijd (voor de widget)
             if (liveMatches.isEmpty()) {
                 Match nextMatch = matchService.findUpcoming(0, 1).getContent().stream()
-                    .filter(m -> !m.isLive()).findFirst().orElse(null);
+                    .filter(m -> !m.isLive()).findFirst()
+                    .orElseGet(() -> matchService.findPendingWithoutResult().orElse(null));
                 if (nextMatch != null) {
                     predictionService.findByUserAndMatch(user, nextMatch)
                         .ifPresent(p -> model.addAttribute("nextMatchPrediction", p));
