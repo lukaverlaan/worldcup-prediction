@@ -40,7 +40,7 @@
                     </div>
                     <span class="group-team-name"
                           th:text="${@countryRegistry.getDisplayName(teamEntry, #locale)}">Team</span>
-                    <span class="group-team-pts" th:text="${pts != null ? pts : 0} + ' ptn'">0 ptn</span>
+                    <span class="group-team-pts" th:text="${pts != null ? pts : 0} + ' ' + #{pts}">0 ptn</span>
                 </div>
             </div>
 
