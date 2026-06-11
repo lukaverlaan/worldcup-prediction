@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -31,22 +32,22 @@ public class PredictionOverviewController {
 
     @GetMapping("/my-predictions")
     @Transactional(readOnly = true)
-    public String myPredictions(Model model, Authentication auth) {
+    public String myPredictions(@RequestParam(defaultValue = "upcoming") String tab,
+                                Model model, Authentication auth) {
         User user = userService.findByUsername(auth.getName());
         List<Prediction> all = predictionRepository.findByUser(user);
         all.sort(Comparator.comparing(p -> p.getMatch().getDateTime()));
 
-        LocalDateTime now = LocalDateTime.now();
-        List<Prediction> past = all.stream().filter(p -> p.getMatch().getDateTime().isBefore(now)).toList();
-        List<Prediction> upcoming = all.stream().filter(p -> !p.getMatch().getDateTime().isBefore(now)).toList();
+        List<Prediction> past = all.stream().filter(p -> p.getMatch().hasResult()).toList();
+        List<Prediction> upcoming = all.stream().filter(p -> !p.getMatch().hasResult()).toList();
 
         int totalPoints = predictionRepository.sumPointsByUser(user);
 
+        model.addAttribute("tab", tab);
         model.addAttribute("pastPredictions", past);
         model.addAttribute("upcomingPredictions", upcoming);
-        int streak = predictionService.getStreakForUser(user);
         model.addAttribute("totalPoints", totalPoints);
-        model.addAttribute("streak", streak);
+        model.addAttribute("streak", predictionService.getStreakForUser(user));
         model.addAttribute("user", user);
         return "my-predictions";
     }

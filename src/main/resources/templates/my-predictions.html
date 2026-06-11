@@ -6,120 +6,190 @@
 <div class="page-wrapper">
 <main class="main-container">
 
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="mb-0"><i class="bi bi-card-checklist me-2 text-wc"></i><span th:text="#{mypred.title}">Mijn Prognoses</span></h2>
-            <p class="text-muted mb-0 mt-1">
-                <span th:text="#{mypred.total.points}">Totaal:</span>
-                <strong class="text-wc" th:text="${totalPoints} + ' ptn'">0 ptn</strong>
-                <span th:if="${streak > 0}" class="ms-2 streak-badge">
-                    🔥 <span th:text="${streak}">0</span> <span th:text="#{stats.streak}">reeks</span>
-                </span>
-            </p>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h2 class="mb-0"><i class="bi bi-card-checklist me-2 text-wc"></i><span th:text="#{mypred.title}">Mijn Prognoses</span></h2>
+        <p class="text-muted mb-0 mt-1">
+            <span th:text="#{mypred.total.points}">Totaal:</span>
+            <strong class="text-wc" th:text="${totalPoints} + ' ptn'">0 ptn</strong>
+            <span th:if="${streak > 0}" class="ms-2 streak-badge">
+                🔥 <span th:text="${streak}">0</span> <span th:text="#{stats.streak}">reeks</span>
+            </span>
+        </p>
+    </div>
+
+    <ul class="nav nav-pills gap-2 mb-3">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${tab == 'upcoming'} ? 'active'"
+               th:href="@{/my-predictions(tab='upcoming')}">
+                <i class="bi bi-calendar-event me-1"></i><span th:text="#{home.tab.upcoming}">Komende wedstrijden</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${tab == 'past'} ? 'active'"
+               th:href="@{/my-predictions(tab='past')}">
+                <i class="bi bi-clock-history me-1"></i><span th:text="#{home.tab.past}">Gespeeld</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- Komende wedstrijden -->
+    <div th:if="${tab == 'upcoming'}" class="mb-4">
+        <div th:if="${#lists.isEmpty(upcomingPredictions)}" class="alert alert-info" th:text="#{mypred.empty}">Nog geen prognoses ingediend.</div>
+        <div th:unless="${#lists.isEmpty(upcomingPredictions)}" class="home-dash-card p-0">
+            <div class="match-list-table match-list-table--rounded">
+                <div th:each="pred, iter : ${upcomingPredictions}"
+                     class="match-list-row clickable-row"
+                     th:data-href="@{/matches/{id}(id=${pred.match.id})}"
+                     th:data-kickoff="${#temporals.format(pred.match.dateTime, 'yyyy-MM-dd''T''HH:mm')}"
+                     th:data-match-id="${pred.match.live} ? ${pred.match.id} : null">
+
+                    <div class="match-list-num text-muted" th:text="${iter.index + 1}"></div>
+
+                    <div class="match-list-body">
+                        <div class="match-list-teams">
+                            <div class="match-list-team" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">Team A</span>
+                            </div>
+                            <div class="match-list-vs fw-bold text-danger" th:if="${pred.match.live and !pred.match.hasResult()}"
+                                 th:text="${pred.match.liveScoreA != null} ? (${pred.match.liveScoreA} + ' – ' + ${pred.match.liveScoreB}) : '0 – 0'">0–0</div>
+                            <div class="match-list-vs text-muted" th:unless="${pred.match.live}">vs</div>
+                            <div class="match-list-team" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">Team B</span>
+                            </div>
+                        </div>
+                        <div class="match-list-info">
+                            <span style="color:#ccc" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
+                            <span th:unless="${pred.match.live}" class="starts-in-label badge bg-warning text-dark ms-1" style="display:none"></span>
+                            <span class="ms-2 text-wc fw-semibold">
+                                <i class="bi bi-bullseye me-1"></i>
+                                <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="match-list-round">
+                        <span th:if="${pred.match.live}" class="badge bg-danger">
+                            <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
+                        </span>
+                        <span th:if="${pred.match.round != null}" class="badge bg-secondary badge-round" th:text="${pred.match.round}"></span>
+                    </div>
+
+                    <div class="match-list-chevron text-muted">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Gespeelde wedstrijden -->
-    <div th:if="${!#lists.isEmpty(pastPredictions)}">
-        <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i><span th:text="#{mypred.past}">Gespeeld</span></h5>
-        <div class="table-responsive mb-4">
-            <table class="table table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th th:text="#{home.column.match}">Wedstrijd</th>
-                        <th class="text-center" th:text="#{mypred.prediction}">Prognose</th>
-                        <th class="text-center" th:text="#{home.column.result}">Uitslag</th>
-                        <th class="text-center" th:text="#{mypred.points}">Punten</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="pred : ${pastPredictions}"
-                        class="clickable-row"
-                        th:data-href="@{/matches/{id}(id=${pred.match.id})}">
-                        <td>
-                            <div class="match-teams-cell">
-                                <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
-                                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
-                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
-                                </span>
-                                <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
-                                <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
-                                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
-                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
-                                </span>
+    <div th:if="${tab == 'past'}">
+        <div th:if="${#lists.isEmpty(pastPredictions)}" class="alert alert-info" th:text="#{mypred.empty}">Nog geen gespeelde wedstrijden.</div>
+        <div th:unless="${#lists.isEmpty(pastPredictions)}" class="home-dash-card p-0">
+            <div class="match-list-table match-list-table--rounded">
+                <div th:each="pred, iter : ${pastPredictions}"
+                     class="match-list-row clickable-row"
+                     th:data-href="@{/matches/{id}(id=${pred.match.id})}">
+
+                    <div class="match-list-num text-muted" th:text="${iter.index + 1}"></div>
+
+                    <div class="match-list-body">
+                        <div class="match-list-teams">
+                            <div class="match-list-team" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
+                                <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">Team A</span>
                             </div>
-                        </td>
-                        <td class="fw-semibold text-center"
-                            th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</td>
-                        <td>
-                            <span th:if="${pred.match.hasResult()}" class="badge bg-success"
-                                  th:text="${pred.match.officialScoreA} + ' – ' + ${pred.match.officialScoreB}">0–0</span>
-                            <span th:unless="${pred.match.hasResult()}" class="badge bg-secondary" th:text="#{admin.status.pending}">–</span>
-                        </td>
-                        <td>
-                            <span th:if="${pred.points != null}"
-                                  th:class="${pred.points > 0} ? 'badge bg-wc fs-6' : 'badge bg-secondary'"
-                                  th:text="${pred.points} + ' ptn'">0</span>
-                            <span th:unless="${pred.points != null}" class="text-muted">–</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <div class="match-list-vs">
+                                <span th:text="${pred.match.officialScoreA}">0</span>
+                                <span style="color:#555">–</span>
+                                <span th:text="${pred.match.officialScoreB}">0</span>
+                            </div>
+                            <div class="match-list-team" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
+                                <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
+                                <span th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">Team B</span>
+                            </div>
+                        </div>
+                        <div class="match-list-info">
+                            <span style="color:#ccc" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
+                            <span class="ms-2 fw-semibold" th:classappend="${pred.points != null and pred.points > 0} ? 'text-wc' : 'text-muted'">
+                                <i class="bi bi-bullseye me-1"></i>
+                                <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="match-list-round">
+                        <span th:if="${pred.points != null}"
+                              th:class="${pred.points > 0} ? 'badge bg-wc' : 'badge bg-secondary'"
+                              th:text="${pred.points} + ' ptn'">0 ptn</span>
+                        <span th:unless="${pred.points != null}" class="badge bg-secondary">–</span>
+                    </div>
+
+                    <div class="match-list-chevron text-muted">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Komende wedstrijden -->
-    <div th:if="${!#lists.isEmpty(upcomingPredictions)}">
-        <h5 class="mb-3"><i class="bi bi-calendar-event me-2"></i><span th:text="#{mypred.upcoming}">Komend</span></h5>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th th:text="#{home.column.match}">Wedstrijd</th>
-                        <th th:text="#{home.column.date}">Datum</th>
-                        <th class="text-center" th:text="#{mypred.prediction}">Prognose</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="pred : ${upcomingPredictions}"
-                        class="clickable-row"
-                        th:data-href="@{/matches/{id}(id=${pred.match.id})}">
-                        <td>
-                            <div class="match-teams-cell">
-                                <span class="match-team-row" th:with="infoA=${@countryRegistry.get(pred.match.teamA)}">
-                                    <img th:if="${infoA != null}" th:src="${infoA.logoUrl()}" height="22" class="country-logo" alt="">
-                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamA, #locale)}">A</span>
-                                </span>
-                                <span class="match-vs-label text-muted" th:text="#{match.vs}">vs</span>
-                                <span class="match-team-row" th:with="infoB=${@countryRegistry.get(pred.match.teamB)}">
-                                    <img th:if="${infoB != null}" th:src="${infoB.logoUrl()}" height="22" class="country-logo" alt="">
-                                    <span class="fw-bold" th:text="${@countryRegistry.getDisplayName(pred.match.teamB, #locale)}">B</span>
-                                </span>
-                            </div>
-                        </td>
-                        <td th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}">datum</td>
-                        <td class="fw-semibold text-wc text-center"
-                            th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div th:if="${#lists.isEmpty(pastPredictions) and #lists.isEmpty(upcomingPredictions)}"
-         class="alert alert-info" th:text="#{mypred.empty}">Nog geen prognoses ingediend.</div>
 
 </main>
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.querySelectorAll('tr.clickable-row').forEach(function(row) {
+    document.querySelectorAll('.clickable-row').forEach(function(row) {
         row.addEventListener('click', function() {
             var href = this.dataset.href;
             if (href) window.location.href = href;
         });
     });
+
+    var startsInTpl = [[#{match.starts.in}]];
+    var startsImminent = [[#{match.imminent}]];
+
+    function updateKickoffLabels() {
+        var now = new Date();
+        document.querySelectorAll('.match-list-row[data-kickoff]').forEach(function(row) {
+            var label = row.querySelector('.starts-in-label');
+            if (!label) return;
+            var kickoff = new Date(row.dataset.kickoff);
+            var diffMin = Math.floor((kickoff - now) / 60000);
+            if (diffMin >= 1 && diffMin < 60) {
+                label.textContent = startsInTpl.replace('{0}', diffMin);
+                label.style.display = '';
+            } else if (diffMin === 0) {
+                label.textContent = startsImminent;
+                label.style.display = '';
+            } else {
+                label.style.display = 'none';
+            }
+        });
+    }
+
+    updateKickoffLabels();
+    setInterval(updateKickoffLabels, 60000);
+
+    function refreshLiveRows() {
+        document.querySelectorAll('.match-list-row[data-match-id]').forEach(function(row) {
+            var matchId = row.dataset.matchId;
+            if (!matchId || matchId === 'null') return;
+            fetch('/api/matches/' + matchId + '/live')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.hasResult) { window.location.reload(); return; }
+                    if (data.isLive) {
+                        var vsEl = row.querySelector('.match-list-vs');
+                        if (vsEl && data.liveScoreA !== null && data.liveScoreB !== null)
+                            vsEl.textContent = data.liveScoreA + ' – ' + data.liveScoreB;
+                    }
+                }).catch(function() {});
+        });
+    }
+
+    setInterval(refreshLiveRows, 60000);
 </script>
 </body>
 </html>
