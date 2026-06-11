@@ -62,15 +62,17 @@
                     </div>
 
                     <div class="match-list-round" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-                        <span style="color:#ccc;font-size:.72rem" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
-                        <span th:unless="${pred.match.live}" class="starts-in-label badge bg-warning text-dark" style="display:none"></span>
-                        <span th:if="${pred.match.live}" class="badge bg-danger">
-                            <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
-                        </span>
-                        <span class="fw-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;font-size:.8rem;display:inline-flex;align-items:center;gap:4px">
-                            <i class="bi bi-person-fill"></i>
-                            <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
-                        </span>
+                        <span style="color:#ccc;font-size:.72rem;white-space:nowrap" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
+                        <div style="display:flex;align-items:center;gap:4px">
+                            <span th:unless="${pred.match.live}" class="starts-in-label badge bg-warning text-dark" style="display:none"></span>
+                            <span th:if="${pred.match.live}" class="badge bg-danger">
+                                <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
+                            </span>
+                            <span class="fw-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;font-size:.8rem;display:inline-flex;align-items:center;gap:4px">
+                                <i class="bi bi-person-fill"></i>
+                                <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
+                            </span>
+                        </div>
                     </div>
 
                     <div class="match-list-chevron text-muted">
@@ -111,16 +113,18 @@
                     </div>
 
                     <div class="match-list-round" style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-                        <span style="color:#ccc;font-size:.72rem" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
-                        <span class="fw-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;font-size:.8rem;display:inline-flex;align-items:center;gap:4px"
-                              th:classappend="${pred.points != null and pred.points > 0} ? 'text-wc' : ''">
-                            <i class="bi bi-person-fill"></i>
-                            <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
-                        </span>
-                        <span th:if="${pred.points != null}"
-                              th:class="${pred.points > 0} ? 'badge bg-wc' : 'badge bg-secondary'"
-                              th:text="${pred.points} + ' ptn'">0 ptn</span>
-                        <span th:unless="${pred.points != null}" class="badge bg-secondary">–</span>
+                        <span style="color:#ccc;font-size:.72rem;white-space:nowrap" th:text="${#temporals.format(pred.match.dateTime, #messages.msg('date.format'))}"></span>
+                        <div style="display:flex;align-items:center;gap:4px">
+                            <span class="fw-semibold" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:2px 7px;font-size:.8rem;display:inline-flex;align-items:center;gap:4px"
+                                  th:classappend="${pred.points != null and pred.points > 0} ? 'text-wc' : ''">
+                                <i class="bi bi-person-fill"></i>
+                                <span th:text="${pred.predictedScoreA} + ' – ' + ${pred.predictedScoreB}">0–0</span>
+                            </span>
+                            <span th:if="${pred.points != null}"
+                                  th:class="${pred.points > 0} ? 'badge bg-wc' : 'badge bg-secondary'"
+                                  th:text="${pred.points} + ' ptn'">0 ptn</span>
+                            <span th:unless="${pred.points != null}" class="badge bg-secondary">–</span>
+                        </div>
                     </div>
 
                     <div class="match-list-chevron text-muted">
