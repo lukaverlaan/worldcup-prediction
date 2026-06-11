@@ -283,6 +283,9 @@ body.app-body {
     z-index: 1031;
     flex-direction: row;
     align-items: stretch;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
 }
 
 .bottom-nav-item {
