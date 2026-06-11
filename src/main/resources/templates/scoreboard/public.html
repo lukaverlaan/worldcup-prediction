@@ -68,15 +68,15 @@
                         <table class="table table-hover mb-0 align-middle">
                             <tbody>
                                 <tr th:each="entry, iter : ${top10}" th:if="${iter.index >= 3}"
-                                    th:classappend="${!userTeamIds.contains(entry.team.id)} ? 'team-preview-row' : 'table-warning'"
+                                    th:classappend="${!userTeamIds.contains(entry.team.id)} ? 'team-preview-row' : 'table-warning team-member-row'"
                                     th:data-team-id="${entry.team.id}" th:data-team-name="${entry.team.name}"
+                                    th:data-href="${userTeamIds.contains(entry.team.id)} ? @{/teams/{id}(id=${entry.team.id})} : null"
                                     style="cursor:pointer">
                                     <td class="text-center ps-3 fw-semibold text-muted" style="width:55px" th:text="${iter.index + 1}">4</td>
                                     <td>
                                         <i class="bi bi-people-fill me-2 text-wc"></i>
                                         <th:block th:if="${userTeamIds.contains(entry.team.id)}">
-                                            <a th:href="@{/teams/{id}(id=${entry.team.id})}" class="fw-semibold text-decoration-none text-reset"
-                                               th:text="${entry.team.name}" onclick="event.stopPropagation()">Team</a>
+                                            <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
                                         </th:block>
                                         <th:block th:unless="${userTeamIds.contains(entry.team.id)}">
                                             <span class="fw-semibold" th:text="${entry.team.name}">Team</span>
@@ -314,6 +314,9 @@
     });
     document.querySelectorAll('.team-preview-row').forEach(row => {
         row.addEventListener('click', () => openTeamPreview(row.dataset.teamId, row.dataset.teamName));
+    });
+    document.querySelectorAll('.team-member-row').forEach(row => {
+        row.addEventListener('click', () => { if (row.dataset.href) window.location.href = row.dataset.href; });
     });
 </script>
 </body>

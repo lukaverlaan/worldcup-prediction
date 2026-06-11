@@ -68,13 +68,11 @@ body.app-body {
 .sidebar-logo-img {
     width: 76px;
     height: auto;
-    mix-blend-mode: screen;
-    filter: brightness(1.05);
     transition: filter .2s, transform .2s;
 }
 
 .sidebar-logo-img:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.1);
     transform: scale(1.04);
 }
 
@@ -240,8 +238,6 @@ body.app-body {
 .mobile-logo-img {
     height: 30px;
     width: auto;
-    mix-blend-mode: screen;
-    filter: brightness(1.05);
 }
 
 .sidebar-toggle-btn {
@@ -2434,3 +2430,4 @@ tr.clickable-row:hover > td {
 }
 
 .pred-indicator { font-size: .85rem; flex-shrink: 0; }
+
