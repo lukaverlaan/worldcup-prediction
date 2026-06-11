@@ -125,10 +125,11 @@ public class MatchController {
 
         // Bepaal backUrl en prev/next navigatie op basis van from-param
         String backUrl = switch (from != null ? from : "") {
-            case "home"    -> "/";
-            case "matches" -> "/matches";
-            case "groups"  -> "/groups";
-            case "team"    -> teamId != null ? "/teams/" + teamId : "/matches";
+            case "home"          -> "/";
+            case "matches"       -> "/matches";
+            case "groups"        -> "/groups";
+            case "mypredictions" -> "/my-predictions";
+            case "team"          -> teamId != null ? "/teams/" + teamId : "/matches";
             default        -> "/matches";
         };
         model.addAttribute("backUrl", backUrl);
