@@ -259,7 +259,7 @@
                                             <span class="bg-secondary" th:style="'width:' + ${entry.stats.drawPctInt()} + '%'"></span>
                                             <span class="bg-danger" th:style="'width:' + ${entry.stats.winPctBInt()} + '%'"></span>
                                         </span>
-                                        <small class="text-muted fw-semibold" style="font-size:.68rem"
+                                        <small class="text-muted fw-semibold" style="font-size:.68rem;white-space:nowrap"
                                                th:text="${entry.stats.avgScoreAFormatted()} + '–' + ${entry.stats.avgScoreBFormatted()}"></small>
                                     </span>
                                 </span>
