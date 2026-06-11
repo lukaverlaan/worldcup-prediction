@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,9 @@ public class ApiFootballService {
 
                     long fixtureId = ((Number) fixture.get("id")).longValue();
                     String dateStr = (String) fixture.get("date");
-                    LocalDateTime dateTime = OffsetDateTime.parse(dateStr).toLocalDateTime();
+                    LocalDateTime dateTime = OffsetDateTime.parse(dateStr)
+                        .atZoneSameInstant(ZoneId.of("Europe/Brussels"))
+                        .toLocalDateTime();
 
                     String homeTeam = normalize((String) ((Map<?, ?>) teams.get("home")).get("name"));
                     String awayTeam = normalize((String) ((Map<?, ?>) teams.get("away")).get("name"));
