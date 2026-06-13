@@ -60,9 +60,6 @@ public class PredictionService {
 
             if (exactCorrect) {
                 points += scoreExact;
-                if ("DRAW".equals(officialWinner)) {
-                    points += scoreWinner;
-                }
             } else if (winnerCorrect) {
                 points += scoreWinner;
             }
