@@ -1,6 +1,7 @@
 package be.lukaverlaan.ewdj.worldcup.config;
 
 import be.lukaverlaan.ewdj.worldcup.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -18,6 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final UserService userService;
+
+    @Value("${remember-me.key}")
+    private String rememberMeKey;
 
     public SecurityConfig(@Lazy UserService userService) {
         this.userService = userService;
@@ -52,6 +56,12 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .permitAll()
+            )
+            .rememberMe(rememberMe -> rememberMe
+                .key(rememberMeKey)
+                .tokenValiditySeconds(30 * 24 * 60 * 60) // 30 days
+                .alwaysRemember(true)
+                .userDetailsService(userService)
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
