@@ -405,8 +405,8 @@ body.app-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    padding: 0 0 2rem 0;
+    justify-content: center;
+    padding: 0;
     gap: 0;
     background: var(--glass-bg-deep);
     border-left: 1px solid var(--glass-border);
