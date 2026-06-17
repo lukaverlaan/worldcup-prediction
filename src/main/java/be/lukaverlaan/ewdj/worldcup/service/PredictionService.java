@@ -6,6 +6,7 @@ import be.lukaverlaan.ewdj.worldcup.domain.Team;
 import be.lukaverlaan.ewdj.worldcup.domain.User;
 import be.lukaverlaan.ewdj.worldcup.dto.PredictionStats;
 import be.lukaverlaan.ewdj.worldcup.form.PredictionForm;
+import be.lukaverlaan.ewdj.worldcup.repository.MatchRepository;
 import be.lukaverlaan.ewdj.worldcup.repository.PredictionRepository;
 import be.lukaverlaan.ewdj.worldcup.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -23,6 +25,7 @@ public class PredictionService {
 
     private final PredictionRepository predictionRepository;
     private final TeamRepository teamRepository;
+    private final MatchRepository matchRepository;
 
     @Value("${score.exact:3}")
     private int scoreExact;
@@ -30,9 +33,10 @@ public class PredictionService {
     @Value("${score.winner:1}")
     private int scoreWinner;
 
-    public PredictionService(PredictionRepository predictionRepository, TeamRepository teamRepository) {
+    public PredictionService(PredictionRepository predictionRepository, TeamRepository teamRepository, MatchRepository matchRepository) {
         this.predictionRepository = predictionRepository;
         this.teamRepository = teamRepository;
+        this.matchRepository = matchRepository;
     }
 
     public Prediction savePrediction(User user, Match match, PredictionForm form) {
@@ -128,13 +132,19 @@ public class PredictionService {
 
     @Transactional(readOnly = true)
     public int getStreakForUser(User user) {
-        List<Prediction> played = predictionRepository.findByUser(user).stream()
-            .filter(p -> p.getPoints() != null)
-            .sorted((a, b) -> b.getMatch().getDateTime().compareTo(a.getMatch().getDateTime()))
+        List<Match> finishedMatches = matchRepository.findAllByOrderByDateTimeAsc().stream()
+            .filter(Match::hasResult)
+            .sorted((a, b) -> b.getDateTime().compareTo(a.getDateTime()))
             .toList();
+
+        Map<Long, Prediction> predictionByMatch = predictionRepository.findByUser(user).stream()
+            .filter(p -> p.getPoints() != null)
+            .collect(Collectors.toMap(p -> p.getMatch().getId(), p -> p));
+
         int streak = 0;
-        for (Prediction p : played) {
-            if (p.getPoints() > 0) {
+        for (Match match : finishedMatches) {
+            Prediction p = predictionByMatch.get(match.getId());
+            if (p != null && p.getPoints() > 0) {
                 streak++;
             } else {
                 break;
