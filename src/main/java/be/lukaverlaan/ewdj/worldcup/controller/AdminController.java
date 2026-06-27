@@ -49,6 +49,20 @@ public class AdminController {
         return "redirect:/admin/matches";
     }
 
+    @PostMapping("/reimport-fixtures")
+    public String reimportFixtures(RedirectAttributes ra) {
+        matchSyncService.importFixtures();
+        ra.addFlashAttribute("successMessage", "Fixtures opnieuw geïmporteerd vanuit api-football.");
+        return "redirect:/admin/matches";
+    }
+
+    @PostMapping("/sync-results-now")
+    public String syncResultsNow(RedirectAttributes ra) {
+        matchSyncService.syncActiveMatches();
+        ra.addFlashAttribute("successMessage", "Live resultaten gesynchroniseerd.");
+        return "redirect:/admin/matches";
+    }
+
     @PostMapping("/recalculate-all")
     public String recalculateAll(RedirectAttributes ra) {
         java.util.List<Match> matches = matchService.findAllWithResult();

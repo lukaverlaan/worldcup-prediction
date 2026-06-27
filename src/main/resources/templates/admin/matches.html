@@ -31,6 +31,18 @@
                     <i class="bi bi-arrow-repeat me-1"></i>Scores herberekenen
                 </button>
             </form>
+            <form th:action="@{/admin/reimport-fixtures}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-cloud-download me-1"></i>Fixtures herimporten
+                </button>
+            </form>
+            <form th:action="@{/admin/sync-results-now}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="bi bi-lightning-charge me-1"></i>Resultaten nu syncen
+                </button>
+            </form>
         </div>
     </div>
 
