@@ -111,6 +111,12 @@ public class BracketController {
             if (r == null || r.startsWith("Group Stage")) continue;
             byRound.computeIfPresent(r, (k, v) -> { v.add(m); return v; });
         }
+        // Sort each knockout round by fixture ID (= official bracket slot order from api-football)
+        // Fall back to dateTime if no fixture ID is set
+        Comparator<Match> bracketOrder = Comparator
+            .comparing((Match m) -> m.getApiFootballFixtureId() != null ? m.getApiFootballFixtureId() : Long.MAX_VALUE)
+            .thenComparing(Match::getDateTime);
+        byRound.values().forEach(list -> list.sort(bracketOrder));
         for (String round : KNOCKOUT_ROUNDS) {
             List<Match> matches = byRound.get(round);
             int slots = EXPECTED_SLOTS.get(round);

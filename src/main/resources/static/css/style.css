@@ -1868,14 +1868,17 @@ tr.clickable-row:hover > td {
 .bk-col-label .label-full { display: inline; color: var(--wc-gold); }
 
 .bk-col-label {
-    font-size: .7rem;
+    font-size: .65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .07em;
+    letter-spacing: .04em;
     color: var(--wc-gold);
     text-align: center;
-    padding: 4px 0 8px;
-    white-space: nowrap;
+    padding: 4px 4px 8px;
+    white-space: normal;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
 }
 
 /* Slots container — space-evenly distributes matches
