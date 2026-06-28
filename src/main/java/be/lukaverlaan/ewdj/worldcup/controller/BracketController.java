@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.context.i18n.LocaleContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -141,8 +142,15 @@ public class BracketController {
             colorIdx++;
         }
 
+        // Auto-refresh when there are live or soon-starting knockout matches
+        boolean hasActiveKnockout = all.stream()
+            .filter(m -> m.getRound() != null && !m.getRound().startsWith("Group Stage"))
+            .anyMatch(m -> !m.hasResult() && m.getDateTime() != null
+                && m.getDateTime().isBefore(LocalDateTime.now().plusMinutes(120)));
+
         model.addAttribute("bracketRounds", bracketRounds);
         model.addAttribute("groupCards", groupCards);
+        model.addAttribute("autoRefresh", hasActiveKnockout);
         return "bracket";
     }
 

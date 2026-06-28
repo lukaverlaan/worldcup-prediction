@@ -269,5 +269,10 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 </div>
+
+<script th:if="${autoRefresh}">
+    setTimeout(() => location.reload(), 30000);
+</script>
+
 </body>
 </html>
