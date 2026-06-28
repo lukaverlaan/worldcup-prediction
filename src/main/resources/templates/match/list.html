@@ -106,7 +106,7 @@
                         <i class="bi bi-circle-fill me-1" style="font-size:.5rem;vertical-align:middle"></i>LIVE
                     </span>
                     <span th:if="${match.pendingStart}" class="badge bg-secondary me-1" th:text="#{match.pending.start}"></span>
-                    <span th:if="${match.round != null}" class="badge bg-secondary badge-round" th:text="${match.round}"></span>
+                    <span th:if="${match.round != null}" class="badge bg-secondary badge-round" th:text="${@roundLabels.translate(match.round)}"></span>
                     <span th:if="${userPredictions != null}"
                           th:with="pred=${userPredictions[match.id]}, closed=${match.dateTime.minusHours(1).isBefore(T(java.time.LocalDateTime).now())}">
                         <span th:if="${pred != null}" class="pred-indicator text-success" title="Prognose ingediend">
