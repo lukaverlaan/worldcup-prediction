@@ -111,9 +111,12 @@ public class BracketController {
             if (r == null || r.startsWith("Group Stage")) continue;
             byRound.computeIfPresent(r, (k, v) -> { v.add(m); return v; });
         }
-        // Sort each knockout round by api-football fixture ID (assigned in official bracket order)
+        // Sort each round by fixture ID as baseline
         byRound.values().forEach(list -> list.sort(Comparator.comparing(
             m -> m.getApiFootballFixtureId() != null ? m.getApiFootballFixtureId() : Long.MAX_VALUE)));
+        // Reorder previous rounds so that pairs feeding into the same next-round match are adjacent
+        reorderPreviousRound(byRound.get("Round of 16"), byRound.get("Quarter-finals"));
+        reorderPreviousRound(byRound.get("Round of 32"), byRound.get("Round of 16"));
         for (String round : KNOCKOUT_ROUNDS) {
             List<Match> matches = byRound.get(round);
             int slots = EXPECTED_SLOTS.get(round);
@@ -155,6 +158,42 @@ public class BracketController {
         model.addAttribute("groupCards", groupCards);
         model.addAttribute("autoRefresh", hasActiveKnockout);
         return "bracket";
+    }
+
+    /**
+     * Reorders previousMatches so that the two matches feeding into each currentMatch are adjacent.
+     * Works by tracing which previous match produced the winner that now plays in each current match.
+     * Undetermined previous matches (no result yet) are appended in their current fixture-id order.
+     */
+    private void reorderPreviousRound(List<Match> previousMatches, List<Match> currentMatches) {
+        if (previousMatches == null || currentMatches == null) return;
+
+        Map<String, Match> winnerMap = new HashMap<>();
+        for (Match m : previousMatches) {
+            if (!m.hasResult()) continue;
+            String winner;
+            if (m.getOfficialScoreA() > m.getOfficialScoreB()) winner = m.getTeamA();
+            else if (m.getOfficialScoreB() > m.getOfficialScoreA()) winner = m.getTeamB();
+            else if ("A".equals(m.getPenaltyWinner())) winner = m.getTeamA();
+            else if ("B".equals(m.getPenaltyWinner())) winner = m.getTeamB();
+            else continue;
+            winnerMap.put(winner, m);
+        }
+
+        List<Match> ordered = new ArrayList<>();
+        Set<Match> used = new LinkedHashSet<>();
+        for (Match curr : currentMatches) {
+            Match srcA = winnerMap.get(curr.getTeamA());
+            Match srcB = winnerMap.get(curr.getTeamB());
+            if (srcA != null && used.add(srcA)) ordered.add(srcA);
+            if (srcB != null && used.add(srcB)) ordered.add(srcB);
+        }
+        for (Match m : previousMatches) {
+            if (!used.contains(m)) ordered.add(m);
+        }
+
+        previousMatches.clear();
+        previousMatches.addAll(ordered);
     }
 
     private String badge(String team) { return BADGE_MAP.get(team); }
