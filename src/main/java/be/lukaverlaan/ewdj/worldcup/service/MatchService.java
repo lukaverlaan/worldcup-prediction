@@ -163,10 +163,11 @@ public class MatchService {
         return matchRepository.findByDateTimeBetweenOrderByDateTimeAsc(start, end);
     }
 
-    public Match saveResult(Long id, int scoreA, int scoreB) {
+    public Match saveResult(Long id, int scoreA, int scoreB, String penaltyWinner) {
         Match match = findById(id);
         match.setOfficialScoreA(scoreA);
         match.setOfficialScoreB(scoreB);
+        match.setPenaltyWinner(scoreA == scoreB ? penaltyWinner : null);
         return matchRepository.save(match);
     }
 

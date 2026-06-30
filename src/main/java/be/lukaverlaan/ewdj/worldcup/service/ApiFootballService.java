@@ -111,7 +111,15 @@ public class ApiFootballService {
                     Map<String, Object> league = (Map<String, Object>) entry.get("league");
                     String round = league != null ? (String) league.get("round") : null;
 
-                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway, round, statusShort, elapsed, extra);
+                    String penaltyWinner = null;
+                    if ("PEN".equals(statusShort)) {
+                        Map<String, Object> homeTeamInfo = (Map<String, Object>) teams.get("home");
+                        Object homeWinner = homeTeamInfo.get("winner");
+                        if (Boolean.TRUE.equals(homeWinner)) penaltyWinner = "A";
+                        else penaltyWinner = "B";
+                    }
+
+                    return new FixtureData(fixtureId, homeTeam, awayTeam, dateTime, city, stadiumName, finished, scoreHome, scoreAway, round, statusShort, elapsed, extra, penaltyWinner);
                 } catch (Exception e) {
                     log.warn("Could not parse fixture entry: {}", e.getMessage());
                     return null;
@@ -138,6 +146,7 @@ public class ApiFootballService {
         String round,
         String statusShort,
         Integer elapsed,
-        Integer extra
+        Integer extra,
+        String penaltyWinner
     ) {}
 }

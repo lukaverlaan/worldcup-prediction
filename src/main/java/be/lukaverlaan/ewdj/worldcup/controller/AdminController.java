@@ -175,6 +175,7 @@ public class AdminController {
         if (match.hasResult()) {
             form.setOfficialScoreA(match.getOfficialScoreA());
             form.setOfficialScoreB(match.getOfficialScoreB());
+            form.setPenaltyWinner(match.getPenaltyWinner());
         }
         model.addAttribute("resultForm", form);
         return "admin/result-form";
@@ -189,7 +190,7 @@ public class AdminController {
             model.addAttribute("match", match);
             return "admin/result-form";
         }
-        Match saved = matchService.saveResult(id, form.getOfficialScoreA(), form.getOfficialScoreB());
+        Match saved = matchService.saveResult(id, form.getOfficialScoreA(), form.getOfficialScoreB(), form.getPenaltyWinner());
         predictionService.calculatePointsForMatch(saved);
         ra.addFlashAttribute("successMessage", "result.saved.success");
         return "redirect:/admin/matches";

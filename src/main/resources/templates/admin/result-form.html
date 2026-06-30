@@ -52,6 +52,19 @@
                             </div>
                         </div>
 
+                        <div class="mb-3" id="penaltyWinnerSection">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-bullseye me-1"></i>
+                                <span th:text="#{admin.result.penalty.winner}">Winnaar na strafschoppen (optioneel)</span>
+                            </label>
+                            <select th:field="*{penaltyWinner}" class="form-select">
+                                <option value="" th:text="#{admin.result.penalty.none}">— geen penalty's —</option>
+                                <option value="A" th:text="${match.teamA}">Team A</option>
+                                <option value="B" th:text="${match.teamB}">Team B</option>
+                            </select>
+                            <div class="form-text" th:text="#{admin.result.penalty.hint}">Alleen invullen als de wedstrijd na gelijkspel op penalty's beslist werd.</div>
+                        </div>
+
                         <div class="alert alert-warning py-2">
                             <i class="bi bi-exclamation-triangle me-1"></i>
                             <small th:text="#{admin.result.warning}">Saving the result will automatically calculate points.</small>

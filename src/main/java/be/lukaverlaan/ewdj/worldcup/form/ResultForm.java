@@ -13,8 +13,12 @@ public class ResultForm {
     @Min(value = 0, message = "{validation.score.min}")
     private Integer officialScoreB;
 
+    private String penaltyWinner;
+
     public Integer getOfficialScoreA() { return officialScoreA; }
     public void setOfficialScoreA(Integer officialScoreA) { this.officialScoreA = officialScoreA; }
     public Integer getOfficialScoreB() { return officialScoreB; }
     public void setOfficialScoreB(Integer officialScoreB) { this.officialScoreB = officialScoreB; }
+    public String getPenaltyWinner() { return penaltyWinner; }
+    public void setPenaltyWinner(String penaltyWinner) { this.penaltyWinner = penaltyWinner; }
 }

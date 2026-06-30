@@ -31,6 +31,8 @@ public class Match {
     private Integer officialScoreA;
     private Integer officialScoreB;
 
+    private String penaltyWinner;
+
     private Integer liveScoreA;
     private Integer liveScoreB;
     private Integer liveMinute;
@@ -63,6 +65,8 @@ public class Match {
     public void setOfficialScoreA(Integer officialScoreA) { this.officialScoreA = officialScoreA; }
     public Integer getOfficialScoreB() { return officialScoreB; }
     public void setOfficialScoreB(Integer officialScoreB) { this.officialScoreB = officialScoreB; }
+    public String getPenaltyWinner() { return penaltyWinner; }
+    public void setPenaltyWinner(String penaltyWinner) { this.penaltyWinner = penaltyWinner; }
 
     public Long getApiFootballFixtureId() { return apiFootballFixtureId; }
     public void setApiFootballFixtureId(Long apiFootballFixtureId) { this.apiFootballFixtureId = apiFootballFixtureId; }

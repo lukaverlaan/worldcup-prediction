@@ -81,6 +81,9 @@
                             <span th:text="${match.officialScoreA}">0</span>
                             <span style="color:#555">–</span>
                             <span th:text="${match.officialScoreB}">0</span>
+                            <span th:if="${match.penaltyWinner != null}"
+                                  class="badge bg-info text-dark ms-1" style="font-size:.65rem;vertical-align:middle"
+                                  th:text="'pen.'"></span>
                         </div>
                         <div class="match-list-vs fw-bold text-danger" th:if="${match.live and !match.hasResult()}"
                              th:text="${match.liveScoreA != null} ? (${match.liveScoreA} + ' – ' + ${match.liveScoreB}) : '0 – 0'">0–0</div>

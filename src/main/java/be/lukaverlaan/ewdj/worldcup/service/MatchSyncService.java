@@ -53,6 +53,7 @@ public class MatchSyncService {
             if (FINISHED_STATUSES.contains(data.statusShort()) && data.scoreHome() != null && data.scoreAway() != null) {
                 match.setOfficialScoreA(data.scoreHome());
                 match.setOfficialScoreB(data.scoreAway());
+                match.setPenaltyWinner(data.penaltyWinner());
                 matchRepository.save(match);
                 predictionService.calculatePointsForMatch(match);
                 log.info("Match {} ({} vs {}) finished: {}-{} ({})",
@@ -100,6 +101,7 @@ public class MatchSyncService {
                 if (f.finished() && f.scoreHome() != null && f.scoreAway() != null && !existing.hasResult()) {
                     existing.setOfficialScoreA(f.scoreHome());
                     existing.setOfficialScoreB(f.scoreAway());
+                    existing.setPenaltyWinner(f.penaltyWinner());
                 }
                 matchRepository.save(existing);
                 linked++;
@@ -116,6 +118,7 @@ public class MatchSyncService {
                 if (f.finished() && f.scoreHome() != null && f.scoreAway() != null) {
                     match.setOfficialScoreA(f.scoreHome());
                     match.setOfficialScoreB(f.scoreAway());
+                    match.setPenaltyWinner(f.penaltyWinner());
                 }
                 matchRepository.save(match);
                 created++;

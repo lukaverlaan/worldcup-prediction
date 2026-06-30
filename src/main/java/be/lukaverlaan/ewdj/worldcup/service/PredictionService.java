@@ -55,7 +55,7 @@ public class PredictionService {
         List<Prediction> predictions = predictionRepository.findByMatch(match);
         int officialA = match.getOfficialScoreA();
         int officialB = match.getOfficialScoreB();
-        String officialWinner = getWinner(officialA, officialB);
+        String officialWinner = getEffectiveWinner(officialA, officialB, match.getPenaltyWinner());
 
         for (Prediction p : predictions) {
             int points = 0;
@@ -162,6 +162,12 @@ public class PredictionService {
     private String getWinner(int scoreA, int scoreB) {
         if (scoreA > scoreB) return "A";
         if (scoreB > scoreA) return "B";
+        return "DRAW";
+    }
+
+    private String getEffectiveWinner(int scoreA, int scoreB, String penaltyWinner) {
+        if (scoreA != scoreB) return getWinner(scoreA, scoreB);
+        if (penaltyWinner != null && !penaltyWinner.isBlank()) return penaltyWinner;
         return "DRAW";
     }
 }
