@@ -128,9 +128,10 @@ public class BracketController {
                         m.getTeamA(), m.getTeamB(),
                         badge(m.getTeamA()), badge(m.getTeamB()),
                         code(m.getTeamA()), code(m.getTeamB()),
-                        m.getOfficialScoreA(), m.getOfficialScoreB(), m.hasResult()));
+                        m.getOfficialScoreA(), m.getOfficialScoreB(), m.hasResult(),
+                        m.getPenaltyWinner()));
                 } else {
-                    list.add(new BracketMatch("?", "?", null, null, "?", "?", null, null, false));
+                    list.add(new BracketMatch("?", "?", null, null, "?", "?", null, null, false, null));
                 }
             }
             bracketRounds.put(round, list);
@@ -204,7 +205,12 @@ public class BracketController {
 
     public record BracketMatch(String teamA, String teamB, String badgeA, String badgeB,
                                 String codeA, String codeB,
-                                Integer scoreA, Integer scoreB, boolean played) {}
+                                Integer scoreA, Integer scoreB, boolean played,
+                                String penaltyWinner) {
+        public boolean winnerA() { return played && (scoreA > scoreB || "A".equals(penaltyWinner)); }
+        public boolean winnerB() { return played && (scoreB > scoreA || "B".equals(penaltyWinner)); }
+        public boolean penalties() { return penaltyWinner != null; }
+    }
     public record TeamBadge(String name, String badge, String code, String localName) {}
     public record GroupCard(String letter, List<TeamBadge> teams, String color) {}
 }

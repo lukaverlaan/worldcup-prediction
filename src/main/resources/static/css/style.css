@@ -1951,6 +1951,15 @@ tr.clickable-row:hover > td {
     text-align: right;
 }
 
+.bk-pen-label {
+    font-size: .6rem;
+    color: var(--wc-gold);
+    opacity: .75;
+    text-align: right;
+    padding: 0 6px 3px;
+    letter-spacing: .03em;
+}
+
 /* Flag images */
 .bk-flag {
     width: 20px;

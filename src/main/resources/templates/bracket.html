@@ -42,16 +42,17 @@
                 <div class="bk-slots" style="--slots:8">
                     <th:block th:each="m,i : ${bracketRounds['Round of 32']}">
                         <div th:if="${i.index < 8}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -63,16 +64,17 @@
                 <div class="bk-slots" style="--slots:4">
                     <th:block th:each="m,i : ${bracketRounds['Round of 16']}">
                         <div th:if="${i.index < 4}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -84,16 +86,17 @@
                 <div class="bk-slots" style="--slots:2">
                     <th:block th:each="m,i : ${bracketRounds['Quarter-finals']}">
                         <div th:if="${i.index < 2}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -105,16 +108,17 @@
                 <div class="bk-slots" style="--slots:1">
                     <th:block th:each="m,i : ${bracketRounds['Semi-finals']}">
                         <div th:if="${i.index < 1}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -125,12 +129,12 @@
                 <div class="bk-col-label"><span class="label-full" th:text="#{bracket.final}"></span><span class="label-short" th:text="#{bracket.final.short}"></span></div>
                 <th:block th:each="m : ${bracketRounds['Final']}">
                     <div class="bk-slot bk-slot-final" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                        <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                        <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                             <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                             <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                             <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                         </div>
-                        <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                        <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                             <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                             <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                             <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
@@ -146,12 +150,12 @@
                 <div class="bk-col-label mt-3"><span class="label-full" th:text="#{bracket.third}"></span><span class="label-short" th:text="#{bracket.third.short}"></span></div>
                 <th:block th:each="m : ${bracketRounds['3rd Place Final']}">
                     <div class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                        <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                        <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                             <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                             <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                             <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                         </div>
-                        <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                        <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                             <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                             <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                             <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
@@ -166,16 +170,17 @@
                 <div class="bk-slots" style="--slots:1">
                     <th:block th:each="m,i : ${bracketRounds['Semi-finals']}">
                         <div th:if="${i.index >= 1}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -187,16 +192,17 @@
                 <div class="bk-slots" style="--slots:2">
                     <th:block th:each="m,i : ${bracketRounds['Quarter-finals']}">
                         <div th:if="${i.index >= 2}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -208,16 +214,17 @@
                 <div class="bk-slots" style="--slots:4">
                     <th:block th:each="m,i : ${bracketRounds['Round of 16']}">
                         <div th:if="${i.index >= 4}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
@@ -229,16 +236,17 @@
                 <div class="bk-slots" style="--slots:8">
                     <th:block th:each="m,i : ${bracketRounds['Round of 32']}">
                         <div th:if="${i.index >= 8}" class="bk-slot" th:classappend="${m.played} ? ' bk-slot-played' : ''">
-                            <div class="bk-team" th:classappend="${m.played and m.scoreA > m.scoreB} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerA()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeA != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeA})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeA}" th:title="${m.teamA}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreA}"></span>
                             </div>
-                            <div class="bk-team" th:classappend="${m.played and m.scoreB > m.scoreA} ? ' bk-winner' : ''">
+                            <div class="bk-team" th:classappend="${m.winnerB()} ? ' bk-winner' : ''">
                                 <img th:if="${m.badgeB != null}" th:src="@{/images/badges/{b}.png(b=${m.badgeB})}" class="bk-flag" alt="">
                                 <span th:text="${m.codeB}" th:title="${m.teamB}">?</span>
                                 <span class="bk-score" th:if="${m.played}" th:text="${m.scoreB}"></span>
                             </div>
+                            <div th:if="${m.penalties()}" class="bk-pen-label">pen.</div>
                         </div>
                     </th:block>
                 </div>
