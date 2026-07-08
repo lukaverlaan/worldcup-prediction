@@ -111,10 +111,12 @@ public class BracketController {
             if (r == null || r.startsWith("Group Stage")) continue;
             byRound.computeIfPresent(r, (k, v) -> { v.add(m); return v; });
         }
-        // Sort each round by fixture ID as baseline
-        byRound.values().forEach(list -> list.sort(Comparator.comparing(
-            m -> m.getApiFootballFixtureId() != null ? m.getApiFootballFixtureId() : Long.MAX_VALUE)));
+        // Sort each round by kickoff date/time as baseline — matches from the same bracket half
+        // are always scheduled before matches from the other half within a round.
+        byRound.values().forEach(list -> list.sort(
+            Comparator.comparing(Match::getDateTime, Comparator.nullsLast(Comparator.naturalOrder()))));
         // Reorder previous rounds so that pairs feeding into the same next-round match are adjacent
+        reorderPreviousRound(byRound.get("Quarter-finals"), byRound.get("Semi-finals"));
         reorderPreviousRound(byRound.get("Round of 16"), byRound.get("Quarter-finals"));
         reorderPreviousRound(byRound.get("Round of 32"), byRound.get("Round of 16"));
         for (String round : KNOCKOUT_ROUNDS) {
